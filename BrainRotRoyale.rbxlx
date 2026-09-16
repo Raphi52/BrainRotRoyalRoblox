@@ -35,7 +35,7 @@ local Cards = {
 	},
 	{
 		id = "Bombardiro", prix = 500, hauteurModele = 3.5, modeleRotY = 90, name = "Bombardiro Crocodilo", cost = 5,
-		hp = 750, dmg = 180, range = 3, speed = 8, atkSpeed = 2.0, count = 1,
+		hp = 1100, dmg = 210, range = 3, speed = 8, atkSpeed = 2.0, count = 1,
 		color = Color3.fromRGB(60, 120, 50), size = Vector3.new(5, 2, 4),
 		targets = "buildings", flying = true, splash = 5, desc = "Bombardier volant, vise les tours",
 		morceaux = {
@@ -55,7 +55,7 @@ local Cards = {
 	},
 	{
 		id = "TungSahur", hauteurModele = 6, modeleRotY = 0, name = "Tung Tung Tung Sahur", cost = 4,
-		hp = 1100, dmg = 150, range = 3.5, speed = 8, atkSpeed = 1.2, count = 1,
+		hp = 950, dmg = 120, range = 3.5, speed = 8, atkSpeed = 1.2, count = 1,
 		color = Color3.fromRGB(150, 100, 60), size = Vector3.new(2, 6, 2),
 		targets = "any", splash = 3, desc = "Coup de batte en zone",
 		morceaux = {
@@ -131,7 +131,7 @@ local Cards = {
 	},
 	{
 		id = "Lirili", hauteurModele = 5.5, modeleRotY = 90, name = "Lirili Larila", cost = 3, echelle = 1,
-		hp = 480, dmg = 75, range = 11, speed = 7, atkSpeed = 1.3, count = 1,
+		hp = 560, dmg = 95, range = 11, speed = 7, atkSpeed = 1.3, count = 1,
 		color = Color3.fromRGB(120, 200, 120), size = Vector3.new(3, 4, 3),
 		targets = "any", desc = "Elephant-cactus a distance",
 		morceaux = {
@@ -152,7 +152,7 @@ local Cards = {
 	},
 	{
 		id = "Ballerina", hauteurModele = 5, modeleRotY = -90, name = "Ballerina Cappuccina", cost = 2,
-		hp = 260, dmg = 55, range = 9, speed = 10, atkSpeed = 0.9, count = 1,
+		hp = 320, dmg = 70, range = 9, speed = 10, atkSpeed = 0.9, count = 1,
 		color = Color3.fromRGB(255, 150, 200), size = Vector3.new(2, 4, 2),
 		targets = "any", desc = "Tireuse legere a distance",
 		morceaux = {
@@ -193,7 +193,7 @@ local Cards = {
 	},
 	{
 		id = "Trippi", hauteurModele = 3.5, modeleRotY = 0, name = "Trippi Troppi", cost = 2,
-		hp = 300, dmg = 70, range = 3, speed = 15, atkSpeed = 0.75, count = 2,
+		hp = 260, dmg = 60, range = 3, speed = 15, atkSpeed = 0.75, count = 2,
 		color = Color3.fromRGB(255, 120, 90), size = Vector3.new(2, 2, 2.5),
 		targets = "any", desc = "Deux crevettes-chats harceleuses",
 		morceaux = {
@@ -213,7 +213,7 @@ local Cards = {
 	},
 	{
 		id = "Boneca", hauteurModele = 5.5, modeleRotY = 0, name = "Boneca Ambalabu", cost = 4,
-		hp = 1900, dmg = 110, range = 3, speed = 6.5, atkSpeed = 1.4, count = 1,
+		hp = 1500, dmg = 110, range = 3, speed = 6.5, atkSpeed = 1.4, count = 1,
 		color = Color3.fromRGB(60, 60, 65), size = Vector3.new(3.5, 4, 3.5),
 		targets = "buildings", desc = "Grenouille-pneu, roule vers les tours",
 		morceaux = {
@@ -233,9 +233,9 @@ local Cards = {
 	},
 	{
 		id = "Glorbo", hauteurModele = 5, modeleRotY = 0, name = "Glorbo Fruttodrillo", cost = 4,
-		hp = 700, dmg = 95, range = 8, speed = 7.5, atkSpeed = 1.6, count = 1,
+		hp = 620, dmg = 85, range = 8, speed = 7.5, atkSpeed = 1.6, count = 1,
 		color = Color3.fromRGB(70, 170, 70), size = Vector3.new(3, 3, 4),
-		targets = "any", splash = 4, desc = "Croco-pasteque, tir en zone",
+		targets = "any", splash = 3, desc = "Croco-pasteque, tir en zone",
 		morceaux = {
 			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.8, 2.4, 4.4), couleur = Color3.fromRGB(70, 165, 70) },
 			{ pos = Vector3.new(0, 1.1, 0.2), taille = Vector3.new(2.4, 2.4, 2.4), forme = "boule", couleur = Color3.fromRGB(45, 130, 50) },
@@ -254,7 +254,7 @@ local Cards = {
 	},
 	{
 		id = "Frigo", hauteurModele = 6, modeleRotY = 0, name = "Frigo Camelo", cost = 5,
-		hp = 1500, dmg = 70, range = 7, speed = 6, atkSpeed = 1.1, count = 1,
+		hp = 1900, dmg = 105, range = 7, speed = 6, atkSpeed = 1.1, count = 1,
 		color = Color3.fromRGB(215, 225, 235), size = Vector3.new(3, 5, 2.5),
 		targets = "any", desc = "Frigo-chameau, mur qui riposte de loin",
 		morceaux = {
@@ -273,7 +273,7 @@ local Cards = {
 	},
 	{
 		id = "Tigrullini", prix = 700, hauteurModele = 5, modeleRotY = 0, name = "Tigrullini Watermelini", cost = 4,
-		hp = 520, dmg = 145, range = 13, speed = 8, atkSpeed = 1.8, count = 1,
+		hp = 700, dmg = 170, range = 13, speed = 8, atkSpeed = 1.5, count = 1,
 		color = Color3.fromRGB(240, 150, 50), size = Vector3.new(2.5, 4, 2.5),
 		targets = "any", desc = "Tigre-pasteque, tireur longue portee",
 		morceaux = {
@@ -294,7 +294,7 @@ local Cards = {
 	},
 	{
 		id = "Vacca", prix = 1200, hauteurModele = 6, modeleRotY = 0, name = "La Vacca Saturno Saturnita", cost = 6,
-		hp = 1400, dmg = 200, range = 4, speed = 7, atkSpeed = 1.5, count = 1,
+		hp = 900, dmg = 150, range = 4, speed = 7, atkSpeed = 1.7, count = 1,
 		color = Color3.fromRGB(230, 200, 120), size = Vector3.new(5, 3, 4),
 		targets = "any", flying = true, splash = 4, desc = "Vache-Saturne volante, frappe tout en zone",
 		morceaux = {

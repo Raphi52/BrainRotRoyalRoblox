@@ -38,7 +38,17 @@ Apres modification de `src/`, regenerer : `python build.py`.
 165 decks differents, et chaque carte achetee (4 payantes) elargit le choix. `tools/test_catalogue.py`
 garde cet invariant : si le catalogue offert repasse sous 8 + 2 cartes, le banc vire au rouge.
 
-Equilibrage : `src/shared/Cards.lua`. Les unites sont des blocs colores : remplace-les par des modeles 3D (Toolbox) pour le visuel.
+Equilibrage : `src/shared/Cards.lua`, mesure par `python tools/test_equilibre.py` — duels
+DEUX A DEUX a elixir egal, avec les regles de combat de `GameServer` (portee, vitesse, zone,
+`canHit`). Chaque paire se rencontre deux fois, chacune une fois en DEFENSE : sans cela la portee
+ne sert a rien et les tireurs paraissent inutiles. Le banc vire au rouge si une carte gagne plus
+de 70 % ou moins de 30 % de ses duels. Les cartes anti-tours (`targets = "buildings"`) ne peuvent
+viser aucune unite : elles sont jugees a part, sur les PV de tour arraches par elixir.
+Etat au 2026-09-16 : toutes les cartes entre **32 % et 68 %**, anti-tours dans un rapport de 1,6.
+Limites : combat en ligne, sans tours ni ponts ni cycle de cartes — le banc dit qui gagne un
+echange, pas qui gagne une partie. Le contre-controle en conditions reelles reste
+`build.py --autotest --run --sim="1-1:8;1-3:8"` (mesure du 2026-09-16 : 4-4 a niveaux egaux,
+7-1 pour le camp de niveau 3). Les unites sont des blocs colores : remplace-les par des modeles 3D (Toolbox) pour le visuel.
 
 ## Test automatique (sans toucher l'ecran)
 `python build.py --autotest` puis `powershell -ExecutionPolicy Bypass -File tools/studio-run-cache.ps1 -Secondes 200`
