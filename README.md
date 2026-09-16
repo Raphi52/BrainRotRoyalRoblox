@@ -26,6 +26,17 @@ Apres modification de `src/`, regenerer : `python build.py`.
 | Chimpanzini Bananini | 3 | x3 petits |
 | Lirili Larila | 3 | Distance |
 | Ballerina Cappuccina | 2 | Distance legere |
+| Bobritto Bandito | 3 | Melee solide |
+| Trippi Troppi | 2 | x2 harceleurs rapides |
+| Boneca Ambalabu | 4 | Tank, vise les tours |
+| Glorbo Fruttodrillo | 4 | Distance, zone |
+| Frigo Camelo | 5 | Mur qui riposte de loin |
+| Tigrullini Watermelini | 4 | Tireur longue portee (700 pieces) |
+| La Vacca Saturno Saturnita | 6 | Volante, zone, vise tout (1200 pieces) |
+
+**11 cartes offertes** des le depart pour **8 places** de deck : un joueur neuf peut deja composer
+165 decks differents, et chaque carte achetee (4 payantes) elargit le choix. `tools/test_catalogue.py`
+garde cet invariant : si le catalogue offert repasse sous 8 + 2 cartes, le banc vire au rouge.
 
 Equilibrage : `src/shared/Cards.lua`. Les unites sont des blocs colores : remplace-les par des modeles 3D (Toolbox) pour le visuel.
 
@@ -116,7 +127,11 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   catalogue, le deck est abandonne et le joueur rejoue avec toutes ses cartes, plutot que de se
   retrouver avec une main trouee.
 - Tant que le joueur possede moins de 8 cartes, aucun choix n'est possible : il joue avec tout.
-- Tests : `python tools/test_deck.py`.
+  C'etait le cas au depart (8 cartes au catalogue pour 8 places, vu a l'ecran le 2026-09-16) ;
+  le catalogue est passe a 15 cartes dont 11 offertes pour que l'ecran ait quelque chose a decider.
+- Les grilles de la boutique et du deck **defilent** (`grilleDefilante`, `Hub.client.lua`) : la mise
+  en page ne depend plus du nombre de cartes.
+- Tests : `python tools/test_deck.py`, `python tools/test_catalogue.py`.
 
 ## Coffres
 - Chaque **victoire** donne un coffre s'il reste une place (**4 emplacements**). Tirage : bois 70 %, argent 25 %, or 5 %.

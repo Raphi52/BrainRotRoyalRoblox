@@ -4,6 +4,7 @@
 -- leurs identifiants (Economie.lua).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore de l'accueil : clic, coffre ouvert, achat refuse.
@@ -59,6 +60,17 @@ local function bouton(parent, t, taille, pos, couleur)
 	b.AutoButtonColor = true
 	b.Parent = parent
 	coin(b)
+	-- REACTION AU DOIGT : un fondu court sur la transparence du fond. On n'anime PAS la taille :
+	-- les boutons sont poses en echelle dans des mises en page, une taille animee les ferait
+	-- bouger les uns par rapport aux autres.
+	local function fondu(valeur, duree)
+		TweenService:Create(b, TweenInfo.new(duree, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ BackgroundTransparency = valeur }):Play()
+	end
+	b.MouseEnter:Connect(function() fondu(0.15, 0.15) end)
+	b.MouseLeave:Connect(function() fondu(0, 0.2) end)
+	b.MouseButton1Down:Connect(function() fondu(0.4, 0.08) end)
+	b.MouseButton1Up:Connect(function() fondu(0.15, 0.18) end)
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0.18, 0); pad.PaddingBottom = UDim.new(0.18, 0)
 	pad.Parent = b
@@ -117,15 +129,37 @@ texte(boutique, "BOUTIQUE", UDim2.new(0.6, 0, 0.09, 0), UDim2.new(0.2, 0, 0.02, 
 local soldeBoutique = texte(boutique, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.11, 0))
 local fermer = bouton(boutique, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
 
-local grille = Instance.new("Frame")
-grille.BackgroundTransparency = 1
-grille.Size = UDim2.new(0.94, 0, 0.62, 0)
-grille.Position = UDim2.new(0.03, 0, 0.18, 0)
-grille.Parent = boutique
-local layout = Instance.new("UIGridLayout")
-layout.CellSize = UDim2.new(0.23, 0, 0.47, 0)
-layout.CellPadding = UDim2.new(0.02, 0, 0.04, 0)
-layout.Parent = grille
+-- Grilles DEFILANTES (2026-09-16) : le catalogue a grossi a 15 cartes et la grille debordait
+-- sous le bouton ENREGISTRER (vu sur capture-deck2.png). Une hauteur figee ne tient que pour un
+-- nombre de cartes donne ; le defilement tient pour n'importe lequel.
+-- Les cellules sont en Scale, donc mesurees sur la partie VISIBLE du cadre : le canevas vaut
+-- (nombre de rangees x hauteur de rangee), ce qui depasse 1 des qu'il y a plus de rangees que
+-- l'ecran n'en montre.
+local COLONNES = 4
+local function grilleDefilante(parent, taille, position, hauteurCellule, ecartVertical)
+	local cadre = Instance.new("ScrollingFrame")
+	cadre.BackgroundTransparency = 1
+	cadre.BorderSizePixel = 0
+	cadre.Size = taille
+	cadre.Position = position
+	cadre.ScrollBarThickness = 8
+	cadre.ScrollBarImageColor3 = OR
+	cadre.CanvasSize = UDim2.new()
+	cadre.Parent = parent
+	-- PIEGE mesure le 2026-09-16 : dans un ScrollingFrame, une taille en proportion se mesure sur
+	-- le CANEVAS, pas sur la partie visible — les tuiles avaient double de taille. On divise donc
+	-- par la hauteur du canevas pour que `hauteurCellule` reste une proportion de ce qu'on VOIT.
+	local rangees = math.ceil(#Cards.list / COLONNES)
+	local canevas = rangees * (hauteurCellule + ecartVertical)
+	cadre.CanvasSize = UDim2.new(0, 0, canevas, 0)
+	local layout = Instance.new("UIGridLayout")
+	layout.CellSize = UDim2.new(0.23, 0, hauteurCellule / canevas, 0)
+	layout.CellPadding = UDim2.new(0.02, 0, ecartVertical / canevas, 0)
+	layout.Parent = cadre
+	return cadre
+end
+
+local grille = grilleDefilante(boutique, UDim2.new(0.94, 0, 0.62, 0), UDim2.new(0.03, 0, 0.18, 0), 0.44, 0.04)
 
 local offresRobux = Instance.new("Frame")
 offresRobux.BackgroundTransparency = 1
@@ -275,15 +309,9 @@ local deckCompteur = texte(deckEcran, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(
 local deckFermer = bouton(deckEcran, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
 local deckValider = bouton(deckEcran, "ENREGISTRER", UDim2.new(0.36, 0, 0.09, 0), UDim2.new(0.32, 0, 0.87, 0), Color3.fromRGB(60, 170, 80))
 
-local deckGrille = Instance.new("Frame")
-deckGrille.BackgroundTransparency = 1
-deckGrille.Size = UDim2.new(0.94, 0, 0.66, 0)
-deckGrille.Position = UDim2.new(0.03, 0, 0.18, 0)
-deckGrille.Parent = deckEcran
-local deckLayout = Instance.new("UIGridLayout")
-deckLayout.CellSize = UDim2.new(0.23, 0, 0.3, 0)
-deckLayout.CellPadding = UDim2.new(0.02, 0, 0.03, 0)
-deckLayout.Parent = deckGrille
+-- 0.66 de haut s'arrete juste au-dessus du bouton ENREGISTRER (place a 0.87) : la grille ne peut
+-- plus passer dessous, elle defile.
+local deckGrille = grilleDefilante(deckEcran, UDim2.new(0.94, 0, 0.66, 0), UDim2.new(0.03, 0, 0.18, 0), 0.3, 0.03)
 
 local choix = {}      -- id -> true : carte selectionnee dans l'ecran
 local nbChoix = 0
@@ -387,7 +415,9 @@ deckValider.MouseButton1Click:Connect(function()
 end)
 
 deckFermer.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
 	deckEcran.Visible = false
+	accueil.Visible = true
 end)
 
 for i = 1, 4 do
@@ -425,6 +455,18 @@ task.spawn(function()
 	end
 end)
 
+-- OUVERTURE ANIMEE D'UN PANNEAU : il arrive en glissant depuis le bas sur 0,2 s. On anime la
+-- POSITION et pas la transparence : dans Roblox, un fondu sur un cadre ne touche pas ses enfants,
+-- le texte resterait net sur un fond qui s'efface. `Visible` est mis tout de suite, pour que les
+-- sondes de test qui le lisent voient l'etat reel sans attendre la fin de l'animation.
+local function ouvrirPanneau(p)
+	local finale = p.Position
+	p.Position = finale + UDim2.new(0, 0, 0.05, 0)
+	p.Visible = true
+	TweenService:Create(p, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Position = finale }):Play()
+end
+
 -- NAVIGATION ------------------------------------------------------------------------------------
 local function ouvrirAccueil()
 	accueil.Visible = true
@@ -448,18 +490,24 @@ boutonJouer.MouseButton1Click:Connect(function()
 end)
 boutonDeck.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
-	deckEcran.Visible = true
+	-- L'accueil passe DERRIERE : sans cela, sa rangee de coffres (« Gagne une partie ») depasse
+	-- sous le panneau et son texte est rogne (vu sur capture-hub.png, 2026-09-16).
+	accueil.Visible = false
+	ouvrirPanneau(deckEcran)
 	afficher(Boutique:InvokeServer("profil").vue)
 	chargerChoix()
 	majDeck()
 end)
 boutonBoutique.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
-	boutique.Visible = true
+	accueil.Visible = false
+	ouvrirPanneau(boutique)
 	afficher(Boutique:InvokeServer("profil").vue)
 end)
 fermer.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
 	boutique.Visible = false
+	accueil.Visible = true
 end)
 boutonMenu.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
@@ -492,7 +540,15 @@ if test and not forcerHub then
 else
 	ouvrirAccueil()
 	if ReplicatedStorage:FindFirstChild("BRR_BOUTIQUE") then
+		accueil.Visible = false
 		boutique.Visible = true
+	end
+	if ReplicatedStorage:FindFirstChild("BRR_DECK") then
+		-- meme chemin que le bouton DECK, pour que la capture montre l'ecran REEL
+		accueil.Visible = false
+		deckEcran.Visible = true
+		chargerChoix()
+		majDeck()
 	end
 	print("[HUB] accueil ouvert")
 end

@@ -1,4 +1,4 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Workspace" referent="RBX1"><Properties><string name="Name">Workspace</string></Properties></Item><Item class="Lighting" referent="RBX2"><Properties><string name="Name">Lighting</string><token name="Technology">4</token></Properties></Item><Item class="ReplicatedStorage" referent="RBX30"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX5"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX3"><Properties><string name="Name">Cards</string><ProtectedString name="Source"><![CDATA[-- Cartes Italian Brainrot
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Workspace" referent="RBX1"><Properties><string name="Name">Workspace</string></Properties></Item><Item class="Lighting" referent="RBX2"><Properties><string name="Name">Lighting</string><token name="Technology">4</token></Properties></Item><Item class="ReplicatedStorage" referent="RBX31"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX6"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX3"><Properties><string name="Name">Cards</string><ProtectedString name="Source"><![CDATA[-- Cartes Italian Brainrot
 --
 -- `morceaux` = la SILHOUETTE du personnage : des blocs simples accroches au corps (ecart `pos`,
 -- `taille`, `couleur`, `forme` parmi bloc/boule/cylindre, `rot` en degres). Le serveur les pose
@@ -170,6 +170,149 @@ local Cards = {
 			{ pos = Vector3.new(0.3, -1.4, 0), taille = Vector3.new(0.3, 1.4, 0.3), couleur = Color3.fromRGB(250, 215, 225) },
 		},
 	},
+	{
+		id = "Bobritto", hauteurModele = 4.5, modeleRotY = 0, name = "Bobritto Bandito", cost = 3,
+		hp = 820, dmg = 85, range = 3.5, speed = 9, atkSpeed = 1.1, count = 1,
+		color = Color3.fromRGB(120, 80, 50), size = Vector3.new(2.5, 3, 2.5),
+		targets = "any", desc = "Castor gangster, encaisse et frappe",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.4, 2.6, 2.2), couleur = Color3.fromRGB(125, 85, 55) },
+			{ pos = Vector3.new(0, 0.1, -1.1), taille = Vector3.new(1.8, 1.4, 0.6), couleur = Color3.fromRGB(230, 225, 210) },
+			{ pos = Vector3.new(0, 1.7, -0.3), taille = Vector3.new(1.7, 1.7, 1.7), forme = "boule", couleur = Color3.fromRGB(140, 95, 60) },
+			{ pos = Vector3.new(-0.4, 1.9, -1.05), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.4, 1.9, -1.05), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 1.2, -1.1), taille = Vector3.new(0.7, 0.5, 0.2), couleur = Color3.fromRGB(250, 250, 245) },
+			{ pos = Vector3.new(0, 2.5, -0.2), taille = Vector3.new(2, 0.4, 2), couleur = Color3.fromRGB(30, 30, 35) },
+			{ pos = Vector3.new(0, 2.9, -0.2), taille = Vector3.new(1.3, 0.8, 1.3), couleur = Color3.fromRGB(30, 30, 35) },
+			{ pos = Vector3.new(-1.35, 0.3, 0), taille = Vector3.new(0.5, 1.8, 0.6), rot = Vector3.new(0, 0, 15), couleur = Color3.fromRGB(125, 85, 55) },
+			{ pos = Vector3.new(1.35, 0.3, 0), taille = Vector3.new(0.5, 1.8, 0.6), rot = Vector3.new(0, 0, -15), couleur = Color3.fromRGB(125, 85, 55) },
+			{ pos = Vector3.new(0, -1.1, 1.8), taille = Vector3.new(1.4, 0.35, 2.6), rot = Vector3.new(-15, 0, 0), couleur = Color3.fromRGB(85, 60, 40) },
+			{ pos = Vector3.new(-0.6, -1.7, 0), taille = Vector3.new(0.7, 0.7, 1.2), couleur = Color3.fromRGB(95, 65, 45) },
+			{ pos = Vector3.new(0.6, -1.7, 0), taille = Vector3.new(0.7, 0.7, 1.2), couleur = Color3.fromRGB(95, 65, 45) },
+		},
+	},
+	{
+		id = "Trippi", hauteurModele = 3.5, modeleRotY = 0, name = "Trippi Troppi", cost = 2,
+		hp = 300, dmg = 70, range = 3, speed = 15, atkSpeed = 0.75, count = 2,
+		color = Color3.fromRGB(255, 120, 90), size = Vector3.new(2, 2, 2.5),
+		targets = "any", desc = "Deux crevettes-chats harceleuses",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(1.8, 1.6, 3), couleur = Color3.fromRGB(255, 130, 100) },
+			{ pos = Vector3.new(0, 0.5, 1.4), taille = Vector3.new(1.4, 1.2, 1.4), couleur = Color3.fromRGB(240, 105, 80) },
+			{ pos = Vector3.new(0, 0.6, -1.5), taille = Vector3.new(1.5, 1.5, 1.5), forme = "boule", couleur = Color3.fromRGB(255, 150, 120) },
+			{ pos = Vector3.new(-0.5, 1.5, -1.4), taille = Vector3.new(0.5, 0.7, 0.2), rot = Vector3.new(0, 0, 20), couleur = Color3.fromRGB(240, 105, 80) },
+			{ pos = Vector3.new(0.5, 1.5, -1.4), taille = Vector3.new(0.5, 0.7, 0.2), rot = Vector3.new(0, 0, -20), couleur = Color3.fromRGB(240, 105, 80) },
+			{ pos = Vector3.new(-0.4, 0.8, -2.15), taille = Vector3.new(0.28, 0.28, 0.28), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.4, 0.8, -2.15), taille = Vector3.new(0.28, 0.28, 0.28), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.9, 0.4, -2.1), taille = Vector3.new(1.4, 0.08, 0.08), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0.9, 0.4, -2.1), taille = Vector3.new(1.4, 0.08, 0.08), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0, 0.9, 2.1), taille = Vector3.new(1.6, 0.9, 0.5), rot = Vector3.new(-30, 0, 0), couleur = Color3.fromRGB(255, 165, 140) },
+			{ pos = Vector3.new(-0.7, -1, -0.4), taille = Vector3.new(0.25, 0.9, 0.25), couleur = Color3.fromRGB(240, 105, 80) },
+			{ pos = Vector3.new(0.7, -1, -0.4), taille = Vector3.new(0.25, 0.9, 0.25), couleur = Color3.fromRGB(240, 105, 80) },
+		},
+	},
+	{
+		id = "Boneca", hauteurModele = 5.5, modeleRotY = 0, name = "Boneca Ambalabu", cost = 4,
+		hp = 1900, dmg = 110, range = 3, speed = 6.5, atkSpeed = 1.4, count = 1,
+		color = Color3.fromRGB(60, 60, 65), size = Vector3.new(3.5, 4, 3.5),
+		targets = "buildings", desc = "Grenouille-pneu, roule vers les tours",
+		morceaux = {
+			{ pos = Vector3.new(0, -0.4, 0), taille = Vector3.new(0.9, 3.6, 3.6), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(45, 45, 50) },
+			{ pos = Vector3.new(0, -0.4, 0), taille = Vector3.new(1, 2.2, 2.2), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(110, 115, 120), materiau = "Metal" },
+			{ pos = Vector3.new(0, 1.8, -0.2), taille = Vector3.new(2, 1.8, 2), forme = "boule", couleur = Color3.fromRGB(90, 180, 80) },
+			{ pos = Vector3.new(-0.7, 2.6, -0.2), taille = Vector3.new(0.9, 0.9, 0.9), forme = "boule", couleur = Color3.fromRGB(240, 240, 235) },
+			{ pos = Vector3.new(0.7, 2.6, -0.2), taille = Vector3.new(0.9, 0.9, 0.9), forme = "boule", couleur = Color3.fromRGB(240, 240, 235) },
+			{ pos = Vector3.new(-0.7, 2.6, -0.55), taille = Vector3.new(0.4, 0.4, 0.4), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.7, 2.6, -0.55), taille = Vector3.new(0.4, 0.4, 0.4), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 1.3, -1.1), taille = Vector3.new(1.3, 0.2, 0.2), couleur = Color3.fromRGB(40, 90, 35) },
+			{ pos = Vector3.new(-1.5, 0.6, 0.3), taille = Vector3.new(1.2, 0.45, 0.45), rot = Vector3.new(0, 0, -25), couleur = Color3.fromRGB(80, 165, 70) },
+			{ pos = Vector3.new(1.5, 0.6, 0.3), taille = Vector3.new(1.2, 0.45, 0.45), rot = Vector3.new(0, 0, 25), couleur = Color3.fromRGB(80, 165, 70) },
+			{ pos = Vector3.new(-1.1, -1.6, 0.4), taille = Vector3.new(0.5, 1.4, 0.5), rot = Vector3.new(0, 0, -20), couleur = Color3.fromRGB(80, 165, 70) },
+			{ pos = Vector3.new(1.1, -1.6, 0.4), taille = Vector3.new(0.5, 1.4, 0.5), rot = Vector3.new(0, 0, 20), couleur = Color3.fromRGB(80, 165, 70) },
+		},
+	},
+	{
+		id = "Glorbo", hauteurModele = 5, modeleRotY = 0, name = "Glorbo Fruttodrillo", cost = 4,
+		hp = 700, dmg = 95, range = 8, speed = 7.5, atkSpeed = 1.6, count = 1,
+		color = Color3.fromRGB(70, 170, 70), size = Vector3.new(3, 3, 4),
+		targets = "any", splash = 4, desc = "Croco-pasteque, tir en zone",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.8, 2.4, 4.4), couleur = Color3.fromRGB(70, 165, 70) },
+			{ pos = Vector3.new(0, 1.1, 0.2), taille = Vector3.new(2.4, 2.4, 2.4), forme = "boule", couleur = Color3.fromRGB(45, 130, 50) },
+			{ pos = Vector3.new(0, 1.1, 0.5), taille = Vector3.new(2, 2, 2), forme = "boule", couleur = Color3.fromRGB(230, 70, 80) },
+			{ pos = Vector3.new(0, 0.2, -2.9), taille = Vector3.new(2.2, 1.2, 2.6), couleur = Color3.fromRGB(80, 175, 75) },
+			{ pos = Vector3.new(0, -0.2, -3), taille = Vector3.new(2, 0.35, 2.4), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-0.6, 1.1, -2.6), taille = Vector3.new(0.45, 0.45, 0.45), forme = "boule", couleur = Color3.fromRGB(250, 245, 60) },
+			{ pos = Vector3.new(0.6, 1.1, -2.6), taille = Vector3.new(0.45, 0.45, 0.45), forme = "boule", couleur = Color3.fromRGB(250, 245, 60) },
+			{ pos = Vector3.new(0, 1.5, 0), taille = Vector3.new(0.4, 0.6, 2.6), couleur = Color3.fromRGB(35, 110, 40) },
+			{ pos = Vector3.new(0, 0.4, 2.6), taille = Vector3.new(1.4, 1, 1.6), couleur = Color3.fromRGB(60, 150, 60) },
+			{ pos = Vector3.new(-1.3, -1.2, -1), taille = Vector3.new(0.9, 0.8, 1.6), couleur = Color3.fromRGB(60, 150, 60) },
+			{ pos = Vector3.new(1.3, -1.2, -1), taille = Vector3.new(0.9, 0.8, 1.6), couleur = Color3.fromRGB(60, 150, 60) },
+			{ pos = Vector3.new(-1.3, -1.2, 1.2), taille = Vector3.new(0.9, 0.8, 1.6), couleur = Color3.fromRGB(60, 150, 60) },
+			{ pos = Vector3.new(1.3, -1.2, 1.2), taille = Vector3.new(0.9, 0.8, 1.6), couleur = Color3.fromRGB(60, 150, 60) },
+		},
+	},
+	{
+		id = "Frigo", hauteurModele = 6, modeleRotY = 0, name = "Frigo Camelo", cost = 5,
+		hp = 1500, dmg = 70, range = 7, speed = 6, atkSpeed = 1.1, count = 1,
+		color = Color3.fromRGB(215, 225, 235), size = Vector3.new(3, 5, 2.5),
+		targets = "any", desc = "Frigo-chameau, mur qui riposte de loin",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.3, 0), taille = Vector3.new(2.8, 4.2, 2.2), couleur = Color3.fromRGB(225, 232, 240), materiau = "Metal" },
+			{ pos = Vector3.new(0, 1.4, -1.15), taille = Vector3.new(2.5, 1.7, 0.15), couleur = Color3.fromRGB(200, 210, 220), materiau = "Metal" },
+			{ pos = Vector3.new(1, 1.4, -1.25), taille = Vector3.new(0.18, 1.2, 0.18), couleur = Color3.fromRGB(120, 125, 130), materiau = "Metal" },
+			{ pos = Vector3.new(0, -0.9, -1.15), taille = Vector3.new(2.5, 2.2, 0.15), couleur = Color3.fromRGB(200, 210, 220), materiau = "Metal" },
+			{ pos = Vector3.new(0, 3.1, -0.6), taille = Vector3.new(1, 1.6, 1), rot = Vector3.new(-20, 0, 0), couleur = Color3.fromRGB(210, 175, 120) },
+			{ pos = Vector3.new(0, 4.2, -1.3), taille = Vector3.new(1.1, 1.1, 1.8), couleur = Color3.fromRGB(215, 180, 125) },
+			{ pos = Vector3.new(-0.3, 4.5, -2.1), taille = Vector3.new(0.28, 0.28, 0.28), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.3, 4.5, -2.1), taille = Vector3.new(0.28, 0.28, 0.28), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 2.6, 0.9), taille = Vector3.new(1.4, 1.2, 1.2), forme = "boule", couleur = Color3.fromRGB(200, 165, 110) },
+			{ pos = Vector3.new(-0.9, -2.4, 0), taille = Vector3.new(0.6, 1.2, 0.6), couleur = Color3.fromRGB(200, 165, 110) },
+			{ pos = Vector3.new(0.9, -2.4, 0), taille = Vector3.new(0.6, 1.2, 0.6), couleur = Color3.fromRGB(200, 165, 110) },
+		},
+	},
+	{
+		id = "Tigrullini", prix = 700, hauteurModele = 5, modeleRotY = 0, name = "Tigrullini Watermelini", cost = 4,
+		hp = 520, dmg = 145, range = 13, speed = 8, atkSpeed = 1.8, count = 1,
+		color = Color3.fromRGB(240, 150, 50), size = Vector3.new(2.5, 4, 2.5),
+		targets = "any", desc = "Tigre-pasteque, tireur longue portee",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.2, 0), taille = Vector3.new(2, 2.6, 1.8), couleur = Color3.fromRGB(240, 150, 50) },
+			{ pos = Vector3.new(0, 0.6, -0.95), taille = Vector3.new(1.4, 1.6, 0.15), couleur = Color3.fromRGB(250, 235, 210) },
+			{ pos = Vector3.new(-0.6, 0.9, 0), taille = Vector3.new(0.25, 2.2, 1.85), couleur = Color3.fromRGB(35, 30, 30) },
+			{ pos = Vector3.new(0.6, 0.2, 0), taille = Vector3.new(0.25, 2.2, 1.85), couleur = Color3.fromRGB(35, 30, 30) },
+			{ pos = Vector3.new(0, 2.3, -0.1), taille = Vector3.new(1.9, 1.9, 1.9), forme = "boule", couleur = Color3.fromRGB(70, 165, 70) },
+			{ pos = Vector3.new(0, 2.3, -0.5), taille = Vector3.new(1.6, 1.6, 1.4), forme = "boule", couleur = Color3.fromRGB(230, 70, 80) },
+			{ pos = Vector3.new(-0.45, 2.5, -1.15), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.45, 2.5, -1.15), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.7, 3.2, 0), taille = Vector3.new(0.6, 0.6, 0.3), couleur = Color3.fromRGB(45, 130, 50) },
+			{ pos = Vector3.new(0.7, 3.2, 0), taille = Vector3.new(0.6, 0.6, 0.3), couleur = Color3.fromRGB(45, 130, 50) },
+			{ pos = Vector3.new(0.9, 0.9, -1.2), taille = Vector3.new(0.35, 0.35, 3.2), couleur = Color3.fromRGB(90, 95, 100), materiau = "Metal" },
+			{ pos = Vector3.new(-0.5, -1.8, 0), taille = Vector3.new(0.55, 1.2, 0.8), couleur = Color3.fromRGB(225, 135, 45) },
+			{ pos = Vector3.new(0.5, -1.8, 0), taille = Vector3.new(0.55, 1.2, 0.8), couleur = Color3.fromRGB(225, 135, 45) },
+		},
+	},
+	{
+		id = "Vacca", prix = 1200, hauteurModele = 6, modeleRotY = 0, name = "La Vacca Saturno Saturnita", cost = 6,
+		hp = 1400, dmg = 200, range = 4, speed = 7, atkSpeed = 1.5, count = 1,
+		color = Color3.fromRGB(230, 200, 120), size = Vector3.new(5, 3, 4),
+		targets = "any", flying = true, splash = 4, desc = "Vache-Saturne volante, frappe tout en zone",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.8, 2.6, 4.4), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(-0.8, 0.9, -0.6), taille = Vector3.new(1.2, 0.9, 1.4), couleur = Color3.fromRGB(35, 30, 30) },
+			{ pos = Vector3.new(0.9, -0.3, 1), taille = Vector3.new(1.1, 1.2, 1.6), couleur = Color3.fromRGB(35, 30, 30) },
+			{ pos = Vector3.new(0, 0.4, -2.7), taille = Vector3.new(2, 1.8, 1.6), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(0, -0.3, -3.3), taille = Vector3.new(1.5, 1, 0.8), couleur = Color3.fromRGB(250, 170, 175) },
+			{ pos = Vector3.new(-0.5, 1, -3.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.5, 1, -3.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.9, 1.5, -2.6), taille = Vector3.new(0.3, 0.9, 0.3), rot = Vector3.new(0, 0, -30), couleur = Color3.fromRGB(240, 225, 190) },
+			{ pos = Vector3.new(0.9, 1.5, -2.6), taille = Vector3.new(0.3, 0.9, 0.3), rot = Vector3.new(0, 0, 30), couleur = Color3.fromRGB(240, 225, 190) },
+			{ pos = Vector3.new(0, 0.1, 0), taille = Vector3.new(9, 0.35, 9), forme = "cylindre", rot = Vector3.new(0, 0, 8), couleur = Color3.fromRGB(235, 205, 130) },
+			{ pos = Vector3.new(0, 0.1, 0), taille = Vector3.new(7, 0.45, 7), forme = "cylindre", rot = Vector3.new(0, 0, 8), couleur = Color3.fromRGB(215, 180, 110) },
+			{ pos = Vector3.new(0, -1.4, 0.6), taille = Vector3.new(1.6, 1, 1.2), couleur = Color3.fromRGB(250, 170, 175) },
+			{ pos = Vector3.new(0, 0.6, 2.7), taille = Vector3.new(0.3, 1.6, 0.6), rot = Vector3.new(25, 0, 0), couleur = Color3.fromRGB(240, 225, 190) },
+		},
+	},
 }
 
 local byId = {}
@@ -225,7 +368,109 @@ function Sons.jouer(nom, volumeRelatif)
 end
 
 return Sons
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX29"><Properties><string name="Name">Modeles</string></Properties><Item class="Model" referent="RBX7"><Properties><string name="Name">Patapim</string></Properties><Item class="MeshPart" referent="RBX6"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3><CoordinateFrame name="CFrame"><X>4.857778549194336e-06</X><Y>0</Y><Z>3.1113624572753906e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://71881820877794</url></Content><Content name="TextureID"><url>rbxassetid://103314046532055</url></Content><Vector3 name="InitialSize"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX11"><Properties><string name="Name">Ballerina</string></Properties><Item class="MeshPart" referent="RBX8"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.6886162757873535</X><Y>7.881158351898193</Y><Z>3.8781416416168213</Z></Vector3><CoordinateFrame name="CFrame"><X>0.905242919921875</X><Y>1.5069427490234375</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://112514228472682</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.8962054252624512</X><Y>2.6270527839660645</Y><Z>1.2927138805389404</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX9"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>3.3437068462371826</X><Y>2.5043978691101074</Y><Z>3.713331699371338</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>4.050514221191406</Y><Z>-0.18480682373046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://115602253030514</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.1145689487457275</X><Y>0.8347992897033691</Y><Z>1.2377772331237793</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX10"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>8.041040420532227</X><Y>0.8045840263366699</Y><Z>0.739251434803009</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>1.8168106079101562</Y><Z>-0.06512451171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://120054216992808</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>2.680346965789795</X><Y>0.26819467544555664</Y><Z>0.24641714990139008</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX13"><Properties><string name="Name">Lirili</string></Properties><Item class="MeshPart" referent="RBX12"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3><CoordinateFrame name="CFrame"><X>5.900859832763672e-06</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://97283327340424</url></Content><Content name="TextureID"><url>rbxassetid://104099747853532</url></Content><Vector3 name="InitialSize"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX16"><Properties><string name="Name">Bombardiro</string></Properties><Item class="MeshPart" referent="RBX15"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>12.312838554382324</X><Y>6.185354709625244</Y><Z>5.87946891784668</Z></Vector3><CoordinateFrame name="CFrame"><X>0.00048828125</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://75405893930816</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>0.9999892711639404</X><Y>0.5023446083068848</Y><Z>0.4775020480155945</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX14"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://121400661277983</url></Content><Content name="NormalMap"><url>rbxassetid://112538439987573</url></Content><Content name="MetalnessMap"><url>rbxassetid://135318981172652</url></Content><Content name="RoughnessMap"><url>rbxassetid://127165866948049</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item><Item class="Model" referent="RBX18"><Properties><string name="Name">TungSahur</string></Properties><Item class="MeshPart" referent="RBX17"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.891804575920105</X><Y>4.74713134765625</Y><Z>1.9500000476837158</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>3.0517578125e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://82464974337955</url></Content><Content name="TextureID"><url>rbxassetid://105445253181063</url></Content><Vector3 name="InitialSize"><X>0.3973720073699951</X><Y>0.9971309900283813</Y><Z>0.40965497493743896</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX20"><Properties><string name="Name">Chimpanzini</string></Properties><Item class="MeshPart" referent="RBX19"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.314237117767334</X><Y>1.3366730213165283</Y><Z>1.637129545211792</Z></Vector3><CoordinateFrame name="CFrame"><X>9.5367431640625e-07</X><Y>-1.6450881958007812e-05</Y><Z>2.002716064453125e-05</Z><R00>1</R00><R01>1.499759904157988e-32</R01><R02>0</R02><R10>1.499759904157988e-32</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://89090952243408</url></Content><Content name="TextureID"><url>rbxassetid://128173719562870</url></Content><Vector3 name="InitialSize"><X>1.8739659786224365</X><Y>1.9969359636306763</Y><Z>1.7717249393463135</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX23"><Properties><string name="Name">Tralalero</string></Properties><Item class="Part" referent="RBX21"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.0499999523162842</X><Y>1.0499999523162842</Y><Z>1.399999976158142</Z></Vector3><CoordinateFrame name="CFrame"><X>-0.055873870849609375</X><Y>0.31945037841796875</Y><Z>-2.4748425483703613</Z><R00>1</R00><R01>0</R01><R02>-2.8850549191879416e-22</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-2.8850549191879416e-22</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0.9900000095367432</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><token name="shape">1</token></Properties></Item><Item class="MeshPart" referent="RBX22"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.551590919494629</X><Y>6.267302989959717</Y><Z>10.311858177185059</Z></Vector3><CoordinateFrame name="CFrame"><X>5.340576171875e-05</X><Y>0</Y><Z>-3.147125244140625e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://123724059950086</url></Content><Content name="TextureID"><url>rbxassetid://106812992075443</url></Content><Vector3 name="InitialSize"><X>103.8756103515625</X><Y>117.26727294921875</Y><Z>192.94479370117188</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX28"><Properties><string name="Name">Cappuccino</string></Properties><Item class="MeshPart" referent="RBX25"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9416594505310059</X><Y>1.1344795227050781</Y><Z>0.8220741748809814</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-7.62939453125e-06</Y><Z>0.07830810546875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://111922011308347</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>3.7666378021240234</X><Y>4.5379180908203125</Y><Z>3.288296699523926</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX24"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://136630204328103</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://101968079720915</url></Content><Content name="RoughnessMap"><url>rbxassetid://104828854490183</url></Content><token name="AlphaMode">0</token></Properties></Item></Item><Item class="MeshPart" referent="RBX27"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.7559442520141602</X><Y>0.6899687051773071</Y><Z>0.5857008695602417</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-0.09552383422851562</Y><Z>-0.196533203125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://129090024505620</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>7.023777008056641</X><Y>2.7598748207092285</Y><Z>2.342803478240967</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX26"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://100825893881927</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://97507844471978</url></Content><Content name="RoughnessMap"><url>rbxassetid://117572375731245</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item></Item></Item><Item class="ServerStorage" referent="RBX31"><Properties><string name="Name">ServerStorage</string></Properties></Item><Item class="ServerScriptService" referent="RBX34"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX32"><Properties><string name="Name">GameServer</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : serveur (arene, elixir, unites, tours, bot)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX5"><Properties><string name="Name">Effets</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : habillage visuel (« game feel »).
+-- Tout ici est fabrique a la volee avec des instances de base : particules, lumiere, anneau.
+-- AUCUN identifiant d'asset n'est requis, donc ce module marche sur n'importe quel compte Roblox.
+-- Cote SERVEUR : les parts creees dans l'arene sont repliquees a tous les clients.
+local Effets = {}
+
+local function services()
+	return game:GetService("Debris"), game:GetService("TweenService")
+end
+
+local function partTemporaire(parent, position, duree)
+	local Debris = services()
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.Transparency = 1
+	p.Size = Vector3.new(0.2, 0.2, 0.2)
+	p.Position = position
+	p.Parent = parent
+	Debris:AddItem(p, duree)
+	return p
+end
+
+local function particules(hote, couleur, taille, vitesse, nombre)
+	local e = Instance.new("ParticleEmitter")
+	e.Color = ColorSequence.new(couleur)
+	e.Size = NumberSequence.new(taille)
+	e.Speed = NumberRange.new(vitesse)
+	e.Lifetime = NumberRange.new(0.25, 0.55)
+	e.SpreadAngle = Vector2.new(180, 180)
+	e.Rate = 0
+	e.Parent = hote
+	e:Emit(nombre)
+	return e
+end
+
+local function eclat(hote, couleur, portee, duree)
+	local Debris = services()
+	local l = Instance.new("PointLight")
+	l.Color = couleur
+	l.Brightness = 4
+	l.Range = portee
+	l.Parent = hote
+	Debris:AddItem(l, duree)
+	return l
+end
+
+-- Mort d'une unite : gerbe de particules + lueur breve.
+function Effets.mort(parent, position, couleur)
+	local hote = partTemporaire(parent, position, 0.9)
+	particules(hote, couleur, 1.2, 9, 22)
+	eclat(hote, couleur, 10, 0.25)
+	return hote
+end
+
+-- Chute d'une tour : plus gros, plus long, lumiere plus large.
+function Effets.tourDetruite(parent, position, couleur)
+	local hote = partTemporaire(parent, position, 1.8)
+	particules(hote, couleur, 3.5, 22, 90)
+	eclat(hote, couleur, 34, 0.9)
+	return hote
+end
+
+-- Impact d'un tir : petite gerbe seche, sans lumiere.
+function Effets.impact(parent, position, couleur)
+	local hote = partTemporaire(parent, position, 0.5)
+	particules(hote, couleur, 0.6, 6, 8)
+	return hote
+end
+
+-- Pose d'une carte : anneau qui s'ouvre et s'efface (Tween), pour confirmer le geste du joueur.
+function Effets.pose(parent, position, couleur)
+	local Debris, TweenService = services()
+	local anneau = Instance.new("Part")
+	anneau.Anchored = true
+	anneau.CanCollide = false
+	anneau.CanQuery = false
+	anneau.Material = Enum.Material.Neon
+	anneau.Color = couleur
+	anneau.Shape = Enum.PartType.Cylinder
+	anneau.Size = Vector3.new(0.2, 2, 2)
+	anneau.CFrame = CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90))
+	anneau.Transparency = 0.2
+	anneau.Parent = parent
+	local info = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(anneau, info, { Size = Vector3.new(0.2, 14, 14), Transparency = 1 }):Play()
+	Debris:AddItem(anneau, 0.6)
+	local hote = partTemporaire(parent, position + Vector3.new(0, 1, 0), 0.8)
+	particules(hote, couleur, 0.9, 7, 14)
+	return anneau
+end
+
+-- Fin de partie : feu d'artifice au-dessus du camp vainqueur.
+function Effets.victoire(parent, position, couleur)
+	local hote = partTemporaire(parent, position + Vector3.new(0, 12, 0), 2.5)
+	particules(hote, couleur, 4, 28, 140)
+	eclat(hote, couleur, 45, 1.6)
+	return hote
+end
+
+return Effets
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX30"><Properties><string name="Name">Modeles</string></Properties><Item class="Model" referent="RBX8"><Properties><string name="Name">Patapim</string></Properties><Item class="MeshPart" referent="RBX7"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3><CoordinateFrame name="CFrame"><X>4.857778549194336e-06</X><Y>0</Y><Z>3.1113624572753906e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://71881820877794</url></Content><Content name="TextureID"><url>rbxassetid://103314046532055</url></Content><Vector3 name="InitialSize"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX12"><Properties><string name="Name">Ballerina</string></Properties><Item class="MeshPart" referent="RBX9"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.6886162757873535</X><Y>7.881158351898193</Y><Z>3.8781416416168213</Z></Vector3><CoordinateFrame name="CFrame"><X>0.905242919921875</X><Y>1.5069427490234375</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://112514228472682</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.8962054252624512</X><Y>2.6270527839660645</Y><Z>1.2927138805389404</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX10"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>3.3437068462371826</X><Y>2.5043978691101074</Y><Z>3.713331699371338</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>4.050514221191406</Y><Z>-0.18480682373046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://115602253030514</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.1145689487457275</X><Y>0.8347992897033691</Y><Z>1.2377772331237793</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX11"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>8.041040420532227</X><Y>0.8045840263366699</Y><Z>0.739251434803009</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>1.8168106079101562</Y><Z>-0.06512451171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://120054216992808</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>2.680346965789795</X><Y>0.26819467544555664</Y><Z>0.24641714990139008</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX14"><Properties><string name="Name">Lirili</string></Properties><Item class="MeshPart" referent="RBX13"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3><CoordinateFrame name="CFrame"><X>5.900859832763672e-06</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://97283327340424</url></Content><Content name="TextureID"><url>rbxassetid://104099747853532</url></Content><Vector3 name="InitialSize"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX17"><Properties><string name="Name">Bombardiro</string></Properties><Item class="MeshPart" referent="RBX16"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>12.312838554382324</X><Y>6.185354709625244</Y><Z>5.87946891784668</Z></Vector3><CoordinateFrame name="CFrame"><X>0.00048828125</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://75405893930816</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>0.9999892711639404</X><Y>0.5023446083068848</Y><Z>0.4775020480155945</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX15"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://121400661277983</url></Content><Content name="NormalMap"><url>rbxassetid://112538439987573</url></Content><Content name="MetalnessMap"><url>rbxassetid://135318981172652</url></Content><Content name="RoughnessMap"><url>rbxassetid://127165866948049</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item><Item class="Model" referent="RBX19"><Properties><string name="Name">TungSahur</string></Properties><Item class="MeshPart" referent="RBX18"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.891804575920105</X><Y>4.74713134765625</Y><Z>1.9500000476837158</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>3.0517578125e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://82464974337955</url></Content><Content name="TextureID"><url>rbxassetid://105445253181063</url></Content><Vector3 name="InitialSize"><X>0.3973720073699951</X><Y>0.9971309900283813</Y><Z>0.40965497493743896</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX21"><Properties><string name="Name">Chimpanzini</string></Properties><Item class="MeshPart" referent="RBX20"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.314237117767334</X><Y>1.3366730213165283</Y><Z>1.637129545211792</Z></Vector3><CoordinateFrame name="CFrame"><X>9.5367431640625e-07</X><Y>-1.6450881958007812e-05</Y><Z>2.002716064453125e-05</Z><R00>1</R00><R01>1.499759904157988e-32</R01><R02>0</R02><R10>1.499759904157988e-32</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://89090952243408</url></Content><Content name="TextureID"><url>rbxassetid://128173719562870</url></Content><Vector3 name="InitialSize"><X>1.8739659786224365</X><Y>1.9969359636306763</Y><Z>1.7717249393463135</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX24"><Properties><string name="Name">Tralalero</string></Properties><Item class="Part" referent="RBX22"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.0499999523162842</X><Y>1.0499999523162842</Y><Z>1.399999976158142</Z></Vector3><CoordinateFrame name="CFrame"><X>-0.055873870849609375</X><Y>0.31945037841796875</Y><Z>-2.4748425483703613</Z><R00>1</R00><R01>0</R01><R02>-2.8850549191879416e-22</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-2.8850549191879416e-22</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0.9900000095367432</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><token name="shape">1</token></Properties></Item><Item class="MeshPart" referent="RBX23"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.551590919494629</X><Y>6.267302989959717</Y><Z>10.311858177185059</Z></Vector3><CoordinateFrame name="CFrame"><X>5.340576171875e-05</X><Y>0</Y><Z>-3.147125244140625e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://123724059950086</url></Content><Content name="TextureID"><url>rbxassetid://106812992075443</url></Content><Vector3 name="InitialSize"><X>103.8756103515625</X><Y>117.26727294921875</Y><Z>192.94479370117188</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX29"><Properties><string name="Name">Cappuccino</string></Properties><Item class="MeshPart" referent="RBX26"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9416594505310059</X><Y>1.1344795227050781</Y><Z>0.8220741748809814</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-7.62939453125e-06</Y><Z>0.07830810546875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://111922011308347</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>3.7666378021240234</X><Y>4.5379180908203125</Y><Z>3.288296699523926</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX25"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://136630204328103</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://101968079720915</url></Content><Content name="RoughnessMap"><url>rbxassetid://104828854490183</url></Content><token name="AlphaMode">0</token></Properties></Item></Item><Item class="MeshPart" referent="RBX28"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.7559442520141602</X><Y>0.6899687051773071</Y><Z>0.5857008695602417</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-0.09552383422851562</Y><Z>-0.196533203125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://129090024505620</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>7.023777008056641</X><Y>2.7598748207092285</Y><Z>2.342803478240967</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX27"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://100825893881927</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://97507844471978</url></Content><Content name="RoughnessMap"><url>rbxassetid://117572375731245</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item></Item></Item><Item class="ServerStorage" referent="RBX32"><Properties><string name="Name">ServerStorage</string></Properties></Item><Item class="ServerScriptService" referent="RBX35"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX33"><Properties><string name="Name">GameServer</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : serveur (arene, elixir, unites, tours, bot)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -1658,7 +1903,7 @@ RunService.Heartbeat:Connect(function(dt)
 		end
 	end
 end)
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">Economie</string><ProtectedString name="Source"><![CDATA[-- ECONOMIE : profil sauvegarde, recompenses, boutique, achats Robux.
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX34"><Properties><string name="Name">Economie</string><ProtectedString name="Source"><![CDATA[-- ECONOMIE : profil sauvegarde, recompenses, boutique, achats Robux.
 --
 -- Le serveur est la SEULE autorite : le client demande, le serveur verifie le prix, le solde et la
 -- carte avant de debiter. Rien de ce que le client envoie n'est cru sur parole.
@@ -2288,11 +2533,12 @@ game:BindToClose(function()
 end)
 
 return Economie
-]]></ProtectedString></Properties></Item></Item><Item class="StarterPlayer" referent="RBX38"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX37"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX35"><Properties><string name="Name">GameClient</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : client (camera, main de cartes, elixir, pose)
+]]></ProtectedString></Properties></Item></Item><Item class="StarterPlayer" referent="RBX39"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX38"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX36"><Properties><string name="Name">GameClient</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : client (camera, main de cartes, elixir, pose)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore : joue CHEZ CE CLIENT, sur les evenements deja recus du serveur.
@@ -2341,6 +2587,11 @@ for _, sx in ipairs({ -1, 1 }) do
 	end
 end
 
+-- Secousse de camera a la chute d'une tour (declenchee plus bas, au meme endroit que le son).
+local SECOUSSE_DUREE = 0.45
+local SECOUSSE_AMPLITUDE = 1.6
+local secousseFin = 0
+
 RunService.RenderStepped:Connect(function()
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.FieldOfView = ANGLE_VUE
@@ -2382,6 +2633,16 @@ RunService.RenderStepped:Connect(function()
 		-- Debordement, en part d'ecran, par rapport au cadre utile.
 		local basUtile = jeSuisSpectateur and BANDE_HAUT or BANDE_CARTES
 		pire = math.max(pire, -x, x - 1, BANDE_HAUT - y, y - (1 - basUtile))
+	end
+
+	-- SECOUSSE : appliquee APRES le calcul complet du CFrame, jamais stockee dedans. La camera est
+	-- recalculee a chaque image depuis zero, donc quand le compte a rebours tombe a zero la vue
+	-- redevient exacte d'elle-meme : aucun decalage residuel n'est possible.
+	if secousseFin > os.clock() then
+		local reste = (secousseFin - os.clock()) / SECOUSSE_DUREE
+		local a = SECOUSSE_AMPLITUDE * reste * reste -- s'eteint vite, pas de tremblement qui traine
+		camera.CFrame = camera.CFrame * CFrame.new(
+			(math.random() - 0.5) * a, (math.random() - 0.5) * a, 0)
 	end
 
 	distanceMesuree, debordementMesure = distance, pire
@@ -2554,6 +2815,7 @@ StateEvent.OnClientEvent:Connect(function(s)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then
 		Sons.jouer("tourDetruite")
+		secousseFin = os.clock() + SECOUSSE_DUREE
 	end
 	sonCouronnesMoi, sonCouronnesEnnemi = moi, lui
 	if s.result ~= sonResultat then
@@ -2573,7 +2835,10 @@ StateEvent.OnClientEvent:Connect(function(s)
 		monCamp = s.monCamp
 	end
 	lastHand = s.hand
-	elixirFill.Size = UDim2.new(s.elixir / 10, 0, 1, 0)
+	-- La jauge GLISSE au lieu de sauter : le serveur n'envoie l'etat que quelques fois par seconde,
+	-- une affectation directe faisait avancer l'elixir par a-coups visibles.
+	TweenService:Create(elixirFill, TweenInfo.new(0.28, Enum.EasingStyle.Linear),
+		{ Size = UDim2.new(s.elixir / 10, 0, 1, 0) }):Play()
 	elixirText.Text = tostring(math.floor(s.elixir))
 	local t = math.max(0, math.ceil(s.timeLeft))
 	top.Text = string.format("%d:%02d", math.floor(t / 60), t % 60)
@@ -2887,12 +3152,13 @@ if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") then
 			tostring(camera.ViewportSize)))
 	end)
 end
-]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX36"><Properties><string name="Name">Hub</string><ProtectedString name="Source"><![CDATA[-- HUB : ecran d'accueil (profil, Jouer, Boutique, bonus du jour) et boutique de cartes.
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX37"><Properties><string name="Name">Hub</string><ProtectedString name="Source"><![CDATA[-- HUB : ecran d'accueil (profil, Jouer, Boutique, bonus du jour) et boutique de cartes.
 -- Tout achat passe par la RemoteFunction « Boutique » : le serveur verifie prix et solde, le client
 -- ne fait qu'afficher la reponse. Les offres Robux n'apparaissent que si le createur a renseigne
 -- leurs identifiants (Economie.lua).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore de l'accueil : clic, coffre ouvert, achat refuse.
@@ -2948,6 +3214,17 @@ local function bouton(parent, t, taille, pos, couleur)
 	b.AutoButtonColor = true
 	b.Parent = parent
 	coin(b)
+	-- REACTION AU DOIGT : un fondu court sur la transparence du fond. On n'anime PAS la taille :
+	-- les boutons sont poses en echelle dans des mises en page, une taille animee les ferait
+	-- bouger les uns par rapport aux autres.
+	local function fondu(valeur, duree)
+		TweenService:Create(b, TweenInfo.new(duree, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ BackgroundTransparency = valeur }):Play()
+	end
+	b.MouseEnter:Connect(function() fondu(0.15, 0.15) end)
+	b.MouseLeave:Connect(function() fondu(0, 0.2) end)
+	b.MouseButton1Down:Connect(function() fondu(0.4, 0.08) end)
+	b.MouseButton1Up:Connect(function() fondu(0.15, 0.18) end)
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0.18, 0); pad.PaddingBottom = UDim.new(0.18, 0)
 	pad.Parent = b
@@ -3006,15 +3283,37 @@ texte(boutique, "BOUTIQUE", UDim2.new(0.6, 0, 0.09, 0), UDim2.new(0.2, 0, 0.02, 
 local soldeBoutique = texte(boutique, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.11, 0))
 local fermer = bouton(boutique, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
 
-local grille = Instance.new("Frame")
-grille.BackgroundTransparency = 1
-grille.Size = UDim2.new(0.94, 0, 0.62, 0)
-grille.Position = UDim2.new(0.03, 0, 0.18, 0)
-grille.Parent = boutique
-local layout = Instance.new("UIGridLayout")
-layout.CellSize = UDim2.new(0.23, 0, 0.47, 0)
-layout.CellPadding = UDim2.new(0.02, 0, 0.04, 0)
-layout.Parent = grille
+-- Grilles DEFILANTES (2026-09-16) : le catalogue a grossi a 15 cartes et la grille debordait
+-- sous le bouton ENREGISTRER (vu sur capture-deck2.png). Une hauteur figee ne tient que pour un
+-- nombre de cartes donne ; le defilement tient pour n'importe lequel.
+-- Les cellules sont en Scale, donc mesurees sur la partie VISIBLE du cadre : le canevas vaut
+-- (nombre de rangees x hauteur de rangee), ce qui depasse 1 des qu'il y a plus de rangees que
+-- l'ecran n'en montre.
+local COLONNES = 4
+local function grilleDefilante(parent, taille, position, hauteurCellule, ecartVertical)
+	local cadre = Instance.new("ScrollingFrame")
+	cadre.BackgroundTransparency = 1
+	cadre.BorderSizePixel = 0
+	cadre.Size = taille
+	cadre.Position = position
+	cadre.ScrollBarThickness = 8
+	cadre.ScrollBarImageColor3 = OR
+	cadre.CanvasSize = UDim2.new()
+	cadre.Parent = parent
+	-- PIEGE mesure le 2026-09-16 : dans un ScrollingFrame, une taille en proportion se mesure sur
+	-- le CANEVAS, pas sur la partie visible — les tuiles avaient double de taille. On divise donc
+	-- par la hauteur du canevas pour que `hauteurCellule` reste une proportion de ce qu'on VOIT.
+	local rangees = math.ceil(#Cards.list / COLONNES)
+	local canevas = rangees * (hauteurCellule + ecartVertical)
+	cadre.CanvasSize = UDim2.new(0, 0, canevas, 0)
+	local layout = Instance.new("UIGridLayout")
+	layout.CellSize = UDim2.new(0.23, 0, hauteurCellule / canevas, 0)
+	layout.CellPadding = UDim2.new(0.02, 0, ecartVertical / canevas, 0)
+	layout.Parent = cadre
+	return cadre
+end
+
+local grille = grilleDefilante(boutique, UDim2.new(0.94, 0, 0.62, 0), UDim2.new(0.03, 0, 0.18, 0), 0.44, 0.04)
 
 local offresRobux = Instance.new("Frame")
 offresRobux.BackgroundTransparency = 1
@@ -3164,15 +3463,9 @@ local deckCompteur = texte(deckEcran, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(
 local deckFermer = bouton(deckEcran, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
 local deckValider = bouton(deckEcran, "ENREGISTRER", UDim2.new(0.36, 0, 0.09, 0), UDim2.new(0.32, 0, 0.87, 0), Color3.fromRGB(60, 170, 80))
 
-local deckGrille = Instance.new("Frame")
-deckGrille.BackgroundTransparency = 1
-deckGrille.Size = UDim2.new(0.94, 0, 0.66, 0)
-deckGrille.Position = UDim2.new(0.03, 0, 0.18, 0)
-deckGrille.Parent = deckEcran
-local deckLayout = Instance.new("UIGridLayout")
-deckLayout.CellSize = UDim2.new(0.23, 0, 0.3, 0)
-deckLayout.CellPadding = UDim2.new(0.02, 0, 0.03, 0)
-deckLayout.Parent = deckGrille
+-- 0.66 de haut s'arrete juste au-dessus du bouton ENREGISTRER (place a 0.87) : la grille ne peut
+-- plus passer dessous, elle defile.
+local deckGrille = grilleDefilante(deckEcran, UDim2.new(0.94, 0, 0.66, 0), UDim2.new(0.03, 0, 0.18, 0), 0.3, 0.03)
 
 local choix = {}      -- id -> true : carte selectionnee dans l'ecran
 local nbChoix = 0
@@ -3276,7 +3569,9 @@ deckValider.MouseButton1Click:Connect(function()
 end)
 
 deckFermer.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
 	deckEcran.Visible = false
+	accueil.Visible = true
 end)
 
 for i = 1, 4 do
@@ -3314,6 +3609,18 @@ task.spawn(function()
 	end
 end)
 
+-- OUVERTURE ANIMEE D'UN PANNEAU : il arrive en glissant depuis le bas sur 0,2 s. On anime la
+-- POSITION et pas la transparence : dans Roblox, un fondu sur un cadre ne touche pas ses enfants,
+-- le texte resterait net sur un fond qui s'efface. `Visible` est mis tout de suite, pour que les
+-- sondes de test qui le lisent voient l'etat reel sans attendre la fin de l'animation.
+local function ouvrirPanneau(p)
+	local finale = p.Position
+	p.Position = finale + UDim2.new(0, 0, 0.05, 0)
+	p.Visible = true
+	TweenService:Create(p, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Position = finale }):Play()
+end
+
 -- NAVIGATION ------------------------------------------------------------------------------------
 local function ouvrirAccueil()
 	accueil.Visible = true
@@ -3337,18 +3644,24 @@ boutonJouer.MouseButton1Click:Connect(function()
 end)
 boutonDeck.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
-	deckEcran.Visible = true
+	-- L'accueil passe DERRIERE : sans cela, sa rangee de coffres (« Gagne une partie ») depasse
+	-- sous le panneau et son texte est rogne (vu sur capture-hub.png, 2026-09-16).
+	accueil.Visible = false
+	ouvrirPanneau(deckEcran)
 	afficher(Boutique:InvokeServer("profil").vue)
 	chargerChoix()
 	majDeck()
 end)
 boutonBoutique.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
-	boutique.Visible = true
+	accueil.Visible = false
+	ouvrirPanneau(boutique)
 	afficher(Boutique:InvokeServer("profil").vue)
 end)
 fermer.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
 	boutique.Visible = false
+	accueil.Visible = true
 end)
 boutonMenu.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
@@ -3381,7 +3694,15 @@ if test and not forcerHub then
 else
 	ouvrirAccueil()
 	if ReplicatedStorage:FindFirstChild("BRR_BOUTIQUE") then
+		accueil.Visible = false
 		boutique.Visible = true
+	end
+	if ReplicatedStorage:FindFirstChild("BRR_DECK") then
+		-- meme chemin que le bouton DECK, pour que la capture montre l'ecran REEL
+		accueil.Visible = false
+		deckEcran.Visible = true
+		chargerChoix()
+		majDeck()
 	end
 	print("[HUB] accueil ouvert")
 end

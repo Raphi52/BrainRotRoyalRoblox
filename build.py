@@ -17,9 +17,10 @@ PARTIE = PARTIE or MELEE
 HUB = AUTOTEST and "--hub" in sys.argv  # copie de test avec l'accueil ouvert
 BOUTIQUE = AUTOTEST and "--boutique" in sys.argv  # accueil + boutique ouverte, pour la capture
 COFFRES = AUTOTEST and "--coffres" in sys.argv  # accueil avec des coffres dans chaque etat
+DECK = AUTOTEST and "--deck" in sys.argv  # accueil + ecran DECK ouvert, pour la capture
 NIVEAUX = AUTOTEST and "--niveaux" in sys.argv  # boutique ouverte avec des niveaux varies
 BOUTIQUE = BOUTIQUE or NIVEAUX
-HUB = HUB or BOUTIQUE or COFFRES
+HUB = HUB or BOUTIQUE or COFFRES or DECK
 ECOTEST = AUTOTEST and "--ecotest" in sys.argv  # scenario de test de l'economie
 SIM = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--sim=")), "") if AUTOTEST else ""  # simulation d'equilibre
 RUN = AUTOTEST and "--run" in sys.argv      # partie entiere bot contre bot, sans joueur
@@ -116,7 +117,10 @@ place = "".join([
     item("Lighting", "Lighting", extra='<token name="Technology">4</token>'),
     item("ReplicatedStorage", "ReplicatedStorage",
          item("Folder", "Shared", item("ModuleScript", "Cards", source=src("shared/Cards.lua"))
-              + item("ModuleScript", "Sons", source=src("shared/Sons.lua")))
+              + item("ModuleScript", "Sons", source=src("shared/Sons.lua"))
+              # Effets.lua est requis par GameServer : sans lui, le serveur reste bloque sur
+              # WaitForChild("Effets") et AUCUN remote n'est cree (mesure Studio 2026-09-16).
+              + item("ModuleScript", "Effets", source=src("shared/Effets.lua")))
          + modeles()
          + (item("BoolValue", "BRR_AUTOTEST") if AUTOTEST else "")
          # Nombre de joueurs du test automatique : lu par le plugin tools/BRR_AutoRun.lua.
@@ -130,6 +134,7 @@ place = "".join([
          + (item("BoolValue", "BRR_ECOTEST") if ECOTEST else "")
          + (item("BoolValue", "BRR_BOUTIQUE") if BOUTIQUE else "")
          + (item("BoolValue", "BRR_COFFRES") if COFFRES else "")
+         + (item("BoolValue", "BRR_DECK") if DECK else "")
          + (item("BoolValue", "BRR_NIVEAUX") if NIVEAUX else "")
          + (item("StringValue", "BRR_SIM", extra=f'<string name="Value">{escape(SIM)}</string>') if SIM else "")
          + (item("StringValue", "BRR_GALERIE", extra=f'<string name="Value">{escape(GALERIE)}</string>') if GALERIE else "")),

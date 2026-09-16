@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore : joue CHEZ CE CLIENT, sur les evenements deja recus du serveur.
@@ -51,6 +52,11 @@ for _, sx in ipairs({ -1, 1 }) do
 	end
 end
 
+-- Secousse de camera a la chute d'une tour (declenchee plus bas, au meme endroit que le son).
+local SECOUSSE_DUREE = 0.45
+local SECOUSSE_AMPLITUDE = 1.6
+local secousseFin = 0
+
 RunService.RenderStepped:Connect(function()
 	camera.CameraType = Enum.CameraType.Scriptable
 	camera.FieldOfView = ANGLE_VUE
@@ -92,6 +98,16 @@ RunService.RenderStepped:Connect(function()
 		-- Debordement, en part d'ecran, par rapport au cadre utile.
 		local basUtile = jeSuisSpectateur and BANDE_HAUT or BANDE_CARTES
 		pire = math.max(pire, -x, x - 1, BANDE_HAUT - y, y - (1 - basUtile))
+	end
+
+	-- SECOUSSE : appliquee APRES le calcul complet du CFrame, jamais stockee dedans. La camera est
+	-- recalculee a chaque image depuis zero, donc quand le compte a rebours tombe a zero la vue
+	-- redevient exacte d'elle-meme : aucun decalage residuel n'est possible.
+	if secousseFin > os.clock() then
+		local reste = (secousseFin - os.clock()) / SECOUSSE_DUREE
+		local a = SECOUSSE_AMPLITUDE * reste * reste -- s'eteint vite, pas de tremblement qui traine
+		camera.CFrame = camera.CFrame * CFrame.new(
+			(math.random() - 0.5) * a, (math.random() - 0.5) * a, 0)
 	end
 
 	distanceMesuree, debordementMesure = distance, pire
@@ -264,6 +280,7 @@ StateEvent.OnClientEvent:Connect(function(s)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then
 		Sons.jouer("tourDetruite")
+		secousseFin = os.clock() + SECOUSSE_DUREE
 	end
 	sonCouronnesMoi, sonCouronnesEnnemi = moi, lui
 	if s.result ~= sonResultat then
@@ -283,7 +300,10 @@ StateEvent.OnClientEvent:Connect(function(s)
 		monCamp = s.monCamp
 	end
 	lastHand = s.hand
-	elixirFill.Size = UDim2.new(s.elixir / 10, 0, 1, 0)
+	-- La jauge GLISSE au lieu de sauter : le serveur n'envoie l'etat que quelques fois par seconde,
+	-- une affectation directe faisait avancer l'elixir par a-coups visibles.
+	TweenService:Create(elixirFill, TweenInfo.new(0.28, Enum.EasingStyle.Linear),
+		{ Size = UDim2.new(s.elixir / 10, 0, 1, 0) }):Play()
 	elixirText.Text = tostring(math.floor(s.elixir))
 	local t = math.max(0, math.ceil(s.timeLeft))
 	top.Text = string.format("%d:%02d", math.floor(t / 60), t % 60)
