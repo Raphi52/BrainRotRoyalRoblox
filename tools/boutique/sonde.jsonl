@@ -1,0 +1,81 @@
+﻿{"ok":false,"perso":"Ballerina","erreur":"User is not authorized to access Asset.","id":132021456717690,"rang":1}
+{"ok":true,"id":75983792852042,"rang":2,"perso":"Ballerina","scripts":["Script:PackageLink:13617","ModuleScript:TextureConfiguration:9742"],"taille":"8.0x10.9x4.0","suspects":["PackageLink->require","TextureConfiguration->require"],"maillages":7,"parts":9}
+{"ok":true,"id":81269930750607,"rang":3,"perso":"Ballerina","scripts":["Script:PackageLink:13617","ModuleScript:TextureConfiguration:9742"],"taille":"8.0x10.9x4.0","suspects":["PackageLink->require","TextureConfiguration->require"],"maillages":7,"parts":10}
+{"ok":true,"id":88721856095677,"rang":4,"perso":"Ballerina","scripts":["Script:Material:10285","LocalScript:LocalScript:241"],"taille":"12.0x10.9x6.0","suspects":[],"maillages":4,"parts":5}
+{"ok":true,"id":77919209524758,"rang":5,"perso":"Ballerina","scripts":["Script:Material:10285","LocalScript:LocalScript:241"],"taille":"12.0x10.9x6.0","suspects":[],"maillages":4,"parts":5}
+{"ok":true,"id":1045920745,"rang":6,"perso":"Ballerina","scripts":["Script:Arm1:936","Script:Leg1:936","Script:HatRemover:202","Script:ChangeShirt/Pants:610","Script:Script:1676","Script:WalkSpeed Script:292","Script:Leg2:937","Script:Arm2:937","Script:Torso:932","Script:Script:448"],"taille":"4.1x4.9x7.5","suspects":[],"maillages":0,"parts":51}
+{"ok":true,"id":426650827,"rang":7,"perso":"Ballerina","scripts":[],"taille":"4.7x5.7x5.8","suspects":[],"maillages":35,"parts":44}
+{"ok":true,"id":5831560180,"rang":8,"perso":"Ballerina","scripts":[],"taille":"4.6x7.5x5.3","suspects":[],"maillages":366,"parts":504}
+{"ok":true,"id":2110208734,"rang":9,"perso":"Ballerina","scripts":[],"taille":"12.3x7.3x3.7","suspects":[],"maillages":0,"parts":38}
+{"ok":true,"id":14506025948,"rang":10,"perso":"Ballerina","scripts":[],"taille":"52.3x29.3x48.6","suspects":[],"maillages":67,"parts":69}
+{"ok":true,"id":91327024837680,"rang":1,"perso":"Bombardiro","scripts":["Script:WarPlaneScript:5038"],"taille":"69.2x18.1x57.0","suspects":["WarPlaneScript->rbxassetid"],"maillages":4,"parts":6}
+{"ok":true,"id":111138597903728,"rang":2,"perso":"Bombardiro","scripts":[],"taille":"12.3x6.2x5.9","suspects":[],"maillages":1,"parts":1}
+{"ok":false,"perso":"Bombardiro","erreur":"User is not authorized to access Asset.","id":117924360887083,"rang":3}
+{"ok":true,"id":139363126210791,"rang":4,"perso":"Bombardiro","scripts":["Script:Animation:0","Script:Animation:0","Script:PoseLink:13595"],"taille":"10.4x4.8x12.1","suspects":["PoseLink->require"],"maillages":4,"parts":6}
+{"ok":true,"id":13915553550,"rang":5,"perso":"Bombardiro","scripts":["Script:MorphScript:3029"],"taille":"12.0x12.8x9.1","suspects":[],"maillages":76,"parts":112}
+{"ok":true,"id":7801752197,"rang":6,"perso":"Bombardiro","scripts":["Script:Animate:13394"],"taille":"6.1x10.3x4.0","suspects":[],"maillages":28,"parts":48}
+{"ok":true,"id":8048673016,"rang":7,"perso":"Bombardiro","scripts":[],"taille":"5.7x7.8x4.3","suspects":[],"maillages":25,"parts":48}
+{"ok":true,"id":9387706511,"rang":8,"perso":"Bombardiro","scripts":["Script:SCP049AnimationScript:369","Script:SCP049HeadSoundScript:668","Script:SCP049AttackScript:2073","Script:SCP049TargetScript:2583","Script:Weld:721","Script:Weld Script:698","Script:Script:1075","Script:Animate:13394","ModuleScript:ROBLOX_AIUtilities:3465","ModuleScript:ROBLOX_DestroyService:1075","ModuleScript:ROBLOX_HumanoidList:534","ModuleScript:ROBLOX_StateMachine:1611","ModuleScript:ROBLOX_ZombieAI:12975","ModuleScript:ROBLOX_PathfindingLibrary:3086"],"taille":"23.9x46.2x51.2","suspects":["Script->require","ROBLOX_ZombieAI->require"],"maillages":1,"parts":17}
+{"ok":true,"id":4894410148,"rang":9,"perso":"Bombardiro","scripts":[],"taille":"10.1x13.7x9.4","suspects":[],"maillages":6,"parts":6}
+{"ok":true,"id":6876570478,"rang":10,"perso":"Bombardiro","scripts":["Script:SCP049AnimationScript:369","Script:SCP049HeadSoundScript:668","Script:SCP049AttackScript:2073","Script:SCP049TargetScript:2583","Script:Weld:721","Script:Weld Script:698"],"taille":"6.3x12.3x13.6","suspects":[],"maillages":1,"parts":17}
+{"ok":false,"perso":"Cappuccino","erreur":"User is not authorized to access Asset.","id":138416013720223,"rang":1}
+{"ok":true,"id":139476190777606,"rang":2,"perso":"Cappuccino","scripts":["Script:PackageLink:13617","ModuleScript:TextureConfiguration:9742"],"taille":"9.4x10.7x3.8","suspects":["PackageLink->require","TextureConfiguration->require"],"maillages":4,"parts":7}
+{"ok":true,"id":130589530520250,"rang":3,"perso":"Cappuccino","scripts":[],"taille":"1.0x1.0x1.0","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":80869891423748,"rang":4,"perso":"Cappuccino","scripts":[],"taille":"4.0x5.0x1.0","suspects":[],"maillages":15,"parts":16}
+{"ok":false,"perso":"Cappuccino","erreur":"User is not authorized to access Asset.","id":116711431495967,"rang":5}
+{"ok":true,"id":128293806084974,"rang":6,"perso":"Cappuccino","scripts":["Script:READ ME:58","Script:Objects:58","ModuleScript:ObjBuilder:1289","Script:VisualCoreRepresentation:13197","ModuleScript:CoreConfiguration:9324"],"taille":"1.8x1.1x1.0","suspects":["VisualCoreRepresentation->require","CoreConfiguration->require"],"maillages":2,"parts":2}
+{"ok":true,"id":24384568,"rang":7,"perso":"Cappuccino","scripts":["Script:BloxyColaScript:900"],"taille":"1.0x1.2x1.0","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":14227636328,"rang":8,"perso":"Cappuccino","scripts":[],"taille":"2.2x2.8x1.3","suspects":[],"maillages":1,"parts":7}
+{"ok":true,"id":575714323,"rang":9,"perso":"Cappuccino","scripts":[],"taille":"4.2x6.2x6.2","suspects":[],"maillages":8,"parts":18}
+{"ok":true,"id":106448409798280,"rang":10,"perso":"Cappuccino","scripts":[],"taille":"1.0x1.0x1.0","suspects":[],"maillages":1,"parts":1}
+{"ok":false,"perso":"Chimpanzini","erreur":"User is not authorized to access Asset.","id":134140230073093,"rang":1}
+{"ok":true,"id":83732984780551,"rang":2,"perso":"Chimpanzini","scripts":[],"taille":"1.3x1.3x1.6","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":125562008574484,"rang":3,"perso":"Chimpanzini","scripts":["Script:Objects:58","ModuleScript:ObjBuilder:1248","Script:CoreSkyboxSystem:7844"],"taille":"5.6x6.0x5.3","suspects":["CoreSkyboxSystem->require"],"maillages":2,"parts":1}
+{"ok":true,"id":86724865495774,"rang":4,"perso":"Chimpanzini","scripts":["Script:Material:10285","LocalScript:LocalScript:241"],"taille":"5.6x6.0x5.3","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":138141667629120,"rang":5,"perso":"Chimpanzini","scripts":["Script:Material:10285","LocalScript:LocalScript:241"],"taille":"5.6x6.0x5.3","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":95817281841993,"rang":6,"perso":"Chimpanzini","scripts":[],"taille":"1.0x2.0x0.9","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":110549308852539,"rang":7,"perso":"Chimpanzini","scripts":[],"taille":"12.5x14.0x9.2","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":11134802254,"rang":8,"perso":"Chimpanzini","scripts":["Script:Script:112","Script:Script:114"],"taille":"8.0x8.0x8.0","suspects":[],"maillages":0,"parts":1}
+{"ok":true,"id":16455071827,"rang":9,"perso":"Chimpanzini","scripts":[],"taille":"0.0x0.0x0.0","suspects":[],"maillages":0,"parts":0}
+{"ok":true,"id":3039924576,"rang":10,"perso":"Chimpanzini","scripts":[],"taille":"0.9x1.6x1.3","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":77231614368559,"rang":1,"perso":"Lirili","scripts":[],"taille":"1.0x0.7x0.5","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":90717743642168,"rang":2,"perso":"Lirili","scripts":["LocalScript:LocalScript:471"],"taille":"1.5x1.0x1.1","suspects":[],"maillages":0,"parts":1}
+{"ok":false,"perso":"Lirili","erreur":"User is not authorized to access Asset.","id":100138257253783,"rang":3}
+{"ok":true,"id":118261494949545,"rang":4,"perso":"Lirili","scripts":["Script:Read if you want:96","ModuleScript:Read me:305"],"taille":"921.3x905.5x150.6","suspects":[],"maillages":28,"parts":29}
+{"ok":true,"id":113505154053595,"rang":5,"perso":"Lirili","scripts":["Script:Objects:58","ModuleScript:ObjBuilder:1289","Script:CoreSkyboxSystem:7982"],"taille":"7.8x16.8x22.8","suspects":["CoreSkyboxSystem->require"],"maillages":3,"parts":1}
+{"ok":true,"id":92139199335019,"rang":6,"perso":"Lirili","scripts":["Script:EffectBuilder:4980","Script:AutoWeld:7325","ModuleScript:Read me:113"],"taille":"918.7x905.5x150.6","suspects":["EffectBuilder->require","AutoWeld->require"],"maillages":28,"parts":29}
+{"ok":true,"id":107628757478592,"rang":7,"perso":"Lirili","scripts":[],"taille":"256.1x248.2x200.9","suspects":[],"maillages":9,"parts":377}
+{"ok":true,"id":10587562672,"rang":8,"perso":"Lirili","scripts":["Script:MorphBody:2151","LocalScript:Animate2:4898","LocalScript:turnhead:886","Script:FaceRemover:113","Script:HatRemover:199","Script:MorphBody:2151","LocalScript:Animate2:4898","LocalScript:turnhead:886","Script:FaceRemover:113","Script:HatRemover:199"],"taille":"9.4x6.6x4.2","suspects":[],"maillages":30,"parts":33}
+{"ok":true,"id":12874285330,"rang":9,"perso":"Lirili","scripts":["LocalScript:Animate:15487","Script:Script:970"],"taille":"166.1x4.1x131.9","suspects":[],"maillages":3,"parts":241}
+{"ok":true,"id":5184888914,"rang":10,"perso":"Lirili","scripts":[],"taille":"3.0x6.3x3.5","suspects":[],"maillages":20,"parts":21}
+{"ok":true,"id":100538198930997,"rang":1,"perso":"Patapim","scripts":[],"taille":"0.9x1.0x0.8","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":112709347552350,"rang":2,"perso":"Patapim","scripts":["Script:PackageLink:13617","ModuleScript:TextureConfiguration:9742"],"taille":"12.9x9.1x3.7","suspects":["PackageLink->require","TextureConfiguration->require"],"maillages":6,"parts":9}
+{"ok":true,"id":95929738286904,"rang":3,"perso":"Patapim","scripts":["LocalScript:Animate:22891","Script:Move:1194","Script:Animate:14082"],"taille":"46.3x52.9x49.4","suspects":[],"maillages":15,"parts":16}
+{"ok":true,"id":121724230281477,"rang":4,"perso":"Patapim","scripts":["LocalScript:Animate:22891"],"taille":"3.4x4.9x2.1","suspects":[],"maillages":15,"parts":16}
+{"ok":true,"id":87700616475036,"rang":5,"perso":"Patapim","scripts":[],"taille":"5.5x11.4x7.6","suspects":[],"maillages":0,"parts":121}
+{"ok":true,"id":110759128649311,"rang":6,"perso":"Patapim","scripts":["Script:Animate:15581","Script:AnimateCustomMesh:1740","Script:-- Fog's Nextbot Basic AI --:8681"],"taille":"43.8x54.7x41.3","suspects":[],"maillages":5,"parts":12}
+{"ok":true,"id":104111567366012,"rang":7,"perso":"Patapim","scripts":["Script:PackageLink:58","ModuleScript:TextureConfiguration:9742","Script:CoreTextureSystem:13455","ModuleScript:TextureConfiguration:9430","LocalScript:LocalScript:214"],"taille":"12.9x9.1x3.7","suspects":["TextureConfiguration->require","CoreTextureSystem->require","TextureConfiguration->require"],"maillages":6,"parts":9}
+{"ok":true,"id":129007491286589,"rang":8,"perso":"Patapim","scripts":["Script:Controller:5170"],"taille":"5.9x6.4x5.2","suspects":["Controller->require"],"maillages":1,"parts":1}
+{"ok":true,"id":109340711807877,"rang":9,"perso":"Patapim","scripts":[],"taille":"4.1x5.2x1.2","suspects":[],"maillages":8,"parts":14}
+{"ok":true,"id":83528951472353,"rang":10,"perso":"Patapim","scripts":[],"taille":"12.4x17.9x7.8","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":111854862176457,"rang":1,"perso":"Tralalero","scripts":[],"taille":"11.6x12.0x24.6","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":83018340261801,"rang":2,"perso":"Tralalero","scripts":[],"taille":"5.7x8.8x14.0","suspects":[],"maillages":2,"parts":5}
+{"ok":true,"id":113095126725171,"rang":3,"perso":"Tralalero","scripts":[],"taille":"10.5x15.5x29.2","suspects":[],"maillages":0,"parts":109}
+{"ok":true,"id":129482668414941,"rang":4,"perso":"Tralalero","scripts":["Script:Animate:15581","Script:AnimateCustomMesh:1740","Script:-- Fog's Nextbot Basic AI --:8679"],"taille":"5.6x6.3x10.3","suspects":[],"maillages":6,"parts":8}
+{"ok":true,"id":128293704858194,"rang":5,"perso":"Tralalero","scripts":[],"taille":"5.7x8.8x14.0","suspects":[],"maillages":2,"parts":5}
+{"ok":true,"id":102149043344287,"rang":6,"perso":"Tralalero","scripts":[],"taille":"12.1x19.8x10.3","suspects":[],"maillages":1,"parts":81}
+{"ok":true,"id":133593545224523,"rang":7,"perso":"Tralalero","scripts":["Script:Material:10285","LocalScript:LocalScript:241"],"taille":"5.6x8.8x14.0","suspects":[],"maillages":5,"parts":8}
+{"ok":true,"id":132939399174162,"rang":8,"perso":"Tralalero","scripts":[],"taille":"31.8x17.0x13.7","suspects":[],"maillages":0,"parts":109}
+{"ok":true,"id":108476156887875,"rang":9,"perso":"Tralalero","scripts":[],"taille":"74.8x59.8x99.8","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":79175375965402,"rang":10,"perso":"Tralalero","scripts":[],"taille":"12.1x19.8x10.3","suspects":[],"maillages":1,"parts":81}
+{"ok":true,"id":138151705692565,"rang":1,"perso":"TungSahur","scripts":[],"taille":"1.9x4.7x1.9","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":137189209569355,"rang":2,"perso":"TungSahur","scripts":["Script:Script:22719","Script:Chase:1250"],"taille":"3.0x6.2x2.2","suspects":[],"maillages":15,"parts":16}
+{"ok":true,"id":83138270236341,"rang":3,"perso":"TungSahur","scripts":["Script:Script:22719","Script:Chase:1250"],"taille":"3.0x6.2x2.2","suspects":[],"maillages":15,"parts":16}
+{"ok":true,"id":112342985897325,"rang":4,"perso":"TungSahur","scripts":[],"taille":"4.5x6.3x4.7","suspects":[],"maillages":1,"parts":1}
+{"ok":false,"perso":"TungSahur","erreur":"User is not authorized to access Asset.","id":128230179587698,"rang":5}
+{"ok":true,"id":71630473252028,"rang":6,"perso":"TungSahur","scripts":[],"taille":"2.4x6.5x3.9","suspects":[],"maillages":1,"parts":1}
+{"ok":true,"id":116615563871570,"rang":7,"perso":"TungSahur","scripts":[],"taille":"35.9x36.0x17.6","suspects":[],"maillages":1,"parts":1}
+{"ok":false,"perso":"TungSahur","erreur":"User is not authorized to access Asset.","id":116724607376773,"rang":8}
+{"ok":true,"id":109369994600403,"rang":9,"perso":"TungSahur","scripts":[],"taille":"9.2x10.2x4.6","suspects":[],"maillages":3,"parts":6}
+{"ok":true,"id":94398976707691,"rang":10,"perso":"TungSahur","scripts":["ModuleScript:Read Me:296"],"taille":"7.3x6.5x21.9","suspects":[],"maillages":0,"parts":50}
+FIN

@@ -1,0 +1,22 @@
+1-1 partie=1 gagnant=fort couronnes_fort=3 couronnes_faible=2 pv_tours_fort=1500 pv_tours_faible=1990 temps_restant=33
+1-1 partie=2 gagnant=fort couronnes_fort=3 couronnes_faible=2 pv_tours_fort=320 pv_tours_faible=495 temps_restant=55
+1-1 partie=3 gagnant=fort couronnes_fort=3 couronnes_faible=2 pv_tours_fort=1265 pv_tours_faible=880 temps_restant=63
+1-1 partie=4 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=1825 pv_tours_faible=4980 temps_restant=96
+1-1 partie=5 gagnant=faible couronnes_fort=2 couronnes_faible=3 pv_tours_fort=0 pv_tours_faible=895 temps_restant=3
+1-1 partie=6 gagnant=fort couronnes_fort=3 couronnes_faible=2 pv_tours_fort=3055 pv_tours_faible=2860 temps_restant=72
+1-1 partie=7 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=145 pv_tours_faible=4400 temps_restant=49
+3-3 partie=1 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=5526 pv_tours_faible=1818 temps_restant=27
+3-3 partie=2 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=7716 pv_tours_faible=4080 temps_restant=130
+3-3 partie=3 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=780 pv_tours_faible=6378 temps_restant=71
+3-3 partie=4 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=2070 pv_tours_faible=4332 temps_restant=55
+3-3 partie=5 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=648 pv_tours_faible=5046 temps_restant=51
+3-3 partie=6 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=5640 pv_tours_faible=0 temps_restant=84
+3-3 partie=7 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=5580 pv_tours_faible=1152 temps_restant=109
+5-5 partie=1 gagnant=fort couronnes_fort=3 couronnes_faible=2 pv_tours_fort=5893 pv_tours_faible=0 temps_restant=51
+5-5 partie=2 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=0 pv_tours_faible=6918 temps_restant=72
+5-5 partie=3 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=5970 pv_tours_faible=0 temps_restant=82
+5-5 partie=4 gagnant=faible couronnes_fort=1 couronnes_faible=3 pv_tours_fort=336 pv_tours_faible=4745 temps_restant=68
+5-5 partie=5 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=8850 pv_tours_faible=4760 temps_restant=133
+5-5 partie=6 gagnant=faible couronnes_fort=2 couronnes_faible=3 pv_tours_fort=4053 pv_tours_faible=2961 temps_restant=52
+5-5 partie=7 gagnant=fort couronnes_fort=3 couronnes_faible=1 pv_tours_fort=3051 pv_tours_faible=0 temps_restant=73
+FIN

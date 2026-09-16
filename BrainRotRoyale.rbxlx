@@ -1,0 +1,3388 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4"><Item class="Workspace" referent="RBX1"><Properties><string name="Name">Workspace</string></Properties></Item><Item class="Lighting" referent="RBX2"><Properties><string name="Name">Lighting</string><token name="Technology">4</token></Properties></Item><Item class="ReplicatedStorage" referent="RBX30"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX5"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX3"><Properties><string name="Name">Cards</string><ProtectedString name="Source"><![CDATA[-- Cartes Italian Brainrot
+--
+-- `morceaux` = la SILHOUETTE du personnage : des blocs simples accroches au corps (ecart `pos`,
+-- `taille`, `couleur`, `forme` parmi bloc/boule/cylindre, `rot` en degres). Le serveur les pose
+-- dans `habiller` et les fait suivre le corps. Choix assume : geometrie faite ici plutot qu'un
+-- modele importe du catalogue Roblox — aucun telechargement, aucun identifiant d'asset a
+-- maintenir, et rien qui disparaisse si son auteur le retire.
+-- targets : "any" (tout) ou "buildings" (tours uniquement)
+-- Le cube `size` reste la zone de contact mais est INVISIBLE : les morceaux dessinent tout le
+-- personnage (2026-09-14 : vu de loin, le cube colore dominait la silhouette).
+-- echelle : grossit les morceaux (visuel seul, la zone de contact ne change pas).
+-- hauteurModele / modeleRotY : hauteur visee (studs) et correction de rotation du modele de la Boutique.
+-- prix : carte a debloquer en boutique (pieces). Sans prix, la carte est offerte des le depart.
+-- range < 5 = melee : ne peut pas toucher les unites volantes
+local Cards = {
+	{
+		id = "Tralalero", hauteurModele = 4.5, modeleRotY = 0, name = "Tralalero Tralala", cost = 3, echelle = 1,
+		hp = 650, dmg = 95, range = 3.5, speed = 11, atkSpeed = 1.0, count = 1,
+		color = Color3.fromRGB(70, 150, 255), size = Vector3.new(3, 3, 4),
+		targets = "any", desc = "Requin en Nike, rapide et solide",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.3, 0), taille = Vector3.new(2.6, 2.2, 4.6), couleur = Color3.fromRGB(70, 150, 255) },
+			{ pos = Vector3.new(0, -0.3, -0.2), taille = Vector3.new(2.2, 1.2, 4), couleur = Color3.fromRGB(235, 240, 250) },
+			{ pos = Vector3.new(0, 0.3, -2.6), taille = Vector3.new(2.4, 2, 1.8), forme = "boule", couleur = Color3.fromRGB(70, 150, 255) },
+			{ pos = Vector3.new(0, -0.4, -2.9), taille = Vector3.new(1.8, 0.3, 1), couleur = Color3.fromRGB(255, 255, 255) },
+			{ pos = Vector3.new(0, 2.3, 0.2), taille = Vector3.new(0.5, 2.4, 1.8), rot = Vector3.new(-20, 0, 0), couleur = Color3.fromRGB(50, 120, 230) },
+			{ pos = Vector3.new(0, 0.9, 2.9), taille = Vector3.new(0.5, 2.4, 1.4), rot = Vector3.new(25, 0, 0), couleur = Color3.fromRGB(50, 120, 230) },
+			{ pos = Vector3.new(-1.35, 0.8, -2.8), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(1.35, 0.8, -2.8), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.9, -1.7, -0.6), taille = Vector3.new(1.2, 0.9, 2.4), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0.9, -1.7, -0.6), taille = Vector3.new(1.2, 0.9, 2.4), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-1.52, -1.6, -0.6), taille = Vector3.new(0.1, 0.4, 1.6), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(1.52, -1.6, -0.6), taille = Vector3.new(0.1, 0.4, 1.6), couleur = Color3.fromRGB(255, 60, 60) },
+		},
+	},
+	{
+		id = "Bombardiro", prix = 500, hauteurModele = 3.5, modeleRotY = 90, name = "Bombardiro Crocodilo", cost = 5,
+		hp = 750, dmg = 180, range = 3, speed = 8, atkSpeed = 2.0, count = 1,
+		color = Color3.fromRGB(60, 120, 50), size = Vector3.new(5, 2, 4),
+		targets = "buildings", flying = true, splash = 5, desc = "Bombardier volant, vise les tours",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.2, 1.8, 5), couleur = Color3.fromRGB(80, 150, 70) },
+			{ pos = Vector3.new(0, 0, -3.4), taille = Vector3.new(1.6, 1, 2.6), couleur = Color3.fromRGB(90, 165, 80) },
+			{ pos = Vector3.new(-0.5, 0.6, -2.4), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(255, 230, 80) },
+			{ pos = Vector3.new(0.5, 0.6, -2.4), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(255, 230, 80) },
+			{ pos = Vector3.new(0, -0.45, -3.6), taille = Vector3.new(1.4, 0.15, 2), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-4, 0.2, 0), taille = Vector3.new(5.5, 0.4, 2.4), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(4, 0.2, 0), taille = Vector3.new(5.5, 0.4, 2.4), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(-2.6, -0.6, -0.3), taille = Vector3.new(2.4, 1, 1), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(60, 60, 65), materiau = "Metal" },
+			{ pos = Vector3.new(2.6, -0.6, -0.3), taille = Vector3.new(2.4, 1, 1), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(60, 60, 65), materiau = "Metal" },
+			{ pos = Vector3.new(0, 1.2, 2.4), taille = Vector3.new(0.3, 1.8, 1.2), couleur = Color3.fromRGB(80, 150, 70) },
+			{ pos = Vector3.new(0, 0.3, 2.8), taille = Vector3.new(3, 0.3, 1), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(0, -1.3, 0.3), taille = Vector3.new(1.8, 0.8, 0.8), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(40, 40, 40), materiau = "Metal" },
+		},
+	},
+	{
+		id = "TungSahur", hauteurModele = 6, modeleRotY = 0, name = "Tung Tung Tung Sahur", cost = 4,
+		hp = 1100, dmg = 150, range = 3.5, speed = 8, atkSpeed = 1.2, count = 1,
+		color = Color3.fromRGB(150, 100, 60), size = Vector3.new(2, 6, 2),
+		targets = "any", splash = 3, desc = "Coup de batte en zone",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.3, 0), taille = Vector3.new(5, 2.2, 2.2), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(195, 150, 100), materiau = "Wood" },
+			{ pos = Vector3.new(-0.5, 1.6, -1.05), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0.5, 1.6, -1.05), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-0.5, 1.6, -1.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.5, 1.6, -1.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 0.7, -1.12), taille = Vector3.new(1.2, 0.25, 0.1), couleur = Color3.fromRGB(60, 30, 20) },
+			{ pos = Vector3.new(1.5, 0.8, 0), taille = Vector3.new(0.5, 2.2, 0.5), rot = Vector3.new(0, 0, 40), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(-1.5, 0.8, 0), taille = Vector3.new(0.5, 2.2, 0.5), rot = Vector3.new(0, 0, -40), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(2.8, 2.6, 0), taille = Vector3.new(4.2, 0.9, 0.9), forme = "cylindre", rot = Vector3.new(0, 0, 35), couleur = Color3.fromRGB(110, 75, 45), materiau = "Wood" },
+			{ pos = Vector3.new(-0.6, -2.8, 0), taille = Vector3.new(0.6, 1.4, 0.6), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(0.6, -2.8, 0), taille = Vector3.new(0.6, 1.4, 0.6), couleur = Color3.fromRGB(170, 125, 80) },
+		},
+	},
+	{
+		id = "Patapim", prix = 800, hauteurModele = 6.5, modeleRotY = 0, name = "Brr Brr Patapim", cost = 5,
+		hp = 2200, dmg = 120, range = 3, speed = 5.5, atkSpeed = 1.5, count = 1,
+		color = Color3.fromRGB(40, 90, 30), size = Vector3.new(5, 5, 5),
+		targets = "buildings", desc = "Tank foret, fonce sur les tours",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(4.4, 4, 4), couleur = Color3.fromRGB(70, 120, 50), materiau = "Grass" },
+			{ pos = Vector3.new(0, 1, -2.2), taille = Vector3.new(3.6, 2.4, 1), couleur = Color3.fromRGB(200, 170, 140) },
+			{ pos = Vector3.new(-0.8, 0.6, -3), taille = Vector3.new(1.3, 1.3, 1.3), forme = "boule", couleur = Color3.fromRGB(215, 180, 150) },
+			{ pos = Vector3.new(0.8, 0.6, -3), taille = Vector3.new(1.3, 1.3, 1.3), forme = "boule", couleur = Color3.fromRGB(215, 180, 150) },
+			{ pos = Vector3.new(-1, 2.2, -2.75), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(1, 2.2, -2.75), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 3.1, -0.4), taille = Vector3.new(4, 0.6, 3), couleur = Color3.fromRGB(40, 25, 15) },
+			{ pos = Vector3.new(-1.4, 4, 0.6), taille = Vector3.new(0.5, 3, 0.5), rot = Vector3.new(0, 0, -25), couleur = Color3.fromRGB(90, 60, 35), materiau = "Wood" },
+			{ pos = Vector3.new(1.4, 4.2, 0.2), taille = Vector3.new(0.5, 3.4, 0.5), rot = Vector3.new(0, 0, 20), couleur = Color3.fromRGB(90, 60, 35), materiau = "Wood" },
+			{ pos = Vector3.new(0, 5.2, 0.4), taille = Vector3.new(3, 3, 3), forme = "boule", couleur = Color3.fromRGB(50, 140, 45), materiau = "Grass" },
+			{ pos = Vector3.new(-1.2, -2.5, 0), taille = Vector3.new(1.2, 1.2, 1.6), couleur = Color3.fromRGB(90, 60, 35) },
+			{ pos = Vector3.new(1.2, -2.5, 0), taille = Vector3.new(1.2, 1.2, 1.6), couleur = Color3.fromRGB(90, 60, 35) },
+		},
+	},
+	{
+		id = "Cappuccino", hauteurModele = 5.5, modeleRotY = 0, name = "Cappuccino Assassino", cost = 2,
+		hp = 320, dmg = 130, range = 3, speed = 16, atkSpeed = 0.8, count = 1,
+		color = Color3.fromRGB(110, 70, 40), size = Vector3.new(2, 3, 2),
+		targets = "any", desc = "Assassin ultra rapide",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.2, 0), taille = Vector3.new(2.6, 2, 2), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(0, 1.5, 0), taille = Vector3.new(0.2, 1.9, 1.9), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(120, 75, 40) },
+			{ pos = Vector3.new(0, 1.75, 0), taille = Vector3.new(1.6, 1.6, 1.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(1.3, 0.2, 0), taille = Vector3.new(0.4, 1.4, 1), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(0, 0.6, -1.02), taille = Vector3.new(2.05, 0.6, 0.1), couleur = Color3.fromRGB(30, 30, 40) },
+			{ pos = Vector3.new(-0.4, 0.6, -1.1), taille = Vector3.new(0.35, 0.25, 0.1), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(0.4, 0.6, -1.1), taille = Vector3.new(0.35, 0.25, 0.1), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(-1.4, 0, -0.4), taille = Vector3.new(0.2, 1.6, 0.5), rot = Vector3.new(30, 0, 0), couleur = Color3.fromRGB(200, 200, 210), materiau = "Metal" },
+			{ pos = Vector3.new(1.4, 0, -0.4), taille = Vector3.new(0.2, 1.6, 0.5), rot = Vector3.new(30, 0, 0), couleur = Color3.fromRGB(200, 200, 210), materiau = "Metal" },
+			{ pos = Vector3.new(-0.5, -1.6, 0), taille = Vector3.new(0.5, 0.8, 1.2), couleur = Color3.fromRGB(40, 40, 50) },
+			{ pos = Vector3.new(0.5, -1.6, 0), taille = Vector3.new(0.5, 0.8, 1.2), couleur = Color3.fromRGB(40, 40, 50) },
+		},
+	},
+	{
+		id = "Chimpanzini", hauteurModele = 4.5, modeleRotY = 180, name = "Chimpanzini Bananini", cost = 3,
+		hp = 220, dmg = 60, range = 3, speed = 14, atkSpeed = 0.7, count = 3,
+		color = Color3.fromRGB(240, 220, 60), size = Vector3.new(2, 2, 2),
+		targets = "any", desc = "Trois singes-bananes",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.6, 1.8, 1.8), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(250, 220, 60) },
+			{ pos = Vector3.new(-1, 0.9, 0), taille = Vector3.new(0.4, 1.8, 0.8), rot = Vector3.new(0, 0, 35), couleur = Color3.fromRGB(250, 225, 70) },
+			{ pos = Vector3.new(1, 0.9, 0), taille = Vector3.new(0.4, 1.8, 0.8), rot = Vector3.new(0, 0, -35), couleur = Color3.fromRGB(250, 225, 70) },
+			{ pos = Vector3.new(0, 1.6, 0), taille = Vector3.new(1.5, 1.5, 1.5), forme = "boule", couleur = Color3.fromRGB(140, 95, 60) },
+			{ pos = Vector3.new(0, 1.45, -0.6), taille = Vector3.new(0.8, 0.8, 0.8), forme = "boule", couleur = Color3.fromRGB(210, 170, 130) },
+			{ pos = Vector3.new(-0.85, 1.7, 0), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(170, 125, 85) },
+			{ pos = Vector3.new(0.85, 1.7, 0), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(170, 125, 85) },
+			{ pos = Vector3.new(-0.3, 1.8, -0.7), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.3, 1.8, -0.7), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, -1.4, 0), taille = Vector3.new(0.5, 0.4, 0.5), couleur = Color3.fromRGB(90, 70, 30) },
+		},
+	},
+	{
+		id = "Lirili", hauteurModele = 5.5, modeleRotY = 90, name = "Lirili Larila", cost = 3, echelle = 1,
+		hp = 480, dmg = 75, range = 11, speed = 7, atkSpeed = 1.3, count = 1,
+		color = Color3.fromRGB(120, 200, 120), size = Vector3.new(3, 4, 3),
+		targets = "any", desc = "Elephant-cactus a distance",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.2, 0), taille = Vector3.new(2.6, 2.8, 2.4), couleur = Color3.fromRGB(120, 190, 110) },
+			{ pos = Vector3.new(0, 1.8, -0.8), taille = Vector3.new(2, 1.8, 1.8), couleur = Color3.fromRGB(130, 200, 120) },
+			{ pos = Vector3.new(0, 0.9, -2), taille = Vector3.new(0.7, 2.4, 0.7), rot = Vector3.new(35, 0, 0), couleur = Color3.fromRGB(120, 185, 110) },
+			{ pos = Vector3.new(-1.5, 1.9, -0.6), taille = Vector3.new(0.3, 1.8, 1.6), couleur = Color3.fromRGB(110, 175, 105) },
+			{ pos = Vector3.new(1.5, 1.9, -0.6), taille = Vector3.new(0.3, 1.8, 1.6), couleur = Color3.fromRGB(110, 175, 105) },
+			{ pos = Vector3.new(-0.5, 2.2, -1.72), taille = Vector3.new(0.35, 0.35, 0.35), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.5, 2.2, -1.72), taille = Vector3.new(0.35, 0.35, 0.35), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.8, 3, 0), taille = Vector3.new(0.15, 0.8, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(0.6, 3.1, 0.4), taille = Vector3.new(0.15, 0.8, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(1.35, 0.6, 0.5), taille = Vector3.new(0.8, 0.15, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(0, 1.2, 1.25), taille = Vector3.new(0.3, 1.2, 1.2), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(240, 235, 200) },
+			{ pos = Vector3.new(-0.7, -1.8, 0), taille = Vector3.new(0.8, 0.3, 1.2), couleur = Color3.fromRGB(150, 100, 60) },
+			{ pos = Vector3.new(0.7, -1.8, 0), taille = Vector3.new(0.8, 0.3, 1.2), couleur = Color3.fromRGB(150, 100, 60) },
+		},
+	},
+	{
+		id = "Ballerina", hauteurModele = 5, modeleRotY = -90, name = "Ballerina Cappuccina", cost = 2,
+		hp = 260, dmg = 55, range = 9, speed = 10, atkSpeed = 0.9, count = 1,
+		color = Color3.fromRGB(255, 150, 200), size = Vector3.new(2, 4, 2),
+		targets = "any", desc = "Tireuse legere a distance",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.5, 0), taille = Vector3.new(1, 1.6, 0.8), couleur = Color3.fromRGB(250, 200, 215) },
+			{ pos = Vector3.new(0, 2.2, 0), taille = Vector3.new(1.6, 1.7, 1.7), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(250, 245, 235) },
+			{ pos = Vector3.new(0, 3.05, 0), taille = Vector3.new(0.15, 1.5, 1.5), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(120, 75, 40) },
+			{ pos = Vector3.new(1.05, 2.2, 0), taille = Vector3.new(0.3, 1, 0.8), couleur = Color3.fromRGB(250, 245, 235) },
+			{ pos = Vector3.new(-0.35, 2.3, -0.87), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.35, 2.3, -0.87), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, -0.3, 0), taille = Vector3.new(0.5, 3.6, 3.6), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(255, 150, 205) },
+			{ pos = Vector3.new(0, -0.1, 0), taille = Vector3.new(0.4, 3, 3), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(255, 190, 225) },
+			{ pos = Vector3.new(-1, 1.9, 0), taille = Vector3.new(0.3, 1.8, 0.3), rot = Vector3.new(0, 0, 30), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(1, 1.9, 0), taille = Vector3.new(0.3, 1.8, 0.3), rot = Vector3.new(0, 0, -30), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(-0.3, -1.4, 0), taille = Vector3.new(0.3, 1.4, 0.3), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(0.3, -1.4, 0), taille = Vector3.new(0.3, 1.4, 0.3), couleur = Color3.fromRGB(250, 215, 225) },
+		},
+	},
+}
+
+local byId = {}
+for _, c in ipairs(Cards) do
+	byId[c.id] = c
+end
+
+return { list = Cards, byId = byId }
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX4"><Properties><string name="Name">Sons</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : habillage sonore (« game feel »).
+-- CHOIX D'ASSETS : uniquement des sons LIVRES AVEC LE CLIENT ROBLOX (rbxasset://sounds/...).
+-- Verifie le 2026-09-16 dans le dossier d'installation de Studio
+-- (Program Files (x86)/Roblox/Versions/version-93202a13414c4131/content/sounds) : ces 11 fichiers
+-- sont presents chez tout joueur. Aucun identifiant de la bibliotheque en ligne n'est
+-- utilise : rien a televerser, rien a faire moderer, aucune dependance au compte du createur.
+-- Le son se joue CHEZ LE CLIENT : ce module est appele depuis GameClient / Hub, jamais du serveur.
+local Sons = {}
+
+local SoundService = game:GetService("SoundService")
+local Debris = game:GetService("Debris")
+
+local B = "rbxasset://sounds/"
+
+-- nom d'evenement -> { asset, volume, vitesse de lecture }
+Sons.banque = {
+	selection    = { B .. "volume_slider.ogg",          0.35, 1.60 }, -- carte choisie dans la main
+	pose         = { B .. "action_jump.mp3",            0.55, 1.25 }, -- carte posee dans l'arene
+	mort         = { B .. "oof.ogg",                    0.45, 1.10 }, -- unite tuee
+	tourDetruite = { B .. "impact_explosion_03.mp3",    0.80, 1.00 }, -- tour qui tombe
+	victoire     = { B .. "action_get_up.mp3",          0.80, 1.20 },
+	defaite      = { B .. "ouch.ogg",                   0.70, 0.80 },
+	clic         = { B .. "volume_slider.ogg",          0.40, 1.00 }, -- bouton d'interface
+	coffre       = { B .. "action_jump_land.mp3",       0.70, 1.15 }, -- coffre ouvert
+	refus        = { B .. "action_falling.ogg",         0.45, 1.30 }, -- achat impossible
+}
+
+-- Joue un evenement. Retourne le Sound cree (ou nil si le nom est inconnu : un nom fautif ne doit
+-- jamais casser la partie). Les sons sont crees dans SoundService puis nettoyes par Debris :
+-- aucune fuite d'instance, meme si le joueur clique cent fois.
+function Sons.jouer(nom, volumeRelatif)
+	local e = Sons.banque[nom]
+	if not e then
+		return nil
+	end
+	local s = Instance.new("Sound")
+	s.Name = "BRR_" .. nom
+	s.SoundId = e[1]
+	s.Volume = e[2] * (volumeRelatif or 1)
+	s.PlaybackSpeed = e[3]
+	s.Parent = SoundService
+	s:Play()
+	Debris:AddItem(s, 6)
+	return s
+end
+
+return Sons
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX29"><Properties><string name="Name">Modeles</string></Properties><Item class="Model" referent="RBX7"><Properties><string name="Name">Patapim</string></Properties><Item class="MeshPart" referent="RBX6"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3><CoordinateFrame name="CFrame"><X>4.857778549194336e-06</X><Y>0</Y><Z>3.1113624572753906e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://71881820877794</url></Content><Content name="TextureID"><url>rbxassetid://103314046532055</url></Content><Vector3 name="InitialSize"><X>0.8967723846435547</X><Y>0.9876959323883057</Y><Z>0.7631139755249023</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX11"><Properties><string name="Name">Ballerina</string></Properties><Item class="MeshPart" referent="RBX8"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.6886162757873535</X><Y>7.881158351898193</Y><Z>3.8781416416168213</Z></Vector3><CoordinateFrame name="CFrame"><X>0.905242919921875</X><Y>1.5069427490234375</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">272</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://112514228472682</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.8962054252624512</X><Y>2.6270527839660645</Y><Z>1.2927138805389404</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX9"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>3.3437068462371826</X><Y>2.5043978691101074</Y><Z>3.713331699371338</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>4.050514221191406</Y><Z>-0.18480682373046875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://115602253030514</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>1.1145689487457275</X><Y>0.8347992897033691</Y><Z>1.2377772331237793</Z></Vector3></Properties></Item><Item class="MeshPart" referent="RBX10"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>8.041040420532227</X><Y>0.8045840263366699</Y><Z>0.739251434803009</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>1.8168106079101562</Y><Z>-0.06512451171875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://120054216992808</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>2.680346965789795</X><Y>0.26819467544555664</Y><Z>0.24641714990139008</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX13"><Properties><string name="Name">Lirili</string></Properties><Item class="MeshPart" referent="RBX12"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3><CoordinateFrame name="CFrame"><X>5.900859832763672e-06</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://97283327340424</url></Content><Content name="TextureID"><url>rbxassetid://104099747853532</url></Content><Vector3 name="InitialSize"><X>0.9631451368331909</X><Y>0.7318747639656067</Y><Z>0.529364824295044</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX16"><Properties><string name="Name">Bombardiro</string></Properties><Item class="MeshPart" referent="RBX15"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>12.312838554382324</X><Y>6.185354709625244</Y><Z>5.87946891784668</Z></Vector3><CoordinateFrame name="CFrame"><X>0.00048828125</X><Y>0</Y><Z>0</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://75405893930816</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>0.9999892711639404</X><Y>0.5023446083068848</Y><Z>0.4775020480155945</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX14"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://121400661277983</url></Content><Content name="NormalMap"><url>rbxassetid://112538439987573</url></Content><Content name="MetalnessMap"><url>rbxassetid://135318981172652</url></Content><Content name="RoughnessMap"><url>rbxassetid://127165866948049</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item><Item class="Model" referent="RBX18"><Properties><string name="Name">TungSahur</string></Properties><Item class="MeshPart" referent="RBX17"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.891804575920105</X><Y>4.74713134765625</Y><Z>1.9500000476837158</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>0</Y><Z>3.0517578125e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://82464974337955</url></Content><Content name="TextureID"><url>rbxassetid://105445253181063</url></Content><Vector3 name="InitialSize"><X>0.3973720073699951</X><Y>0.9971309900283813</Y><Z>0.40965497493743896</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX20"><Properties><string name="Name">Chimpanzini</string></Properties><Item class="MeshPart" referent="RBX19"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.314237117767334</X><Y>1.3366730213165283</Y><Z>1.637129545211792</Z></Vector3><CoordinateFrame name="CFrame"><X>9.5367431640625e-07</X><Y>-1.6450881958007812e-05</Y><Z>2.002716064453125e-05</Z><R00>1</R00><R01>1.499759904157988e-32</R01><R02>0</R02><R10>1.499759904157988e-32</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://89090952243408</url></Content><Content name="TextureID"><url>rbxassetid://128173719562870</url></Content><Vector3 name="InitialSize"><X>1.8739659786224365</X><Y>1.9969359636306763</Y><Z>1.7717249393463135</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX23"><Properties><string name="Name">Tralalero</string></Properties><Item class="Part" referent="RBX21"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.0499999523162842</X><Y>1.0499999523162842</Y><Z>1.399999976158142</Z></Vector3><CoordinateFrame name="CFrame"><X>-0.055873870849609375</X><Y>0.31945037841796875</Y><Z>-2.4748425483703613</Z><R00>1</R00><R01>0</R01><R02>-2.8850549191879416e-22</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>-2.8850549191879416e-22</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0.9900000095367432</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><token name="shape">1</token></Properties></Item><Item class="MeshPart" referent="RBX22"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>5.551590919494629</X><Y>6.267302989959717</Y><Z>10.311858177185059</Z></Vector3><CoordinateFrame name="CFrame"><X>5.340576171875e-05</X><Y>0</Y><Z>-3.147125244140625e-05</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://123724059950086</url></Content><Content name="TextureID"><url>rbxassetid://106812992075443</url></Content><Vector3 name="InitialSize"><X>103.8756103515625</X><Y>117.26727294921875</Y><Z>192.94479370117188</Z></Vector3></Properties></Item></Item><Item class="Model" referent="RBX28"><Properties><string name="Name">Cappuccino</string></Properties><Item class="MeshPart" referent="RBX25"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>0.9416594505310059</X><Y>1.1344795227050781</Y><Z>0.8220741748809814</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-7.62939453125e-06</Y><Z>0.07830810546875</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://111922011308347</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>3.7666378021240234</X><Y>4.5379180908203125</Y><Z>3.288296699523926</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX24"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://136630204328103</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://101968079720915</url></Content><Content name="RoughnessMap"><url>rbxassetid://104828854490183</url></Content><token name="AlphaMode">0</token></Properties></Item></Item><Item class="MeshPart" referent="RBX27"><Properties><string name="Name">Piece</string><Vector3 name="size"><X>1.7559442520141602</X><Y>0.6899687051773071</Y><Z>0.5857008695602417</Z></Vector3><CoordinateFrame name="CFrame"><X>0</X><Y>-0.09552383422851562</Y><Z>-0.196533203125</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame><Color3uint8 name="Color3uint8">4288914085</Color3uint8><token name="Material">256</token><float name="Transparency">0</float><bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool><Content name="MeshId"><url>rbxassetid://129090024505620</url></Content><Content name="TextureID"><null></null></Content><Vector3 name="InitialSize"><X>7.023777008056641</X><Y>2.7598748207092285</Y><Z>2.342803478240967</Z></Vector3></Properties><Item class="SurfaceAppearance" referent="RBX26"><Properties><string name="Name">SurfaceAppearance</string><Content name="ColorMap"><url>rbxassetid://100825893881927</url></Content><Content name="NormalMap"><null></null></Content><Content name="MetalnessMap"><url>rbxassetid://97507844471978</url></Content><Content name="RoughnessMap"><url>rbxassetid://117572375731245</url></Content><token name="AlphaMode">0</token></Properties></Item></Item></Item></Item></Item><Item class="ServerStorage" referent="RBX31"><Properties><string name="Name">ServerStorage</string></Properties></Item><Item class="ServerScriptService" referent="RBX34"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX32"><Properties><string name="Name">GameServer</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : serveur (arene, elixir, unites, tours, bot)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
+local Lighting = game:GetService("Lighting")
+
+local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
+local Economie = require(script.Parent:WaitForChild("Economie"))
+-- Habillage visuel : particules, lumieres, anneau de pose. Aucun asset requis.
+local Effets = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Effets"))
+
+Players.CharacterAutoLoads = false
+
+-- Remotes
+local remotes = Instance.new("Folder")
+remotes.Name = "Remotes"
+remotes.Parent = ReplicatedStorage
+local PlayCard = Instance.new("RemoteEvent")
+PlayCard.Name = "PlayCard"
+PlayCard.Parent = remotes
+local StateEvent = Instance.new("RemoteEvent")
+StateEvent.Name = "State"
+StateEvent.Parent = remotes
+-- Boutique / hub : le client DEMANDE, le serveur verifie tout (voir Economie.lua)
+local BoutiqueFn = Instance.new("RemoteFunction")
+BoutiqueFn.Name = "Boutique"
+BoutiqueFn.Parent = remotes
+local RestartEvent = Instance.new("RemoteEvent")
+RestartEvent.Name = "Restart"
+RestartEvent.Parent = remotes
+
+-- Constantes
+-- Largeur de l'arene portee de 18 a 28 (2026-09-14) : a 36 studs de large pour 64 de long, l'arene
+-- ne pouvait pas remplir un ecran large — la hauteur etait pleine, les cotes vides. Les ponts et
+-- les tours laterales se DEDUISENT de la largeur, pour qu'un prochain reglage n'en oublie aucun.
+local HALF_W, HALF_L = 28, 32
+local VOIE_X = math.floor(HALF_W * 0.61) -- axe des ponts et des tours de cote (17 pour 28)
+local BRIDGES = { -VOIE_X, VOIE_X }
+local MAX_ELIXIR = 10
+local ELIXIR_PER_SEC = 1 / 2.8
+-- Duree d'une partie. La COPIE DE TEST la raccourcit (marqueur BRR_COURT pose par build.py) :
+-- sinon, verifier la fin de partie demanderait 3 minutes de capture par essai. 25 s et non 40 :
+-- le client de test rend la main vers 32 s, il ne voyait donc jamais la fin (mesure 2026-09-14).
+local MATCH_TIME = ReplicatedStorage:FindFirstChild("BRR_COURT") and 25 or 180
+local GROUND_Y = 0.5
+
+local arena
+local entities = {}
+local teams = {}
+-- declares ICI (et non pres de attribuerCamp) : endMatch et resetMatch, plus haut, s'en servent
+local equipeDe = {}          -- joueur -> 1 ou 2
+local occupant = { nil, nil } -- camp -> joueur
+local timeLeft = MATCH_TIME
+local result = nil
+local stateTimer = 0
+
+local function sideOf(z)
+	if z >= 0 then
+		return 1
+	end
+	return -1
+end
+
+local function makePart(props)
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	for k, v in pairs(props) do
+		p[k] = v
+	end
+	p.Parent = arena
+	return p
+end
+
+-- AMBIANCE. Par defaut, Roblox eclaire a plat : les cubes sortent ternes et l'arene grise.
+-- Soleil bas + ombres + brume legere + ciel : la meme geometrie gagne du relief, sans cout de calcul
+-- notable puisque tout est fixe (aucune lumiere dynamique ajoutee).
+local function poserAmbiance()
+	local ciel = Lighting:FindFirstChildOfClass("Sky") or Instance.new("Sky")
+	ciel.Parent = Lighting
+	Lighting.ClockTime = 15.5           -- fin d'apres-midi : ombres longues, couleurs chaudes
+	Lighting.GeographicLatitude = 12
+	Lighting.Brightness = 2.4
+	Lighting.ExposureCompensation = 0.15
+	Lighting.EnvironmentDiffuseScale = 0.45
+	Lighting.EnvironmentSpecularScale = 0.35
+	Lighting.OutdoorAmbient = Color3.fromRGB(120, 130, 150)
+	Lighting.Ambient = Color3.fromRGB(70, 75, 90)
+	Lighting.GlobalShadows = true
+	Lighting.ShadowSoftness = 0.4
+	-- PAS de Lighting.Technology ici : un script du jeu n'a pas le droit de l'ecrire (« lacking
+	-- capability RobloxScript », mesure du 2026-09-14) et l'erreur tuait tout le serveur — arene
+	-- absente, cartes vides. Le moteur de rendu est donc choisi dans le fichier de la place,
+	-- par build.py.
+
+	local brume = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
+	brume.Density = 0.32
+	brume.Offset = 0.1
+	brume.Haze = 1.2
+	brume.Glare = 0.35
+	brume.Color = Color3.fromRGB(210, 220, 235)
+	brume.Decay = Color3.fromRGB(160, 175, 200)
+	brume.Parent = Lighting
+
+	local eclat = Lighting:FindFirstChildOfClass("BloomEffect") or Instance.new("BloomEffect")
+	eclat.Intensity = 0.45; eclat.Size = 24; eclat.Threshold = 1.6; eclat.Parent = Lighting
+	local couleur = Lighting:FindFirstChildOfClass("ColorCorrectionEffect") or Instance.new("ColorCorrectionEffect")
+	couleur.Saturation = 0.18; couleur.Contrast = 0.12; couleur.Parent = Lighting
+	local profondeur = Lighting:FindFirstChildOfClass("SunRaysEffect") or Instance.new("SunRaysEffect")
+	profondeur.Intensity = 0.12; profondeur.Spread = 0.6; profondeur.Parent = Lighting
+end
+
+-- DECOR. Purement visuel (CanCollide=false, CanQuery=false) : n'influe ni sur le deplacement ni sur
+-- le ciblage. Tout est derive de HALF_W/HALF_L/BRIDGES, donc suit un futur redimensionnement.
+local function deco(props)
+	props.CanCollide = false
+	props.CanQuery = false
+	props.CastShadow = props.CastShadow ~= false
+	return makePart(props)
+end
+
+local function decorerArene()
+	local pierre = Color3.fromRGB(150, 145, 135)
+	-- bordures en pierre autour du terrain
+	for _, s in ipairs({ -1, 1 }) do
+		deco({ Name = "Muret", Size = Vector3.new(1.5, 1.6, HALF_L * 2 + 3), Position = Vector3.new(s * (HALF_W + 0.75), 0.8, 0), Color = pierre, Material = Enum.Material.Cobblestone })
+		deco({ Name = "Muret", Size = Vector3.new(HALF_W * 2 + 3, 1.6, 1.5), Position = Vector3.new(0, 0.8, s * (HALF_L + 0.75)), Color = pierre, Material = Enum.Material.Cobblestone })
+	end
+	-- sol exterieur plus sombre pour detacher l'arene
+	deco({ Name = "Exterieur", Size = Vector3.new(HALF_W * 2 + 120, 0.8, HALF_L * 2 + 120), Position = Vector3.new(0, -0.3, 0), Color = Color3.fromRGB(55, 105, 50), Material = Enum.Material.Grass, CastShadow = false })
+	-- allees de terre menant aux ponts
+	for _, bx in ipairs(BRIDGES) do
+		deco({ Name = "Allee", Size = Vector3.new(3.2, 0.06, HALF_L * 2 - 4), Position = Vector3.new(bx, 0.53, 0), Color = Color3.fromRGB(170, 135, 90), Material = Enum.Material.Ground, CastShadow = false })
+		for _, s in ipairs({ -1, 1 }) do
+			deco({ Name = "Rambarde", Size = Vector3.new(0.4, 1, 6), Position = Vector3.new(bx + s * 2.1, 1.1, 0), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood })
+		end
+	end
+	-- berges de la riviere
+	for _, s in ipairs({ -1, 1 }) do
+		deco({ Name = "Berge", Size = Vector3.new(HALF_W * 2, 0.7, 0.6), Position = Vector3.new(0, 0.55, s * 2.2), Color = Color3.fromRGB(120, 110, 95), Material = Enum.Material.Slate })
+	end
+	-- arbres et rochers autour, placement deterministe (meme decor a chaque partie)
+	local rng = Random.new(42)
+	for i = 1, 26 do
+		local cote = (i % 2 == 0) and 1 or -1
+		local x = cote * (HALF_W + 4 + rng:NextNumber(0, 14))
+		local z = rng:NextNumber(-HALF_L, HALF_L)
+		if i % 3 == 0 then
+			deco({ Name = "Rocher", Shape = Enum.PartType.Ball, Size = Vector3.new(3, 2.2, 3) * rng:NextNumber(0.7, 1.4), Position = Vector3.new(x, 0.6, z), Color = Color3.fromRGB(125, 125, 130), Material = Enum.Material.Rock })
+		else
+			local h = rng:NextNumber(4, 7)
+			deco({ Name = "Tronc", Size = Vector3.new(0.9, h, 0.9), Position = Vector3.new(x, h / 2, z), Color = Color3.fromRGB(100, 70, 40), Material = Enum.Material.Wood })
+			deco({ Name = "Feuillage", Shape = Enum.PartType.Ball, Size = Vector3.new(5, 5, 5) * rng:NextNumber(0.8, 1.3), Position = Vector3.new(x, h + 1.5, z), Color = Color3.fromRGB(50 + rng:NextInteger(0, 30), 130 + rng:NextInteger(0, 40), 55), Material = Enum.Material.Grass })
+		end
+	end
+end
+
+local function buildArena()
+	if arena then
+		arena:Destroy()
+	end
+	arena = Instance.new("Folder")
+	arena.Name = "Arena"
+	arena.Parent = workspace
+	poserAmbiance()
+
+	makePart({ Name = "GroundPlayer", Size = Vector3.new(HALF_W * 2, 1, HALF_L), Position = Vector3.new(0, 0, -HALF_L / 2), Color = Color3.fromRGB(90, 170, 80), Material = Enum.Material.Grass })
+	makePart({ Name = "GroundEnemy", Size = Vector3.new(HALF_W * 2, 1, HALF_L), Position = Vector3.new(0, 0, HALF_L / 2), Color = Color3.fromRGB(80, 150, 70), Material = Enum.Material.Grass })
+	makePart({ Name = "River", Size = Vector3.new(HALF_W * 2, 1.1, 4), Position = Vector3.new(0, 0.05, 0), Color = Color3.fromRGB(60, 140, 220), Material = Enum.Material.Glass, Transparency = 0.2 })
+	for _, bx in ipairs(BRIDGES) do
+		makePart({ Name = "Bridge", Size = Vector3.new(4, 1.3, 6), Position = Vector3.new(bx, 0.15, 0), Color = Color3.fromRGB(140, 100, 60), Material = Enum.Material.WoodPlanks })
+	end
+	-- zone de pose du joueur (visuelle)
+	makePart({ Name = "DeployZone", Size = Vector3.new(HALF_W * 2, 0.05, HALF_L - 2), Position = Vector3.new(0, 0.53, -(HALF_L - 2) / 2 - 2), Color = Color3.fromRGB(255, 255, 255), Transparency = 0.92, CanCollide = false })
+	decorerArene()
+end
+
+local function makeHealthBar(part, label, color)
+	local gui = Instance.new("BillboardGui")
+	-- Taille en PIXELS : en studs, la camera haute (~80 studs) rendait noms et barres illisibles.
+	local tour = part.Size.X >= 5
+	gui.Size = tour and UDim2.new(0, 110, 0, 30) or UDim2.new(0, 90, 0, 26)
+	gui.StudsOffset = Vector3.new(0, part.Size.Y / 2 + 1.5, 0)
+	gui.AlwaysOnTop = true
+	gui.Parent = part
+	local name = Instance.new("TextLabel")
+	name.BackgroundTransparency = 1
+	name.Size = UDim2.new(1, 0, 0.5, 0)
+	name.Text = label
+	name.TextScaled = true
+	name.TextColor3 = Color3.new(1, 1, 1)
+	name.TextStrokeTransparency = 0
+	name.Font = Enum.Font.GothamBold
+	name.Parent = gui
+	local back = Instance.new("Frame")
+	back.Size = UDim2.new(1, 0, 0.35, 0)
+	back.Position = UDim2.new(0, 0, 0.6, 0)
+	back.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	back.BorderSizePixel = 0
+	back.Parent = gui
+	local fill = Instance.new("Frame")
+	fill.Size = UDim2.new(1, 0, 1, 0)
+	fill.BackgroundColor3 = color
+	fill.BorderSizePixel = 0
+	fill.Parent = back
+	return fill
+end
+
+local function teamColor(team)
+	if team == 1 then
+		return Color3.fromRGB(60, 140, 255)
+	end
+	return Color3.fromRGB(255, 70, 70)
+end
+
+local function addEntity(e)
+	e.hp = e.maxHp
+	e.cooldown = 0
+	e.alive = true
+	if not e.enGroupe then
+		e.fill = makeHealthBar(e.part, e.label, teamColor(e.team))
+		e.etiquette = e.fill.Parent.Parent
+		e.hauteurBase = e.etiquette.StudsOffset.Y
+	end
+	table.insert(entities, e)
+	return e
+end
+
+local function spawnTower(team, x, z, isKing)
+	local size = isKing and Vector3.new(7, 8, 7) or Vector3.new(5, 7, 5)
+	local part = makePart({
+		Name = isKing and "KingTower" or "PrincessTower",
+		Size = size,
+		Position = Vector3.new(x, GROUND_Y + size.Y / 2, z),
+		Color = teamColor(team),
+		Material = Enum.Material.Brick,
+	})
+	-- habillage de la tour : socle, creneaux, toit conique, drapeau. Enfants de la tour, donc
+	-- detruits avec elle ; visuels seulement.
+	local function orner(props)
+		props.CanCollide = false; props.CanQuery = false; props.Anchored = true
+		local p = Instance.new("Part")
+		for k, v in pairs(props) do p[k] = v end
+		p.Parent = part
+	end
+	local haut = GROUND_Y + size.Y
+	orner({ Size = Vector3.new(size.X + 1.2, 1, size.Z + 1.2), Position = Vector3.new(x, GROUND_Y + 0.5, z), Color = Color3.fromRGB(140, 135, 125), Material = Enum.Material.Cobblestone })
+	for _, c in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
+		orner({ Size = Vector3.new(1.2, 1.2, 1.2), Position = Vector3.new(x + c[1] * (size.X / 2 - 0.6), haut + 0.6, z + c[2] * (size.Z / 2 - 0.6)), Color = Color3.fromRGB(200, 195, 185), Material = Enum.Material.Limestone })
+	end
+	orner({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(size.X * 0.7, size.X * 0.7, size.X * 0.7), CFrame = CFrame.new(x, haut + 1.4, z) * CFrame.Angles(0, 0, math.rad(90)), Color = teamColor(team):Lerp(Color3.new(0, 0, 0), 0.25), Material = Enum.Material.Slate })
+	orner({ Size = Vector3.new(0.2, 3.5, 0.2), Position = Vector3.new(x, haut + 3.5, z), Color = Color3.fromRGB(80, 60, 40), Material = Enum.Material.Wood })
+	orner({ Size = Vector3.new(1.8, 1.1, 0.1), Position = Vector3.new(x + 0.9, haut + 4.6, z), Color = isKing and Color3.fromRGB(255, 205, 60) or teamColor(team), Material = Enum.Material.Fabric })
+	return addEntity({
+		part = part, team = team, isBuilding = true, isKing = isKing,
+		label = isKing and "Roi" or "Tour",
+		-- melee de test : tours x20, sinon la partie finissait en 13-17 s et l'ecran de fin cachait tout
+		maxHp = (isKing and 5200 or 3400) * (ReplicatedStorage:FindFirstChild("BRR_MELEE") and 20 or 1), dmg = isKing and 70 or 55,
+		range = isKing and 12 or 14, atkSpeed = 0.85, speed = 0,
+		targets = "any", active = not isKing,
+	})
+end
+
+-- SILHOUETTES. Un cube colore ne dit pas quel personnage on joue. Chaque carte porte desormais une
+-- liste de morceaux (decalage, taille, couleur, forme) soudes au corps : museau, nageoire, ailes,
+-- batte, tasse, banane. C'est de la geometrie simple, sans fichier externe ni dependance a un
+-- modele du catalogue — donc rien a telecharger et rien qui puisse disparaitre.
+local MODELES = ReplicatedStorage:FindFirstChild("Modeles")
+
+local function habiller(corps, card, teamColor)
+	-- MODELE DE LA BOUTIQUE (ecrit dans la place par build.py, sans aucun script) : prioritaire
+	-- sur l'assemblage de morceaux, qui reste le repli si le modele manque.
+	local source = MODELES and MODELES:FindFirstChild(card.id)
+	if source then
+		local modele = source:Clone()
+		modele.WorldPivot = CFrame.new() -- build.py centre les pieces sur l'origine
+		-- rotation propre au modele : chaque auteur a choisi son « avant » ; on l'aligne sur l'avant
+		-- du corps (-Z, celui de CFrame.lookAt), qui suit la marche de l'unite.
+		modele:PivotTo(CFrame.Angles(0, math.rad(card.modeleRotY or 0), 0))
+		modele.WorldPivot = CFrame.new()
+		local _, taille = modele:GetBoundingBox()
+		-- HAUTEUR visee par carte (et non la plus grande dimension, qui ecrasait les modeles longs),
+		-- plafonnee pour qu'un modele tres long ne deborde pas sur les voisins.
+		local hauteur = (card.hauteurModele or card.size.Y * 1.5) * (card.echelle or 1)
+		local facteur = hauteur / math.max(taille.Y, 0.01)
+		local plafond = hauteur * 2.2 / math.max(taille.X, taille.Z, 0.01)
+		facteur = math.min(facteur, plafond)
+		if facteur > 0 then
+			modele:ScaleTo(facteur)
+		end
+		local _, apres = modele:GetBoundingBox()
+		-- pieds au niveau du bas du corps
+		local ecart = Vector3.new(0, apres.Y / 2 - card.size.Y / 2, 0)
+		modele:SetAttribute("Ecart", ecart)
+		modele:SetAttribute("RotX", 0); modele:SetAttribute("RotY", 0); modele:SetAttribute("RotZ", 0)
+		modele:PivotTo(corps.CFrame * CFrame.new(ecart))
+		modele.Parent = corps
+		-- sommet visuel (au-dessus du centre du corps) : sert a poser la marque de camp
+		corps:SetAttribute("HautVisuel", ecart.Y + apres.Y / 2)
+		return
+	end
+	local morceaux = card.morceaux
+	if not morceaux then return end
+	for _, m in ipairs(morceaux) do
+		local piece = Instance.new("Part")
+		piece.Anchored = true
+		piece.CanCollide = false
+		local k = card.echelle or 1
+		-- decalage vertical : a l'echelle k, les pieds descendraient sous le sol
+		local ecart = m.pos * k + Vector3.new(0, (k - 1) * card.size.Y / 2, 0)
+		piece.Size = m.taille * k
+		piece.Color = m.couleur or card.color
+		piece.Material = m.materiau and Enum.Material[m.materiau] or Enum.Material.SmoothPlastic
+		piece.TopSurface = Enum.SurfaceType.Smooth
+		piece.BottomSurface = Enum.SurfaceType.Smooth
+		if m.forme == "boule" then
+			piece.Shape = Enum.PartType.Ball
+		elseif m.forme == "cylindre" then
+			piece.Shape = Enum.PartType.Cylinder
+		end
+		piece.CFrame = corps.CFrame * CFrame.new(ecart) * CFrame.Angles(
+			math.rad(m.rot and m.rot.X or 0), math.rad(m.rot and m.rot.Y or 0), math.rad(m.rot and m.rot.Z or 0))
+		piece.Parent = corps
+		-- PAS DE WeldConstraint : il ne deplace pas une piece ANCREE, et tout est ancre ici (le jeu
+		-- bouge les unites a la main, sans physique). On garde donc l'ecart voulu dans un attribut,
+		-- et `suivreCorps` le reapplique apres chaque deplacement du corps.
+		piece:SetAttribute("Ecart", ecart)
+		piece:SetAttribute("RotX", m.rot and m.rot.X or 0)
+		piece:SetAttribute("RotY", m.rot and m.rot.Y or 0)
+		piece:SetAttribute("RotZ", m.rot and m.rot.Z or 0)
+	end
+end
+
+local function suivreCorps(corps)
+	for _, piece in ipairs(corps:GetChildren()) do
+		local ecart = piece:GetAttribute("Ecart")
+		if ecart then
+			local cf = corps.CFrame * CFrame.new(ecart) * CFrame.Angles(
+				math.rad(piece:GetAttribute("RotX")), math.rad(piece:GetAttribute("RotY")),
+				math.rad(piece:GetAttribute("RotZ")))
+			if piece:IsA("Model") then
+				piece:PivotTo(cf)
+			else
+				piece.CFrame = cf
+			end
+		end
+	end
+end
+
+local function multNiveau(team, id)
+	local niv = teams[team] and teams[team].niveaux
+	return Economie.multiplicateur(niv and niv[id] or 1)
+end
+
+-- Niveaux du ROBOT : chaque camp sans joueur prend, pour toutes ses cartes, le niveau fixe par les
+-- trophees du joueur d'en face (Economie.niveauRobot). Sans joueur en face : niveau 1.
+-- TOURS AU NIVEAU DU CAMP : niveau moyen des cartes du camp, meme bonus que les unites. Mesure du
+-- 2026-09-14 : seules les unites gagnaient en force, les tours tombaient vite a haut niveau et les
+-- parties duraient ~70 s au lieu de ~125. Appele quand les niveaux d'un camp changent ; une tour
+-- deja entamee garde sa PROPORTION de points de vie.
+-- Exposant des PV des tours. Mesures (7 parties par niveau, temps x8) : exposant 1 -> 104 s de jeu
+-- aux niveaux 3 et 5 (sim-C) ; exposant 2 -> 160 s, parties finies au chrono (sim-D) ; cible ~125 s.
+local EXPOSANT_PV_TOURS = 1.5
+local function majTours()
+	for camp = 1, 2 do
+		local t = teams[camp]
+		if t and t.niveaux then
+			local ids = {}
+			for _, c in ipairs(Cards.list) do
+				table.insert(ids, c.id)
+			end
+			if occupant[camp] then
+				ids = Economie.deck(occupant[camp]) or ids
+			end
+			local n = Economie.niveauMoyen(t.niveaux, ids)
+			local mult = Economie.multiplicateur(n)
+			t.niveauTours = n
+			for _, tw in ipairs(t.towers) do
+				tw.baseHp = tw.baseHp or tw.maxHp
+				tw.baseDmg = tw.baseDmg or tw.dmg
+				local part = tw.maxHp > 0 and (tw.hp / tw.maxHp) or 1
+				-- PV au CARRE du multiplicateur : une unite de niveau n survit mult fois plus longtemps ET
+				-- frappe mult fois plus fort, soit ~mult^2 degats encaisses par une tour. A mult simple,
+				-- les parties duraient 104 s aux niveaux 3 et 5 contre 127 s au niveau 1 (tools/sim-C.txt).
+				-- arrondi au plus proche : tronquer donnait 6663 au lieu de 6664 (3400 x 1,96) a cause des
+				-- decimales binaires de 1,4 x 1,4
+				tw.maxHp = math.floor(tw.baseHp * mult ^ EXPOSANT_PV_TOURS + 0.5)
+				tw.hp = tw.maxHp * part
+				tw.dmg = math.floor(tw.baseDmg * mult)
+			end
+		end
+	end
+end
+
+local function majNiveauxRobot()
+	for camp = 1, 2 do
+		if teams[camp] and occupant[camp] == nil then
+			local n = Economie.niveauRobot(occupant[3 - camp])
+			local niv = {}
+			for _, c in ipairs(Cards.list) do
+				niv[c.id] = n
+			end
+			teams[camp].niveaux = niv
+			teams[camp].niveauRobot = n
+		end
+	end
+	majTours()
+end
+
+local function spawnUnit(card, team, pos, offset, enGroupe)
+	local flyY = card.flying and 6 or 0
+	local part = makePart({
+		Name = card.id,
+		Size = card.size,
+		Position = Vector3.new(pos.X + offset.X, GROUND_Y + card.size.Y / 2 + flyY, pos.Z + offset.Z),
+		Color = card.color,
+		Material = Enum.Material.SmoothPlastic,
+		CanCollide = false,
+		-- invisible : le cube reste la zone de contact, les morceaux dessinent le personnage
+		Transparency = card.morceaux and 1 or 0,
+		CastShadow = not card.morceaux,
+	})
+	-- tourne vers l'adversaire des l'apparition (camp 1 regarde +Z, camp 2 regarde -Z) ; la marche
+	-- reoriente ensuite le corps via CFrame.lookAt.
+	part.CFrame = CFrame.lookAt(part.Position, part.Position + Vector3.new(0, 0, team == 1 and 1 or -1))
+	habiller(part, card, teamColor(team))
+	-- MARQUE DE CAMP au-dessus de la tete. En melee, les gros modeles recouvraient les disques au sol
+	-- et l'on ne savait plus qui etait bleu ou rouge (capture --melee du 2026-09-14). Piece 3D et non
+	-- etiquette flottante : CaptureService ne rend pas les BillboardGui, la marque ne serait pas
+	-- verifiable sur capture.
+	local haut = part:GetAttribute("HautVisuel") or card.size.Y / 2
+	local marque = Instance.new("Part")
+	marque.Name = "MarqueCamp"
+	marque.Anchored = true; marque.CanCollide = false; marque.CanQuery = false; marque.CastShadow = false
+	marque.Shape = Enum.PartType.Ball
+	marque.Size = Vector3.new(1.3, 1.3, 1.3)
+	marque.Material = Enum.Material.Neon
+	marque.Color = teamColor(team)
+	local ecartMarque = Vector3.new(0, haut + 1, 0)
+	marque:SetAttribute("Ecart", ecartMarque)
+	marque:SetAttribute("RotX", 0); marque:SetAttribute("RotY", 0); marque:SetAttribute("RotZ", 0)
+	marque.CFrame = part.CFrame * CFrame.new(ecartMarque)
+	marque.Parent = part
+	-- disque au sol a la couleur du camp (remplace le cadre autour du cube, qui dessinait un cube
+	-- meme invisible). Suit le corps via les attributs d'ecart, comme les morceaux.
+	local rayon = math.max(card.size.X, card.size.Z) + 0.6
+	local disque = Instance.new("Part")
+	disque.Anchored = true; disque.CanCollide = false; disque.CanQuery = false; disque.CastShadow = false
+	disque.Shape = Enum.PartType.Cylinder
+	disque.Size = Vector3.new(0.12, rayon, rayon)
+	disque.Color = teamColor(team); disque.Material = Enum.Material.Neon; disque.Transparency = 0.25
+	local basY = -(card.size.Y / 2) - flyY + 0.08
+	disque:SetAttribute("Ecart", Vector3.new(0, basY, 0))
+	disque:SetAttribute("RotX", 0); disque:SetAttribute("RotY", 0); disque:SetAttribute("RotZ", 90)
+	disque.CFrame = part.CFrame * CFrame.new(0, basY, 0) * CFrame.Angles(0, 0, math.rad(90))
+	disque.Parent = part
+	return addEntity({
+		part = part, team = team, isBuilding = false, label = card.name,
+		-- niveau de la carte pour le JOUEUR du camp (le robot reste niveau 1)
+		maxHp = math.floor(card.hp * multNiveau(team, card.id)), dmg = math.floor(card.dmg * multNiveau(team, card.id)),
+		range = card.range, atkSpeed = card.atkSpeed,
+		speed = card.speed, targets = card.targets, flying = card.flying, splash = card.splash,
+		active = true, lane = offset.X, enGroupe = enGroupe,
+	})
+end
+
+local function flatDist(a, b)
+	local d = a.part.Position - b.part.Position
+	return Vector3.new(d.X, 0, d.Z).Magnitude
+end
+
+local function canHit(attacker, target)
+	if attacker.targets == "buildings" and not target.isBuilding then
+		return false
+	end
+	if target.flying and not attacker.isBuilding and attacker.range < 5 and not attacker.flying then
+		return false
+	end
+	return true
+end
+
+local function findTarget(e)
+	local best, bestD = nil, math.huge
+	local sight = e.isBuilding and e.range or math.max(e.range, 10)
+	for _, o in ipairs(entities) do
+		if o.alive and o.team ~= e.team and canHit(e, o) then
+			local d = flatDist(e, o)
+			if d < bestD and (d <= sight or o.isBuilding) then
+				best, bestD = o, d
+			end
+		end
+	end
+	return best, bestD
+end
+
+local function shotEffect(from, to, color)
+	local a, b = from.part.Position, to.part.Position
+	local len = (b - a).Magnitude
+	local beam = Instance.new("Part")
+	beam.Anchored = true
+	beam.CanCollide = false
+	beam.Material = Enum.Material.Neon
+	beam.Color = color
+	beam.Size = Vector3.new(0.3, 0.3, len)
+	beam.CFrame = CFrame.lookAt(a, b) * CFrame.new(0, 0, -len / 2)
+	beam.Parent = arena
+	Debris:AddItem(beam, 0.12)
+end
+
+-- FIN DE PARTIE VUE DE CHAQUE CAMP.
+-- Avant, `result` contenait la PHRASE du camp 1 (« VICTOIRE ! » / « DEFAITE... ») et `sendState`
+-- l'envoyait telle quelle a tous les clients : a deux joueurs, le perdant lisait la victoire de
+-- l'autre. On garde donc le NUMERO du vainqueur, et chaque client recoit la phrase de SON camp.
+local vainqueur = nil -- 1, 2, ou 0 pour une egalite
+
+local function endMatch(winner)
+	if result then
+		return
+	end
+	vainqueur = winner or 0
+	if winner == 1 or winner == 2 then
+		-- Feu d'artifice au-dessus du camp qui gagne (z du Roi : -28 pour le camp 1, +28 pour le 2).
+		Effets.victoire(arena, Vector3.new(0, 0, winner == 1 and -28 or 28), teamColor(winner))
+	end
+	-- RECOMPENSES : chaque joueur ayant un camp gagne pieces et trophees selon SON issue.
+	-- task.spawn : la verification du pass VIP interroge Roblox et ne doit pas bloquer la boucle.
+	for camp, joueur in pairs(occupant) do
+		local issue = (vainqueur == 0) and "egalite" or (vainqueur == camp and "victoire" or "defaite")
+		task.spawn(Economie.recompenser, joueur, issue)
+	end
+	if winner == 1 then
+		result = "VICTOIRE !"
+	elseif winner == 2 then
+		result = "DEFAITE..."
+	else
+		result = "EGALITE"
+	end
+end
+
+local function texteFin(camp)
+	if vainqueur == nil then
+		return nil
+	elseif vainqueur == 0 then
+		return "EGALITE"
+	elseif camp == 0 then
+		-- Spectateur : on annonce QUI a gagne, sans « victoire » ni « defaite ».
+		return "CAMP " .. vainqueur .. " GAGNE"
+	elseif vainqueur == camp then
+		return "VICTOIRE !"
+	end
+	return "DEFAITE..."
+end
+
+local function crowns(team)
+	-- couronnes gagnees par `team` = tours ennemies detruites
+	local n = 0
+	for _, t in ipairs(teams[3 - team].towers) do
+		if not t.alive then
+			if t.isKing then
+				return 3
+			end
+			n = n + 1
+		end
+	end
+	return n
+end
+
+local function damage(target, amount)
+	if not target.alive then
+		return
+	end
+	target.hp = target.hp - amount
+	if target.isKing then
+		target.active = true
+	end
+	if target.hp <= 0 then
+		target.alive = false
+		local ou = target.part.Position
+		if target.isBuilding then
+			Effets.tourDetruite(arena, ou, teamColor(target.team))
+		else
+			Effets.mort(arena, ou, teamColor(target.team))
+		end
+		target.part:Destroy()
+		if target.fill then
+			target.fill.Size = UDim2.new(0, 0, 1, 0)
+		end
+		if target.isBuilding then
+			for _, t in ipairs(teams[target.team].towers) do
+				if t.isKing then
+					t.active = true
+				end
+			end
+			if target.isKing then
+				endMatch(3 - target.team)
+			end
+		end
+	elseif target.fill then
+		target.fill.Size = UDim2.new(target.hp / target.maxHp, 0, 1, 0)
+	end
+end
+
+local function attack(e, target)
+	shotEffect(e, target, teamColor(e.team))
+	Effets.impact(arena, target.part.Position, teamColor(e.team))
+	if e.splash then
+		local center = target.part.Position
+		for _, o in ipairs(entities) do
+			if o.alive and o.team ~= e.team then
+				local d = o.part.Position - center
+				if Vector3.new(d.X, 0, d.Z).Magnitude <= e.splash then
+					damage(o, e.dmg)
+				end
+			end
+		end
+	else
+		damage(target, e.dmg)
+	end
+end
+
+local function moveUnit(e, target, dt)
+	-- Une unite IMMOBILE (vitesse 0) ne se retourne pas : sinon elle pivotait vers le pont le plus
+	-- proche sans avancer, et la rangee de test montrait les modeles de profil (capture 2026-09-14).
+	if e.speed <= 0 then
+		return
+	end
+	local pos = e.part.Position
+	local goal = target.part.Position
+	-- Couloir : une unite de groupe garde son ecart lateral pendant la marche (sinon les 3
+	-- Chimpanzini convergeaient vers la meme cible et leurs etiquettes se recouvraient).
+	local lane = e.lane or 0
+	if not e.flying and sideOf(pos.Z) ~= sideOf(goal.Z) then
+		local bx = BRIDGES[1]
+		if math.abs(pos.X - BRIDGES[2]) < math.abs(pos.X - bx) then
+			bx = BRIDGES[2]
+		end
+		bx = bx + math.clamp(lane * 0.25, -1.2, 1.2) -- le pont fait 4 studs de large
+		if math.abs(pos.X - bx) > 0.8 then
+			goal = Vector3.new(bx, pos.Y, sideOf(pos.Z) * 4)
+		else
+			goal = Vector3.new(bx, pos.Y, -sideOf(pos.Z) * 4)
+		end
+	elseif lane ~= 0 and flatDist(e, target) > e.range + 6 then
+		goal = Vector3.new(math.clamp(goal.X + lane, -HALF_W + 1, HALF_W - 1), goal.Y, goal.Z)
+	end
+	local delta = Vector3.new(goal.X - pos.X, 0, goal.Z - pos.Z)
+	local dist = delta.Magnitude
+	if dist < 0.01 then
+		return
+	end
+	local step = math.min(dist, e.speed * dt)
+	local newPos = pos + delta.Unit * step
+	e.part.CFrame = CFrame.lookAt(newPos, newPos + delta.Unit)
+	suivreCorps(e.part)
+end
+
+-- `permises` : cartes debloquees du joueur (nil = toutes, pour le robot). Avec moins de 8 cartes,
+-- la file est completee en repetant le paquet : la main et la file ne sont jamais vides.
+local function newDeck(permises)
+	local ids = {}
+	if permises then
+		for _, id in ipairs(permises) do
+			table.insert(ids, id)
+		end
+	else
+		for _, c in ipairs(Cards.list) do
+			table.insert(ids, c.id)
+		end
+	end
+	local base = #ids
+	while #ids < 8 do
+		table.insert(ids, ids[(#ids % base) + 1])
+	end
+	for i = #ids, 2, -1 do
+		local j = math.random(1, i)
+		ids[i], ids[j] = ids[j], ids[i]
+	end
+	local hand = { ids[1], ids[2], ids[3], ids[4] }
+	local queue = { ids[5], ids[6], ids[7], ids[8] }
+	return hand, queue
+end
+
+-- Groupe (ex. 3 Chimpanzini) : triangle espace. Alignes a 2,5 studs, leurs etiquettes de 90 px
+-- se recouvraient (capture 3D du 2026-09-14). Le 2e avance d'un rang vers l'ennemi.
+local function offsetGroupe(i, n, team)
+	if n <= 1 then
+		return Vector3.new(0, 0, 0)
+	end
+	local x = (i - (n + 1) / 2) * 6
+	local avance = (i % 2 == 0) and 5 or 0
+	return Vector3.new(x, 0, team == 1 and avance or -avance)
+end
+
+-- UNE etiquette par groupe (ex. « Chimpanzini ×3 ») avec une barre de vie empilee par membre.
+-- Trois etiquettes separees se recouvraient des que le trio attaquait la meme cible (capture
+-- 3D du 2026-09-14). L'etiquette vit sur un ancre invisible qui suit le centre des survivants.
+local groupes = {}
+local compteurGroupes = 0
+local function spawnGroupe(card, team, pos)
+	local membres = {}
+	local enGroupe = card.count > 1
+	for i = 1, card.count do
+		table.insert(membres, spawnUnit(card, team, pos, offsetGroupe(i, card.count, team), enGroupe))
+	end
+	if not enGroupe then
+		return membres
+	end
+	local ancre = makePart({
+		Name = "Groupe" .. card.id, Size = Vector3.new(0.2, 0.2, 0.2), Transparency = 1,
+		CanCollide = false, CanQuery = false, Position = membres[1].part.Position,
+	})
+	-- Identifiant de groupe en ATTRIBUT sur l'ancre et sur chaque membre, pour que le client sache
+	-- qu'un groupe est dans la zone d'une tour des qu'UN membre y entre. (Des liens ObjectValue
+	-- avaient d'abord ete accuses de la vue blanche des captures ; la vraie cause etait la premiere
+	-- lecture perimee de la fenetre hors ecran, corrigee dans hors-ecran-capture.ps1 le 2026-09-14.)
+	compteurGroupes = compteurGroupes + 1
+	local idGroupe = "g" .. compteurGroupes
+	ancre:SetAttribute("Groupe", idGroupe)
+	for _, m in ipairs(membres) do
+		m.part:SetAttribute("Groupe", idGroupe)
+	end
+	local gui = Instance.new("BillboardGui")
+	gui.Size = UDim2.new(0, 110, 0, 18 + card.count * 8)
+	gui.StudsOffset = Vector3.new(0, card.size.Y / 2 + 2, 0)
+	gui.AlwaysOnTop = true
+	gui.Parent = ancre
+	local nomCourt = string.match(card.name, "^(%S+)") or card.name
+	local titre = Instance.new("TextLabel")
+	titre.BackgroundTransparency = 1
+	titre.Size = UDim2.new(1, 0, 0, 16)
+	titre.TextScaled = true
+	titre.TextColor3 = Color3.new(1, 1, 1)
+	titre.TextStrokeTransparency = 0
+	titre.Font = Enum.Font.GothamBold
+	titre.Parent = gui
+	for i, m in ipairs(membres) do
+		local fond = Instance.new("Frame")
+		fond.Size = UDim2.new(1, 0, 0, 6)
+		fond.Position = UDim2.new(0, 0, 0, 18 + (i - 1) * 8)
+		fond.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+		fond.BorderSizePixel = 0
+		fond.Parent = gui
+		local fill = Instance.new("Frame")
+		fill.Size = UDim2.new(1, 0, 1, 0)
+		fill.BackgroundColor3 = teamColor(team)
+		fill.BorderSizePixel = 0
+		fill.Parent = fond
+		m.fill = fill
+	end
+	table.insert(groupes, {
+		ancre = ancre, membres = membres, titre = titre, nom = nomCourt,
+		etiquette = gui, hauteurBase = gui.StudsOffset.Y,
+	})
+	return membres
+end
+
+local function majGroupes()
+	local restants = {}
+	for _, g in ipairs(groupes) do
+		local somme, vivants = Vector3.new(0, 0, 0), 0
+		for _, m in ipairs(g.membres) do
+			if m.alive then
+				somme = somme + m.part.Position
+				vivants = vivants + 1
+			end
+		end
+		if vivants == 0 or not g.ancre.Parent then
+			g.ancre:Destroy()
+		else
+			-- N'ecrire que ce qui CHANGE (economie de replication). Ce n'etait PAS la cause de la vue
+			-- blanche des captures, un temps soupconnee : premiere lecture perimee de la fenetre hors
+			-- ecran, corrigee dans hors-ecran-capture.ps1 le 2026-09-14.
+			local centre = somme / vivants
+			if (g.ancre.Position - centre).Magnitude > 0.1 then
+				g.ancre.Position = centre
+			end
+			local texte = g.nom .. " ×" .. vivants
+			if g.titre.Text ~= texte then
+				g.titre.Text = texte
+			end
+			table.insert(restants, g)
+		end
+	end
+	groupes = restants
+end
+
+-- Etagement des etiquettes : fait COTE CLIENT (GameClient), qui connait la vraie position a l'ecran.
+
+local function tryPlay(team, handIndex, pos)
+	if result then
+		return false
+	end
+	local t = teams[team]
+	local id = t.hand[handIndex]
+	local card = id and Cards.byId[id]
+	if not card or t.elixir < card.cost then
+		return false
+	end
+	-- zone de pose : sa propre moitie, dans l'arene
+	local z = pos.Z
+	local ok = math.abs(pos.X) <= HALF_W - 1 and math.abs(z) <= HALF_L - 1
+	if team == 1 then
+		ok = ok and z <= -3
+	else
+		ok = ok and z >= 3
+	end
+	if not ok then
+		return false
+	end
+	t.elixir = t.elixir - card.cost
+	Effets.pose(arena, pos, teamColor(team))
+	spawnGroupe(card, team, pos)
+	t.hand[handIndex] = table.remove(t.queue, 1)
+	table.insert(t.queue, id)
+	return true
+end
+
+local function resetMatch()
+	entities = {}
+	groupes = {}
+	result = nil
+	vainqueur = nil
+	timeLeft = MATCH_TIME
+	buildArena()
+	for team = 1, 2 do
+		local s = team == 1 and -1 or 1
+		local hand, queue = newDeck(occupant[team] and Economie.deck(occupant[team]))
+		local niveaux = occupant[team] and Economie.niveaux(occupant[team]) or nil
+		-- BRR_PARTIE (capture d'une partie normale) : 10 d'elixir au depart, sinon a 25 s de jeu
+		-- -- limite du client de test -- le terrain ne portait que 3 unites (mesure 2026-09-14).
+		teams[team] = { elixir = ReplicatedStorage:FindFirstChild("BRR_PARTIE") and MAX_ELIXIR or 5, hand = hand, queue = queue, towers = {}, botTimer = 2, niveaux = niveaux }
+		table.insert(teams[team].towers, spawnTower(team, -VOIE_X, s * 22, false))
+		table.insert(teams[team].towers, spawnTower(team, VOIE_X, s * 22, false))
+		table.insert(teams[team].towers, spawnTower(team, 0, s * 28, true))
+	end
+	majNiveauxRobot()
+end
+
+local function botThink(team, dt)
+	local t = teams[team]
+	t.botTimer = t.botTimer - dt
+	if t.botTimer > 0 then
+		return
+	end
+	-- MELEE (build.py --melee, copie de test) : rafale toutes les 0,4 s, elixir toujours plein, pose
+	-- pres de la riviere -- pour capturer un terrain charge avant la limite des 25 s du client de test.
+	local melee = ReplicatedStorage:FindFirstChild("BRR_MELEE") ~= nil
+	t.botTimer = melee and 0.4 or (1.5 + math.random() * 2.5)
+	if melee then
+		t.elixir = MAX_ELIXIR
+	end
+	local idx = math.random(1, 4)
+	local card = Cards.byId[t.hand[idx]]
+	if card and t.elixir >= card.cost then
+		local x = BRIDGES[math.random(1, 2)] + math.random(-3, 3)
+		local z = melee and math.random(4, 9) or math.random(6, 20)
+		if team == 1 then
+			z = -z
+		end
+		if tryPlay(team, idx, Vector3.new(x, 0, z)) then
+			print("[BRR] joue", team, card.id)
+		end
+	end
+end
+
+-- Mode test sans joueur (Studio > Run) : deux bots s'affrontent, rapport dans la sortie
+local autoTest = false
+local reportTimer = 0
+local reported = false
+local function report()
+	local towers = {}
+	for team = 1, 2 do
+		for _, tw in ipairs(teams[team].towers) do
+			table.insert(towers, string.format("%d%s=%d", team, tw.isKing and "R" or "T", tw.alive and math.floor(tw.hp) or 0))
+		end
+	end
+	local units, stuck = 0, 0
+	for _, e in ipairs(entities) do
+		if not e.isBuilding then
+			units = units + 1
+			local p = e.part.Position
+			-- Les unites VOLONTAIREMENT immobiles (trio de test, vitesse mise a zero) ne sont pas des
+			-- unites bloquees. Mesure du 2026-09-14 : les 19 alertes « bloquees » d'une partie
+			-- venaient toutes de ce trio, et m'ont fait croire a un defaut des ponts qui n'existe pas.
+			if e.speed > 0 and e.lastPos and (p - e.lastPos).Magnitude < 0.5 and e.cooldown < -1 then
+				stuck = stuck + 1
+				print("[BRR] BLOQUE", e.label, math.floor(p.X), math.floor(p.Z))
+			end
+			e.lastPos = p
+		end
+	end
+	print(string.format("[BRR] t=%d unites=%d bloquees=%d tours=%s resultat=%s", math.floor(timeLeft), units, stuck, table.concat(towers, " "), tostring(result)))
+end
+task.delay(3, function()
+	if #Players:GetPlayers() == 0 then
+		autoTest = true
+		print("[BRR] mode test auto : bot contre bot")
+	end
+end)
+
+-- DEUX JOUEURS POUR DE VRAI.
+-- Avant, tout etait cable sur l'equipe 1 : le premier arrivant jouait le camp 1, le camp 2 etait
+-- TOUJOURS le bot (`botThink(2, dt)` en dur), et l'etat envoye a chaque client etait celui de
+-- l'equipe 1 — deux joueurs connectes auraient vu et joue la MEME main.
+-- Desormais : le premier arrivant prend le camp 1, le second le camp 2, et le bot ne joue QUE le
+-- camp encore vide. Un joueur qui part libere son camp, que le bot reprend.
+
+local function attribuerCamp(player)
+	for camp = 1, 2 do
+		if occupant[camp] == nil then
+			occupant[camp] = player
+			equipeDe[player] = camp
+			print("[BRR] " .. player.Name .. " prend le camp " .. camp)
+			return camp
+		end
+	end
+	-- Les deux camps sont pris : le joueur regarde (aucune carte jouable).
+	print("[BRR] " .. player.Name .. " arrive en spectateur")
+	return nil
+end
+
+local function rejoindre(player)
+	if equipeDe[player] then
+		return equipeDe[player]
+	end
+	local seul = occupant[1] == nil and occupant[2] == nil
+	local camp = attribuerCamp(player)
+	if camp and seul and not ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") then
+		-- premier joueur : partie NEUVE, sinon il arrive dans un match que le robot mene deja
+		resetMatch()
+	elseif camp and teams[camp] then
+		-- la partie en cours avait distribue le paquet du robot : le joueur recoit le SIEN
+		teams[camp].hand, teams[camp].queue = newDeck(Economie.deck(player))
+		teams[camp].niveaux = Economie.niveaux(player)
+	end
+	majNiveauxRobot()
+	return camp
+end
+
+local function quitter(player)
+	local camp = equipeDe[player]
+	if camp then
+		occupant[camp] = nil
+		equipeDe[player] = nil
+		print("[BRR] " .. player.Name .. " retourne au hub : le bot reprend le camp " .. camp)
+		majNiveauxRobot()
+	end
+end
+
+-- HUB : un joueur arrive sur l'accueil SANS camp ; il en prend un en appuyant sur JOUER.
+-- La copie de test (sans --hub) le place directement, pour que les tests automatiques jouent.
+-- SCENARIO DE TEST de l'economie (build.py --autotest --ecotest) : chaque cas limite est joue
+-- cote serveur et son resultat imprime [ECOTEST] ; attendu=... permet de lire le journal sans code.
+local function ecotest(player)
+	task.wait(4)
+	local function cas(nom, attendu, obtenu)
+		print(string.format("[ECOTEST] %s : attendu=%s obtenu=%s %s", nom, tostring(attendu), tostring(obtenu),
+			tostring(attendu) == tostring(obtenu) and "OK" or "ECHEC"))
+	end
+	local p = Economie.profil(player)
+	cas("solde de depart", 100, p.pieces)
+	cas("Bombardiro verrouille au depart", "nil", tostring(p.cartes.Bombardiro))
+	local ok, motif = Economie.acheterCarte(player, "Bombardiro")
+	cas("achat sans assez de pieces", "pas assez de pieces", motif)
+	cas("solde inchange apres refus", 100, p.pieces)
+	p.pieces = 1000
+	ok = Economie.acheterCarte(player, "Bombardiro")
+	cas("achat Bombardiro a 1000", true, ok)
+	cas("solde apres achat", 500, p.pieces)
+	ok, motif = Economie.acheterCarte(player, "Bombardiro")
+	cas("double achat refuse", "deja debloquee", motif)
+	ok, motif = Economie.acheterCarte(player, "Tralalero")
+	cas("carte offerte non vendue", "deja debloquee", motif)
+	ok, motif = Economie.acheterCarte(player, "CarteInventee")
+	cas("carte inconnue", "carte inconnue", motif)
+	cas("Bombardiro dans le deck", true, table.find(Economie.deck(player), "Bombardiro") ~= nil)
+	ok = Economie.bonusQuotidien(player)
+	cas("bonus du jour", true, ok)
+	cas("solde apres bonus", 550, p.pieces)
+	ok = Economie.bonusQuotidien(player)
+	cas("second bonus refuse", false, ok)
+	local r = Economie.recompenser(player, "victoire")
+	cas("victoire : pieces", 30, r.pieces)
+	cas("victoire : trophees", 30, p.trophees)
+	Economie.recompenser(player, "defaite")
+	cas("defaite : trophees", 15, p.trophees)
+	Economie.recompenser(player, "defaite")
+	cas("trophees jamais negatifs", 0, p.trophees)
+	cas("leaderstats a jour", p.pieces, player.leaderstats.Pieces.Value)
+	-- COFFRES
+	Economie.graine(7)
+	p.coffres = {}
+	p.cartes.Patapim = nil
+	local t = Economie.gagnerCoffre(player, "or")
+	cas("coffre gagne", "or", t)
+	for _ = 1, 5 do
+		Economie.gagnerCoffre(player, "bois")
+	end
+	cas("4 emplacements maximum", 4, #p.coffres)
+	cas("coffre refuse si plein", "nil", tostring(Economie.gagnerCoffre(player, "bois")))
+	ok, motif = Economie.ouvrirCoffre(player, 1)
+	cas("ouverture sans demarrer", "pas demarre", motif)
+	ok = Economie.demarrerCoffre(player, 1)
+	cas("demarrage", true, ok)
+	cas("duree coffre d'or (s)", 3 * 3600, p.coffres[1].fin - os.time())
+	ok, motif = Economie.demarrerCoffre(player, 2)
+	cas("une seule ouverture a la fois", "un coffre s'ouvre deja", motif)
+	ok, motif = Economie.ouvrirCoffre(player, 1)
+	cas("ouverture trop tot", "pas encore pret", motif)
+	ok, motif = Economie.ouvrirCoffre(player, 9)
+	cas("coffre inexistant", "coffre inconnu", motif)
+	p.coffres[1].fin = os.time() - 1 -- on avance le temps
+	local avant = p.pieces
+	local gain
+	ok, gain = Economie.ouvrirCoffre(player, 1)
+	cas("ouverture une fois pret", true, ok)
+	cas("pieces du coffre d'or entre 150 et 250", true, gain.pieces >= 150 and gain.pieces <= 250)
+	cas("solde credite du gain", avant + gain.pieces, p.pieces)
+	cas("coffre d'or : carte verrouillee debloquee", "Patapim", gain.carte)
+	cas("carte bien ajoutee au profil", true, p.cartes.Patapim)
+	cas("coffre retire apres ouverture", 3, #p.coffres)
+	ok = Economie.demarrerCoffre(player, 1)
+	cas("demarrage possible apres ouverture", true, ok)
+	p.coffres[1].fin = os.time() - 1
+	ok, gain = Economie.ouvrirCoffre(player, 1)
+	cas("bois : pieces entre 20 et 60", true, gain.pieces >= 20 and gain.pieces <= 60)
+	local r2 = Economie.recompenser(player, "victoire")
+	cas("victoire donne un coffre si place libre", true, r2.coffre ~= nil)
+	-- NIVEAUX
+	p.niveaux, p.exemplaires = {}, {}
+	p.pieces = 2000
+	p.cartes.Patapim = true
+	cas("niveau de depart", 1, Economie.niveau(player, "Tralalero"))
+	ok, motif = Economie.ameliorer(player, "Tralalero")
+	cas("amelioration sans exemplaires", "pas assez d'exemplaires", motif)
+	p.exemplaires.Tralalero = 2
+	local av = p.pieces
+	ok = Economie.ameliorer(player, "Tralalero")
+	cas("amelioration niveau 2", true, ok)
+	cas("niveau apres amelioration", 2, Economie.niveau(player, "Tralalero"))
+	cas("exemplaires consommes", 0, p.exemplaires.Tralalero)
+	cas("pieces consommees (50)", av - 50, p.pieces)
+	p.exemplaires.Tralalero = 100
+	p.pieces = 10
+	ok, motif = Economie.ameliorer(player, "Tralalero")
+	cas("amelioration sans pieces", "pas assez de pieces", motif)
+	cas("exemplaires intacts apres refus", 100, p.exemplaires.Tralalero)
+	p.pieces = 100000
+	for _ = 1, 10 do
+		Economie.ameliorer(player, "Tralalero")
+	end
+	cas("plafond niveau 5", 5, Economie.niveau(player, "Tralalero"))
+	ok, motif = Economie.ameliorer(player, "Tralalero")
+	cas("amelioration au maximum refusee", "niveau maximum", motif)
+	cas("exemplaires consommes 4+10+20 (depuis le niveau 2)", 100 - 34, p.exemplaires.Tralalero)
+	p.cartes.Patapim = nil
+	ok, motif = Economie.ameliorer(player, "Patapim")
+	cas("carte verrouillee non ameliorable", "carte verrouillee", motif)
+	cas("multiplicateur niveau 5", 1.4, Economie.multiplicateur(5))
+	p.coffres = { { type = "argent", fin = os.time() - 1 } }
+	local total = 0
+	for _, n in pairs(p.exemplaires) do total += n end
+	ok, gain = Economie.ouvrirCoffre(player, 1)
+	cas("coffre d'argent donne 8 exemplaires", 8, gain.exemplaires)
+	local total2 = 0
+	for _, n in pairs(p.exemplaires) do total2 += n end
+	cas("exemplaires credites au profil", total + 8, total2)
+	cas("exemplaires sur une carte debloquee", true, p.cartes[gain.exemplaireCarte] == true)
+	local camp = equipeDe[player]
+	if camp then
+		teams[camp].niveaux = Economie.niveaux(player)
+		local u = spawnUnit(Cards.byId.Tralalero, camp, Vector3.new(0, 0, camp == 1 and -10 or 10), Vector3.zero)
+		cas("PV en partie au niveau 5", math.floor(Cards.byId.Tralalero.hp * 1.4), u.maxHp)
+		cas("degats en partie au niveau 5", math.floor(Cards.byId.Tralalero.dmg * 1.4), u.dmg)
+		local robot = spawnUnit(Cards.byId.Tralalero, 3 - camp, Vector3.new(0, 0, camp == 1 and 10 or -10), Vector3.zero)
+		cas("robot reste niveau 1", Cards.byId.Tralalero.hp, robot.maxHp)
+	else
+		print("[ECOTEST] joueur sans camp : cas en partie non joues")
+	end
+	-- NIVEAU DU ROBOT = niveau moyen du deck du joueur ; tours au niveau de leur camp
+	cas("moyenne vide -> 1", 1, Economie.niveauMoyen({}, {}))
+	cas("moyenne 1,1,1,1 -> 1", 1, Economie.niveauMoyen({ a = 1, b = 1, c = 1, d = 1 }, { "a", "b", "c", "d" }))
+	cas("moyenne 2,3 -> 2,5 arrondi a 3", 3, Economie.niveauMoyen({ a = 2, b = 3 }, { "a", "b" }))
+	cas("moyenne 1,1,1,2 -> 1,25 arrondi a 1", 1, Economie.niveauMoyen({ a = 1, b = 1, c = 1, d = 2 }, { "a", "b", "c", "d" }))
+	cas("moyenne 5,5 -> 5", 5, Economie.niveauMoyen({ a = 5, b = 5 }, { "a", "b" }))
+	cas("carte absente comptee niveau 1", 3, Economie.niveauMoyen({ a = 5 }, { "a", "b" }))
+	cas("les trophees ne comptent plus", Economie.niveauRobot(player), (function() local t = p.trophees; p.trophees = 5000; local n = Economie.niveauRobot(player); p.trophees = t; return n end)())
+	local campJ = equipeDe[player]
+	if campJ then
+		local campR = 3 - campJ
+		p.niveaux = {}
+		for _, id in ipairs(Economie.deck(player)) do
+			p.niveaux[id] = 3
+		end
+		teams[campJ].niveaux = Economie.niveaux(player)
+		majNiveauxRobot()
+		cas("deck du joueur tout niveau 3 -> robot niveau 3", 3, teams[campR].niveauRobot)
+		local ur = spawnUnit(Cards.byId.Tralalero, campR, Vector3.new(4, 0, campR == 1 and -10 or 10), Vector3.zero)
+		cas("PV d'une unite du robot au niveau 3", math.floor(Cards.byId.Tralalero.hp * 1.2), ur.maxHp)
+		cas("tours du robot au niveau 3", 3, teams[campR].niveauTours)
+		cas("tour du Roi du robot : 5200 x 1,2 puissance 1,5", math.floor(5200 * 1.2 ^ 1.5 + 0.5), teams[campR].towers[3].maxHp) -- 5200 x 1,2^1,5
+		cas("tours du joueur au niveau moyen de SON deck", 3, teams[campJ].niveauTours)
+		p.niveaux = {}
+		teams[campJ].niveaux = Economie.niveaux(player)
+		majNiveauxRobot()
+		cas("deck redescendu au niveau 1 -> robot niveau 1", 1, teams[campR].niveauRobot)
+		cas("tour du Roi revenue a 5200", 5200, teams[campR].towers[3].maxHp)
+		for _, id in ipairs(Economie.deck(player)) do
+			p.niveaux[id] = 5
+		end
+		resetMatch()
+		cas("nouvelle partie : deck niveau 5 -> robot niveau 5", 5, teams[campR].niveauRobot)
+		cas("nouvelle partie : tour princesse du robot 3400 x 1,4 puissance 1,5", math.floor(3400 * 1.4 ^ 1.5 + 0.5), teams[campR].towers[1].maxHp) -- 3400 x 1,4^1,5
+		cas("degats de la tour au multiplicateur simple", math.floor(55 * 1.4), teams[campR].towers[1].dmg)
+		local tw = teams[campR].towers[1]
+		tw.hp = tw.maxHp / 2
+		p.niveaux = {}
+		teams[campJ].niveaux = Economie.niveaux(player)
+		majNiveauxRobot()
+		cas("tour entamee garde sa proportion (50 %)", 0.5, math.floor(tw.hp / tw.maxHp * 100 + 0.5) / 100)
+		resetMatch()
+	else
+		print("[ECOTEST] joueur sans camp : cas robot en partie non joues")
+	end
+	print("[ECOTEST] FIN")
+end
+
+local function arrivee(player)
+	Economie.charger(player)
+	-- capture du hub avec des coffres dans chaque etat (build.py --coffres)
+	if ReplicatedStorage:FindFirstChild("BRR_COFFRES") then
+		local p = Economie.profil(player)
+		p.coffres = { { type = "or", fin = 0 }, { type = "argent", fin = os.time() + 47 * 60 }, { type = "bois", fin = os.time() - 5 } }
+	end
+	-- capture de la boutique avec des niveaux varies (build.py --niveaux)
+	if ReplicatedStorage:FindFirstChild("BRR_NIVEAUX") then
+		local p = Economie.profil(player)
+		p.pieces = 480
+		p.niveaux = { Tralalero = 3, TungSahur = 5, Ballerina = 2 }
+		p.exemplaires = { Tralalero = 7, Cappuccino = 2, Chimpanzini = 1, Lirili = 5 }
+	end
+	if ReplicatedStorage:FindFirstChild("BRR_ECOTEST") then
+		task.spawn(ecotest, player)
+	end
+	if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") and not ReplicatedStorage:FindFirstChild("BRR_HUB") then
+		rejoindre(player)
+	end
+end
+
+BoutiqueFn.OnServerInvoke = function(player, action, arg)
+	if action == "acheter" then
+		local ok, motif = Economie.acheterCarte(player, arg)
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "bonus" then
+		local ok, motif = Economie.bonusQuotidien(player)
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "demarrerCoffre" then
+		local ok, motif = Economie.demarrerCoffre(player, tonumber(arg))
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "ouvrirCoffre" then
+		local ok, gain = Economie.ouvrirCoffre(player, tonumber(arg))
+		return { ok = ok, motif = not ok and gain or nil, gain = ok and gain or nil, vue = Economie.vue(player) }
+	elseif action == "ameliorer" then
+		local ok, motif = Economie.ameliorer(player, arg)
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "deck" then
+		-- `arg` = liste d'identifiants envoyee par le hub. Economie.choisirDeck refuse tout ce qui
+		-- n'est pas possede : le client ne decide rien.
+		local ok, motif = Economie.choisirDeck(player, arg)
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "jouer" then
+		return { ok = rejoindre(player) ~= nil, vue = Economie.vue(player) }
+	elseif action == "quitter" then
+		quitter(player)
+		return { ok = true, vue = Economie.vue(player) }
+	elseif action == "robux" then
+		Economie.demanderRobux(player, tonumber(arg))
+		return { ok = true, vue = Economie.vue(player) }
+	end
+	return { ok = true, vue = Economie.vue(player) }
+end
+
+Players.PlayerAdded:Connect(arrivee)
+Players.PlayerRemoving:Connect(function(player)
+	Economie.liberer(player)
+	local camp = equipeDe[player]
+	if camp then
+		occupant[camp] = nil
+		equipeDe[player] = nil
+		print("[BRR] camp " .. camp .. " libere : le bot le reprend")
+	end
+end)
+for _, player in ipairs(Players:GetPlayers()) do
+	arrivee(player)
+end
+
+local function campLibre(camp)
+	return occupant[camp] == nil
+end
+
+local function sendState(player)
+	-- SPECTATEUR : aucun camp. Il recevait jusqu'ici l'etat du camp 1 (main, elixir, « Toi 0 - 1 »)
+	-- comme s'il jouait. On ne lui envoie donc ni main ni elixir, et le score est donne camp par
+	-- camp, sans « toi ».
+	local camp = equipeDe[player]
+	if camp == nil then
+		StateEvent:FireClient(player, {
+			elixir = 0,
+			hand = {},
+			nextCard = nil,
+			timeLeft = timeLeft,
+			spectateur = true,
+			crownsCamp1 = crowns(1),
+			crownsCamp2 = crowns(2),
+			crownsYou = crowns(1),
+			crownsEnemy = crowns(2),
+			result = texteFin(0), -- 0 : ni gagnant ni perdant, donc « EGALITE » ou rien
+		})
+		return
+	end
+	local monCamp = camp
+	local t = teams[monCamp]
+	StateEvent:FireClient(player, {
+		elixir = t.elixir,
+		hand = t.hand,
+		nextCard = t.queue[1],
+		timeLeft = timeLeft,
+		monCamp = monCamp,
+		spectateur = false,
+		crownsYou = crowns(monCamp),
+		crownsEnemy = crowns(3 - monCamp),
+		result = texteFin(monCamp),
+	})
+end
+
+PlayCard.OnServerEvent:Connect(function(player, handIndex, pos)
+	if typeof(handIndex) ~= "number" or typeof(pos) ~= "Vector3" then
+		return
+	end
+	local camp = equipeDe[player]
+	if not camp then
+		return -- spectateur : il regarde, il ne pose pas de carte
+	end
+	tryPlay(camp, math.floor(handIndex), pos)
+end)
+
+RestartEvent.OnServerEvent:Connect(function(player)
+	-- Seul un joueur qui TIENT un camp relance la partie. Un spectateur (aucun camp libre a son
+	-- arrivee) pouvait sinon remettre a zero la partie des deux autres. Le controle est ICI, cote
+	-- serveur : cacher le bouton cote client ne protege de rien, n'importe quel client peut envoyer
+	-- l'evenement.
+	if not equipeDe[player] then
+		print("[BRR] Rejouer refuse : " .. player.Name .. " n'a pas de camp")
+		return
+	end
+	if result then
+		resetMatch()
+	end
+end)
+
+resetMatch()
+
+-- Copie de test (capture 3D) : un trio IMMOBILE montre l'ecart a l'apparition ; deux trios en marche
+-- montrent les couloirs. Mesure 2026-09-14 : un trio toutes les 3 s gagnait la partie en ~25 s et
+-- entassait tout sur le Roi ennemi — la capture ne prouvait plus rien.
+if game:GetService("ReplicatedStorage"):FindFirstChild("BRR_AUTOTEST")
+	and not game:GetService("ReplicatedStorage"):FindFirstChild("BRR_PARTIE") then
+	task.spawn(function()
+		local chimp = Cards.byId.Chimpanzini
+		task.wait(3)
+		-- galerie : les 8 personnages immobiles en ligne, pour juger les silhouettes sur une capture
+		-- build.py --galerie=A,B : seulement ces cartes, serrees au centre, sans trio ni vagues
+		local filtre = ReplicatedStorage:FindFirstChild("BRR_GALERIE")
+		local liste = Cards.list
+		if filtre then
+			liste = {}
+			for id in string.gmatch(filtre.Value, "[^,]+") do
+				table.insert(liste, Cards.byId[id])
+			end
+		end
+		for i, card in ipairs(liste) do
+			-- les deux camps : camp 1 cote joueur, camp 2 cote ennemi (preuve de la couleur du disque)
+			for camp, z in pairs({ [1] = -7, [2] = 7 }) do
+				local pos = filtre and Vector3.new((i - (#liste + 1) / 2) * 10, 0, z)
+					or Vector3.new(-HALF_W + 4 + (i - 1) * ((HALF_W * 2 - 8) / (#liste - 1)), 0, z)
+				local unites = card.count > 1 and spawnGroupe(card, camp, pos) or { spawnUnit(card, camp, pos, Vector3.zero) }
+				for _, e in ipairs(unites) do
+					e.speed = 0
+					-- rangee de test INACTIVE : ni attaque ni marche, sinon les deux rangees
+					-- s'entretuaient et la moitie des modeles manquait sur la capture.
+					e.active = false
+				end
+			end
+		end
+		if filtre then
+			return
+		end
+		for _, e in ipairs(spawnGroupe(chimp, 1, Vector3.new(-6, 0, -12))) do
+			e.speed = 0
+		end
+		for vague = 1, 2 do
+			task.wait(7)
+			if not result then
+				spawnGroupe(chimp, 1, Vector3.new(4 * vague - 6, 0, -16))
+			end
+		end
+	end)
+end
+
+-- SIMULATION D'EQUILIBRE (build.py --autotest --run --sim="1-1:6;1-3:6;3-5:6") : series de parties
+-- robot contre robot, niveaux imposes, temps x SIM_ACCEL. Le camp le plus fort ALTERNE a chaque
+-- partie, pour ne pas mesurer un avantage de cote. Une ligne [SIM] par partie.
+local SIM = ReplicatedStorage:FindFirstChild("BRR_SIM")
+local SIM_ACCEL = 8
+local function pvTours(camp)
+	local total = 0
+	for _, tw in ipairs(teams[camp].towers) do
+		total += tw.alive and math.max(0, tw.hp) or 0
+	end
+	return math.floor(total)
+end
+if SIM then
+	task.spawn(function()
+		task.wait(4)
+		for bloc in string.gmatch(SIM.Value, "[^;]+") do
+			local na, nb, nombre = string.match(bloc, "(%d+)-(%d+):(%d+)")
+			na, nb, nombre = tonumber(na), tonumber(nb), tonumber(nombre)
+			for k = 1, nombre do
+				resetMatch()
+				-- camp du niveau nb (le plus fort) : 1 aux parties impaires, 2 aux paires
+				local campFort = (k % 2 == 1) and 1 or 2
+				for camp = 1, 2 do
+					local n = (camp == campFort) and nb or na
+					local niv = {}
+					for _, c in ipairs(Cards.list) do
+						niv[c.id] = n
+					end
+					teams[camp].niveaux = niv
+				end
+				majTours()
+				while not result do
+					task.wait(0.2)
+				end
+				local gagnant = vainqueur == 0 and "egalite" or (vainqueur == campFort and "fort" or "faible")
+				print(string.format("[SIM] %d-%d partie=%d gagnant=%s couronnes_fort=%d couronnes_faible=%d pv_tours_fort=%d pv_tours_faible=%d temps_restant=%d",
+					na, nb, k, gagnant, crowns(campFort), crowns(3 - campFort), pvTours(campFort), pvTours(3 - campFort), math.floor(timeLeft)))
+				task.wait(0.5)
+			end
+		end
+		print("[SIM] FIN")
+	end)
+end
+
+RunService.Heartbeat:Connect(function(dt)
+	if SIM then
+		dt = dt * SIM_ACCEL
+	end
+	if not result then
+		timeLeft = timeLeft - dt
+		for team = 1, 2 do
+			local t = teams[team]
+			t.elixir = math.min(MAX_ELIXIR, t.elixir + ELIXIR_PER_SEC * dt)
+		end
+		-- Le bot ne remplace que le camp SANS joueur : a deux joueurs, plus aucun bot.
+		for camp = 1, 2 do
+			-- gros plan de test : aucun robot, seule la rangee immobile est a l'image
+			-- en melee, les DEUX camps jouent en rafale : sinon le robot seul rasait le camp du joueur en 13 s
+			if (autoTest or campLibre(camp) or ReplicatedStorage:FindFirstChild("BRR_MELEE")) and not ReplicatedStorage:FindFirstChild("BRR_GROSPLAN") then
+				botThink(camp, dt)
+			end
+		end
+		majGroupes()
+
+		for _, e in ipairs(entities) do
+			if e.alive and e.active then
+				e.cooldown = e.cooldown - dt
+				local target, d = findTarget(e)
+				if target then
+					if d <= e.range + target.part.Size.X / 2 then
+						if e.cooldown <= 0 then
+							e.cooldown = e.atkSpeed
+							attack(e, target)
+						end
+					elseif not e.isBuilding then
+						moveUnit(e, target, dt)
+					end
+				end
+			end
+		end
+
+		local alive = {}
+		for _, e in ipairs(entities) do
+			if e.alive then
+				table.insert(alive, e)
+			end
+		end
+		entities = alive
+
+		if timeLeft <= 0 and not result then
+			timeLeft = 0
+			local c1, c2 = crowns(1), crowns(2)
+			if c1 > c2 then
+				endMatch(1)
+			elseif c2 > c1 then
+				endMatch(2)
+			else
+				endMatch(0)
+			end
+		end
+	end
+
+	if autoTest and not reported then
+		if result then
+			reported = true
+			report()
+		end
+		reportTimer = reportTimer + dt
+		if reportTimer >= 5 then
+			reportTimer = 0
+			report()
+		end
+	end
+
+	stateTimer = stateTimer + dt
+	if stateTimer >= 0.1 then
+		stateTimer = 0
+		for _, p in ipairs(Players:GetPlayers()) do
+			sendState(p)
+		end
+	end
+end)
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">Economie</string><ProtectedString name="Source"><![CDATA[-- ECONOMIE : profil sauvegarde, recompenses, boutique, achats Robux.
+--
+-- Le serveur est la SEULE autorite : le client demande, le serveur verifie le prix, le solde et la
+-- carte avant de debiter. Rien de ce que le client envoie n'est cru sur parole.
+--
+-- SAUVEGARDE : DataStoreService. Dans Studio, elle echoue tant que « Enable Studio Access to API
+-- Services » n'est pas coche (Game Settings > Security) ; le profil vit alors en memoire pour la
+-- session et le journal le dit ([ECO] sauvegarde indisponible). Une fois le jeu publie, elle marche.
+--
+-- ROBUX : les identifiants de produits et de pass se creent sur le compte du createur
+-- (create.roblox.com > l'experience > Monetization). Tant qu'ils valent 0, l'offre est MASQUEE et
+-- aucun achat n'est propose : rien n'est vendu par erreur.
+local Players = game:GetService("Players")
+local DataStoreService = game:GetService("DataStoreService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
+
+local Economie = {}
+
+-- A REMPLIR par le createur apres creation sur create.roblox.com (0 = desactive).
+Economie.PRODUITS = {
+	{ id = 0, nom = "Sac de 500 pieces", pieces = 500 },
+	{ id = 0, nom = "Coffre de 1500 pieces", pieces = 1500 },
+}
+Economie.PASS_VIP = 0 -- pass « VIP » : pieces x2 en fin de partie
+
+-- DECK : nombre de cartes emportees en partie (4 en main + 4 en file, voir newDeck cote serveur
+-- de jeu). Tant que le joueur possede moins de DECK_TAILLE cartes, aucun choix n'est possible et
+-- il joue avec tout ce qu'il a (comportement d'avant le deck choisi).
+Economie.DECK_TAILLE = 8
+
+local RECOMPENSE = {
+	victoire = { pieces = 30, trophees = 30 },
+	defaite = { pieces = 10, trophees = -15 },
+	egalite = { pieces = 15, trophees = 0 },
+}
+local BONUS_JOUR = 50
+
+-- COFFRES : gagnes a la victoire, ouverts apres un temps d'attente (une ouverture a la fois).
+-- `chanceCarte` : probabilite de debloquer une carte encore verrouillee ; si tout est deja
+-- debloque, elle devient `piecesSiComplet` pieces de plus (jamais un tirage vide).
+Economie.COFFRES = {
+	bois = { nom = "Coffre en bois", duree = 15 * 60, pieces = { 20, 40 }, chanceCarte = 0.10, piecesSiComplet = 20, poids = 70 },
+	argent = { nom = "Coffre d'argent", duree = 60 * 60, pieces = { 60, 100 }, chanceCarte = 0.35, piecesSiComplet = 60, poids = 25 },
+	["or"] = { nom = "Coffre d'or", duree = 3 * 60 * 60, pieces = { 150, 250 }, chanceCarte = 1.0, piecesSiComplet = 200, poids = 5 },
+}
+Economie.ORDRE_COFFRES = { "bois", "argent", "or" }
+-- exemplaires donnes par coffre (tous pour UNE carte debloquee tiree au hasard)
+Economie.EXEMPLAIRES_COFFRE = { bois = 3, argent = 8, ["or"] = 20 }
+
+-- NIVEAUX DE CARTES : niveau 1 a NIVEAU_MAX. Passer du niveau n a n+1 coute EXEMPLAIRES[n]
+-- exemplaires de la carte et COUT_NIVEAU[n] pieces. Chaque niveau au-dessus de 1 : +10 % de points
+-- de vie et de degats (Economie.multiplicateur).
+Economie.NIVEAU_MAX = 5
+Economie.EXEMPLAIRES = { 2, 4, 10, 20 }
+Economie.COUT_NIVEAU = { 50, 150, 400, 1000 }
+Economie.BONUS_PAR_NIVEAU = 0.10
+function Economie.multiplicateur(niveau)
+	return 1 + Economie.BONUS_PAR_NIVEAU * ((niveau or 1) - 1)
+end
+-- NIVEAU DU ROBOT : le NIVEAU MOYEN DU DECK du joueur d'en face, arrondi. Mesure du 2026-09-14
+-- (48 parties simulees, tools/sim-A.txt et sim-B.txt) : un seul niveau d'ecart fait gagner le plus
+-- fort 71 % du temps, deux niveaux 88 %. Regle d'abord sur les trophees, le robot ne suivait pas
+-- la vraie force des cartes du joueur ; il la suit maintenant directement.
+function Economie.niveauMoyen(niveauxParCarte, ids)
+	local total, n = 0, 0
+	for _, id in ipairs(ids) do
+		total += niveauxParCarte[id] or 1
+		n += 1
+	end
+	if n == 0 then
+		return 1
+	end
+	return math.clamp(math.floor(total / n + 0.5), 1, Economie.NIVEAU_MAX)
+end
+function Economie.niveauRobot(player)
+	if not player then
+		return 1
+	end
+	local ids = Economie.deck(player)
+	if not ids then
+		return 1
+	end
+	return Economie.niveauMoyen(Economie.niveaux(player), ids)
+end
+Economie.EMPLACEMENTS = 4
+local rng = Random.new()
+function Economie.graine(n) -- tests : tirages reproductibles
+	rng = Random.new(n)
+end
+local UN_JOUR = 20 * 60 * 60 -- 20 h : on laisse de la marge a celui qui joue a heure fixe
+
+local store, persistant = nil, false
+-- fix-ok: une lecture de profil ratee ne coupait la sauvegarde QUE pour ce joueur-la ; le
+-- drapeau `persistant` etant au niveau du module, elle la coupait pour TOUT le serveur.
+-- L'echec est desormais retenu par joueur.
+local sansSauvegarde = {} -- player -> true : profil illisible, on n'ecrit pas (sinon on l'ecrase)
+-- Ecritures REGROUPEES : Roblox plafonne les SetAsync par cle. Chaque recompense, coffre ou
+-- niveau marquait le profil d'un SetAsync immediat ; on note desormais le profil « sale » et
+-- une seule ecriture part au plus toutes les DELAI_ECRITURE secondes.
+local sales = {} -- player -> true : profil modifie en memoire, pas encore ecrit
+local DELAI_ECRITURE = 30
+-- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
+-- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
+local storeRecus = nil
+do
+	local ok, res = pcall(function()
+		return DataStoreService:GetDataStore("BRR_Profils_v1")
+	end)
+	if ok then
+		store, persistant = res, true
+	else
+		warn("[ECO] sauvegarde indisponible : " .. tostring(res))
+	end
+	local okR, resR = pcall(function()
+		return DataStoreService:GetDataStore("BRR_Recus")
+	end)
+	if okR then
+		storeRecus = resR
+	else
+		warn("[ECO] registre des recus indisponible : " .. tostring(resR))
+	end
+end
+
+local profils = {}
+
+local function profilNeuf()
+	local cartes = {}
+	for _, c in ipairs(Cards.list) do
+		if not c.prix then
+			cartes[c.id] = true
+		end
+	end
+	return { pieces = 100, trophees = 0, victoires = 0, parties = 0, cartes = cartes, dernierBonus = 0, coffres = {}, niveaux = {}, exemplaires = {} }
+end
+
+local function leaderstats(player, p)
+	local ls = player:FindFirstChild("leaderstats")
+	if not ls then
+		ls = Instance.new("Folder")
+		ls.Name = "leaderstats"
+		ls.Parent = player
+		local t = Instance.new("IntValue")
+		t.Name = "Trophees"
+		t.Parent = ls
+		local pc = Instance.new("IntValue")
+		pc.Name = "Pieces"
+		pc.Parent = ls
+	end
+	ls.Trophees.Value = p.trophees
+	ls.Pieces.Value = p.pieces
+end
+
+function Economie.profil(player)
+	return profils[player]
+end
+
+function Economie.charger(player)
+	local p = profilNeuf()
+	if store and persistant then
+		local ok, data = pcall(function()
+			return store:GetAsync("u" .. player.UserId)
+		end)
+		if ok and type(data) == "table" then
+			for k, v in pairs(data) do
+				p[k] = v
+			end
+			p.coffres = p.coffres or {} -- profil anterieur aux coffres
+			p.niveaux = p.niveaux or {} -- profil anterieur aux niveaux
+			p.exemplaires = p.exemplaires or {}
+			-- une carte ajoutee au jeu apres la creation du profil, et gratuite, est offerte
+			for _, c in ipairs(Cards.list) do
+				if not c.prix then
+					p.cartes[c.id] = true
+				end
+			end
+		elseif not ok then
+			warn("[ECO] lecture impossible pour " .. player.Name .. " : " .. tostring(data))
+			sansSauvegarde[player] = true
+		end
+	end
+	profils[player] = p
+	leaderstats(player, p)
+	print(string.format("[ECO] profil %s : %d pieces, %d trophees, sauvegarde=%s", player.Name, p.pieces, p.trophees, tostring(Economie.sauvegardeActive(player))))
+	return p
+end
+
+-- Sauvegarde active pour CE joueur : le store existe et son profil a pu etre lu.
+function Economie.sauvegardeActive(player)
+	return (store and persistant and not sansSauvegarde[player]) == true
+end
+
+-- Rend TRUE si le profil est bel et bien sur le disque apres cet appel. Un achat paye en Robux
+-- s'appuie dessus : on ne confirme la vente que si l'ecriture a reussi.
+function Economie.sauver(player)
+	local p = profils[player]
+	if not p then
+		return false
+	end
+	sales[player] = nil
+	if not Economie.sauvegardeActive(player) then
+		-- pas de disque (Studio sans API, ou profil illisible) : rien a garantir
+		return false
+	end
+	local ok, err = pcall(function()
+		store:SetAsync("u" .. player.UserId, p)
+	end)
+	if not ok then
+		warn("[ECO] sauvegarde ratee pour " .. player.Name .. " : " .. tostring(err))
+		return false
+	end
+	return true
+end
+
+-- Le profil a change, mais rien d'irreversible : l'ecriture peut attendre le prochain passage.
+-- Tout ce qui engage de l'ARGENT REEL doit appeler Economie.sauver et lire son resultat.
+function Economie.marquerSale(player)
+	if profils[player] then
+		sales[player] = true
+	end
+end
+
+-- Ecrit tous les profils en attente. Rend le nombre de profils reellement ecrits.
+function Economie.viderSales()
+	local n = 0
+	for player in pairs(sales) do
+		if Economie.sauver(player) then
+			n += 1
+		end
+		sales[player] = nil
+	end
+	return n
+end
+
+function Economie.liberer(player)
+	Economie.sauver(player)
+	profils[player] = nil
+	sansSauvegarde[player] = nil
+	sales[player] = nil
+end
+
+-- Deck CHOISI : valide ou nil. Le client n'est jamais cru — meme un deck deja SAUVEGARDE est
+-- reverifie ici, car le catalogue peut avoir change (carte retiree) depuis l'enregistrement.
+-- Rend (nil, motif) si le choix ne tient pas : DECK_TAILLE cartes distinctes, connues, possedees.
+-- fix-ok: Economie.deck renvoyait TOUTES les cartes possedees (aucun champ de deck choisi
+-- n'existait dans le profil) et GameServer en tirait 8 au hasard ; cause mesuree par
+-- tools/test_deck.py, rouge avant l'ajout de deckChoisi + deckValide, vert apres (exit 0).
+local function deckValide(p, ids)
+	if type(ids) ~= "table" or #ids ~= Economie.DECK_TAILLE then
+		return nil, "il faut exactement " .. Economie.DECK_TAILLE .. " cartes"
+	end
+	local vus, propre = {}, {}
+	for _, id in ipairs(ids) do
+		if type(id) ~= "string" or not Cards.byId[id] then
+			return nil, "carte inconnue"
+		end
+		if vus[id] then
+			return nil, "carte en double : " .. id
+		end
+		if not p.cartes[id] then
+			return nil, "carte non possedee : " .. id
+		end
+		vus[id] = true
+		table.insert(propre, id)
+	end
+	return propre
+end
+
+-- Cartes jouables du joueur : son deck choisi s'il en a un valide, sinon TOUTES ses cartes
+-- possedees (au moins 4, garanti par profilNeuf).
+function Economie.deck(player)
+	local p = profils[player]
+	if not p then
+		return nil
+	end
+	if p.deckChoisi then
+		local propre = deckValide(p, p.deckChoisi)
+		if propre then
+			return propre
+		end
+		p.deckChoisi = nil -- deck devenu impossible (carte retiree du jeu) : on repart sur tout
+	end
+	local ids = {}
+	for _, c in ipairs(Cards.list) do
+		if p.cartes[c.id] then
+			table.insert(ids, c.id)
+		end
+	end
+	return ids
+end
+
+-- Le joueur choisit son deck depuis le hub. Rend (false, motif) si le serveur refuse.
+function Economie.choisirDeck(player, ids)
+	local p = profils[player]
+	if not p then
+		return false, "profil absent"
+	end
+	local propre, motif = deckValide(p, ids)
+	if not propre then
+		return false, motif
+	end
+	p.deckChoisi = propre
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s : deck choisi = %s", player.Name, table.concat(propre, ", ")))
+	return true
+end
+
+local function aVip(player)
+	if Economie.PASS_VIP == 0 then
+		return false
+	end
+	local ok, res = pcall(function()
+		return MarketplaceService:UserOwnsGamePassAsync(player.UserId, Economie.PASS_VIP)
+	end)
+	return ok and res
+end
+
+-- issue : "victoire" | "defaite" | "egalite"
+function Economie.recompenser(player, issue)
+	local p = profils[player]
+	local r = RECOMPENSE[issue]
+	if not (p and r) then
+		return nil
+	end
+	local pieces = r.pieces * (aVip(player) and 2 or 1)
+	p.pieces += pieces
+	p.trophees = math.max(0, p.trophees + r.trophees)
+	p.parties += 1
+	local coffre = nil
+	if issue == "victoire" then
+		p.victoires += 1
+		coffre = Economie.gagnerCoffre(player)
+	end
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s : %s, +%d pieces, %+d trophees", player.Name, issue, pieces, r.trophees))
+	return { pieces = pieces, trophees = r.trophees, coffre = coffre }
+end
+
+function Economie.gagnerCoffre(player, typeForce)
+	local p = profils[player]
+	if not p or #p.coffres >= Economie.EMPLACEMENTS then
+		return nil -- emplacements pleins : pas de coffre (incite a ouvrir ceux qu'on a)
+	end
+	local t = typeForce
+	if not t then
+		local total = 0
+		for _, id in ipairs(Economie.ORDRE_COFFRES) do
+			total += Economie.COFFRES[id].poids
+		end
+		local tirage = rng:NextNumber(0, total)
+		for _, id in ipairs(Economie.ORDRE_COFFRES) do
+			tirage -= Economie.COFFRES[id].poids
+			if tirage <= 0 then
+				t = id
+				break
+			end
+		end
+		t = t or "bois"
+	end
+	table.insert(p.coffres, { type = t, fin = 0 }) -- fin = 0 : pas encore demarre
+	print(string.format("[ECO] %s gagne un %s", player.Name, Economie.COFFRES[t].nom))
+	return t
+end
+
+function Economie.demarrerCoffre(player, index)
+	local p = profils[player]
+	local c = p and type(index) == "number" and p.coffres[index]
+	if not c then
+		return false, "coffre inconnu"
+	end
+	if c.fin ~= 0 then
+		return false, "deja demarre"
+	end
+	for _, autre in ipairs(p.coffres) do
+		if autre.fin ~= 0 and autre.fin > os.time() then
+			return false, "un coffre s'ouvre deja"
+		end
+	end
+	c.fin = os.time() + Economie.COFFRES[c.type].duree
+	Economie.marquerSale(player)
+	return true
+end
+
+function Economie.ouvrirCoffre(player, index)
+	local p = profils[player]
+	local c = p and type(index) == "number" and p.coffres[index]
+	if not c then
+		return false, "coffre inconnu"
+	end
+	if c.fin == 0 then
+		return false, "pas demarre"
+	end
+	if c.fin > os.time() then
+		return false, "pas encore pret"
+	end
+	local def = Economie.COFFRES[c.type]
+	local gain = { pieces = rng:NextInteger(def.pieces[1], def.pieces[2]), carte = nil }
+	if rng:NextNumber() < def.chanceCarte then
+		local verrouillees = {}
+		for _, card in ipairs(Cards.list) do
+			if not p.cartes[card.id] then
+				table.insert(verrouillees, card.id)
+			end
+		end
+		if #verrouillees > 0 then
+			gain.carte = verrouillees[rng:NextInteger(1, #verrouillees)]
+			p.cartes[gain.carte] = true
+		else
+			gain.pieces += def.piecesSiComplet
+		end
+	end
+	-- exemplaires : une carte DEBLOQUEE au hasard (la carte gagnee a l'instant compte)
+	local debloquees = Economie.deck(player)
+	gain.exemplaireCarte = debloquees[rng:NextInteger(1, #debloquees)]
+	gain.exemplaires = Economie.EXEMPLAIRES_COFFRE[c.type]
+	p.exemplaires[gain.exemplaireCarte] = (p.exemplaires[gain.exemplaireCarte] or 0) + gain.exemplaires
+	p.pieces += gain.pieces
+	table.remove(p.coffres, index)
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s ouvre un %s : +%d pieces, %d x %s%s", player.Name, def.nom, gain.pieces,
+		gain.exemplaires, gain.exemplaireCarte, gain.carte and (", carte " .. gain.carte) or ""))
+	return true, gain
+end
+
+function Economie.niveau(player, id)
+	local p = profils[player]
+	return p and p.niveaux[id] or 1
+end
+
+-- niveaux de toutes les cartes du joueur (pour appliquer les bonus en partie)
+function Economie.niveaux(player)
+	local t = {}
+	for _, c in ipairs(Cards.list) do
+		t[c.id] = Economie.niveau(player, c.id)
+	end
+	return t
+end
+
+function Economie.ameliorer(player, id)
+	local p = profils[player]
+	local card = type(id) == "string" and Cards.byId[id]
+	if not (p and card) then
+		return false, "carte inconnue"
+	end
+	if not p.cartes[id] then
+		return false, "carte verrouillee"
+	end
+	local n = p.niveaux[id] or 1
+	if n >= Economie.NIVEAU_MAX then
+		return false, "niveau maximum"
+	end
+	local besoin, cout = Economie.EXEMPLAIRES[n], Economie.COUT_NIVEAU[n]
+	if (p.exemplaires[id] or 0) < besoin then
+		return false, "pas assez d'exemplaires"
+	end
+	if p.pieces < cout then
+		return false, "pas assez de pieces"
+	end
+	p.exemplaires[id] -= besoin
+	p.pieces -= cout
+	p.niveaux[id] = n + 1
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s ameliore %s au niveau %d", player.Name, id, n + 1))
+	return true
+end
+
+function Economie.acheterCarte(player, id)
+	local p = profils[player]
+	local card = type(id) == "string" and Cards.byId[id]
+	if not (p and card) then
+		return false, "carte inconnue"
+	end
+	if p.cartes[id] then
+		return false, "deja debloquee"
+	end
+	if not card.prix then
+		return false, "carte non vendue"
+	end
+	if p.pieces < card.prix then
+		return false, "pas assez de pieces"
+	end
+	p.pieces -= card.prix
+	p.cartes[id] = true
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s achete %s pour %d pieces", player.Name, id, card.prix))
+	return true
+end
+
+function Economie.bonusQuotidien(player)
+	local p = profils[player]
+	if not p then
+		return false, "profil absent"
+	end
+	local maintenant = os.time()
+	local reste = p.dernierBonus + UN_JOUR - maintenant
+	if reste > 0 then
+		return false, string.format("revenir dans %dh%02d", reste // 3600, (reste % 3600) // 60)
+	end
+	p.dernierBonus = maintenant
+	p.pieces += BONUS_JOUR
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	return true
+end
+
+-- Vue envoyee au client (lecture seule)
+function Economie.vue(player)
+	local p = profils[player]
+	if not p then
+		return nil
+	end
+	local offres = {}
+	for i, prod in ipairs(Economie.PRODUITS) do
+		if prod.id ~= 0 then
+			table.insert(offres, { index = i, nom = prod.nom })
+		end
+	end
+	return {
+		pieces = p.pieces, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
+		cartes = p.cartes, sauvegarde = Economie.sauvegardeActive(player), offresRobux = offres,
+		bonusDispo = p.dernierBonus + UN_JOUR <= os.time(),
+		coffres = p.coffres, maintenant = os.time(),
+		niveaux = p.niveaux, exemplaires = p.exemplaires, niveauMax = Economie.NIVEAU_MAX,
+		-- deck : ce que le joueur emporte reellement (choix valide, ou toutes ses cartes) et
+		-- `deckLibre` = false tant qu'il n'a pas assez de cartes pour qu'un choix existe.
+		deck = Economie.deck(player), deckTaille = Economie.DECK_TAILLE,
+		deckChoisi = p.deckChoisi ~= nil,
+		besoinExemplaires = Economie.EXEMPLAIRES, coutNiveau = Economie.COUT_NIVEAU,
+	}
+end
+
+function Economie.demanderRobux(player, index)
+	local prod = Economie.PRODUITS[index]
+	if prod and prod.id ~= 0 then
+		MarketplaceService:PromptProductPurchase(player, prod.id)
+	end
+end
+
+-- Un recu deja honore est-il connu du registre ? Rend (trouve, sur) : `sur` est faux quand le
+-- registre n'a pas pu etre lu — on refuse alors de trancher plutot que de crediter deux fois.
+local function recuDejaHonore(cle)
+	if not storeRecus then
+		return false, false
+	end
+	local ok, val = pcall(function()
+		return storeRecus:GetAsync(cle)
+	end)
+	if not ok then
+		warn("[ECO] registre des recus illisible : " .. tostring(val))
+		return false, false
+	end
+	return val ~= nil, true
+end
+
+-- Achats Robux : Roblox rappelle ce callback jusqu'a ce qu'il rende PurchaseGranted.
+-- Trois garanties : (1) un rappel apres coup ne recredite pas — le PurchaseId est enregistre ;
+-- (2) l'argent n'est confirme QUE si le profil est ecrit sur le disque ; (3) si l'ecriture rate,
+-- le credit est repris en memoire et la vente reste ouverte, donc Roblox rappellera.
+MarketplaceService.ProcessReceipt = function(recu)
+	local player = Players:GetPlayerByUserId(recu.PlayerId)
+	if not player or not profils[player] then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+	for _, prod in ipairs(Economie.PRODUITS) do
+		if prod.id ~= 0 and prod.id == recu.ProductId then
+			local cle = "r" .. tostring(recu.PurchaseId)
+			local deja, sur = recuDejaHonore(cle)
+			if deja then
+				print(string.format("[ECO] %s : recu %s deja honore, aucun nouveau credit", player.Name, tostring(recu.PurchaseId)))
+				return Enum.ProductPurchaseDecision.PurchaseGranted
+			end
+			if not sur then
+				-- registre muet : on prefere que Roblox rappelle plus tard qu'un double credit
+				return Enum.ProductPurchaseDecision.NotProcessedYet
+			end
+			local p = profils[player]
+			p.pieces += prod.pieces
+			leaderstats(player, p)
+			if not Economie.sauver(player) then
+				p.pieces -= prod.pieces -- le disque n'a pas pris : on ne vend pas du vide
+				leaderstats(player, p)
+				warn(string.format("[ECO] %s : achat Robux %s NON confirme (sauvegarde impossible)", player.Name, prod.nom))
+				return Enum.ProductPurchaseDecision.NotProcessedYet
+			end
+			local okR, errR = pcall(function()
+				storeRecus:SetAsync(cle, { u = player.UserId, produit = prod.id, quand = os.time() })
+			end)
+			if not okR then
+				p.pieces -= prod.pieces -- recu non tracable : un rappel recrediterait
+				leaderstats(player, p)
+				if not Economie.sauver(player) then
+					-- le disque garde un profil deja credite alors que la vente n'est pas confirmee :
+					-- un rappel ajoutera un second credit. Rare (l'ecriture precedente a reussi),
+					-- mais il faut pouvoir le retrouver dans les journaux.
+					warn(string.format("[ECO] %s : ECART de solde possible sur le recu %s (+%d pieces sur le disque, vente non confirmee)", player.Name, tostring(recu.PurchaseId), prod.pieces))
+				end
+				warn(string.format("[ECO] %s : recu %s non enregistre (%s), achat repousse", player.Name, tostring(recu.PurchaseId), tostring(errR)))
+				return Enum.ProductPurchaseDecision.NotProcessedYet
+			end
+			print(string.format("[ECO] %s : achat Robux %s, +%d pieces", player.Name, prod.nom, prod.pieces))
+			return Enum.ProductPurchaseDecision.PurchaseGranted
+		end
+	end
+	return Enum.ProductPurchaseDecision.NotProcessedYet
+end
+
+-- Passage regulier des ecritures en attente (voir DELAI_ECRITURE). `task` n'existe pas dans le
+-- banc de test hors Studio : la boucle ne demarre que dans Roblox.
+if task and task.spawn then
+	task.spawn(function()
+		while true do
+			task.wait(DELAI_ECRITURE)
+			Economie.viderSales()
+		end
+	end)
+end
+
+game:BindToClose(function()
+	for player in pairs(profils) do
+		Economie.sauver(player)
+	end
+end)
+
+return Economie
+]]></ProtectedString></Properties></Item></Item><Item class="StarterPlayer" referent="RBX38"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX37"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX35"><Properties><string name="Name">GameClient</string><ProtectedString name="Source"><![CDATA[-- Brainrot Royale : client (camera, main de cartes, elixir, pose)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
+-- Habillage sonore : joue CHEZ CE CLIENT, sur les evenements deja recus du serveur.
+local Sons = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Sons"))
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local PlayCard = remotes:WaitForChild("PlayCard")
+local StateEvent = remotes:WaitForChild("State")
+local RestartEvent = remotes:WaitForChild("Restart")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-- CAMERA VUE DE DESSUS, CADRAGE REGLE SUR LA PROJECTION REELLE.
+-- Deux versions precedentes ont echoue, chacune vue sur une capture (2026-09-14) :
+--  1. distance FIXE : sur une image etroite (592x1348), l'arene n'occupait qu'une bande au milieu ;
+--  2. distance CALCULEE par trigonometrie approchee : correcte en portrait, mais en 16:9 l'arene
+--     DEBORDAIT du cadre (haut coupe). La projection d'un plan incline ne se ramene pas a un sinus.
+-- Ici, on ne calcule plus : on MESURE. Les coins de l'arene sont projetes a l'ecran avec la
+-- projection de la camera elle-meme (WorldToViewportPoint), et la distance s'ajuste doucement
+-- jusqu'a ce qu'ils tiennent dans le cadre. Cela vaut pour n'importe quel format d'ecran.
+local ARENE_DEMI_LARGEUR, ARENE_DEMI_LONGUEUR = 28, 32 -- HALF_W, HALF_L du serveur
+local HAUTEUR_TOURS = 9
+local BANDE_CARTES = 0.16 -- part BASSE de l'ecran prise par la main de cartes
+-- Part HAUTE reservee au chrono et au score. Mesure du 2026-09-14 : a 0.10, c'est ELLE qui
+-- limitait le rapprochement (debordement 0.003, distance bloquee a 71) — les sommets des tours du
+-- fond venaient toucher cette bande, et l'arene restait petite au milieu de l'ecran. Le chrono est
+-- en surimpression : il peut mordre un peu sur le ciel.
+local BANDE_HAUT = 0.04
+local ANGLE_VUE = 62
+local INCLINAISON = math.rad(52)
+
+local distance = 70 -- point de depart, corrige des la premiere image
+-- CAMP DU JOUEUR. Le camp 2 doit voir l'arene depuis l'AUTRE bout, sinon son camp est en haut de
+-- l'ecran et sa zone de pose hors de vue. Le serveur envoie `monCamp` dans l'etat ; tant qu'aucun
+-- etat n'est arrive, on garde le camp 1 (cas du joueur seul).
+local monCamp = 1
+local dejaRelance = false -- copie de test : un seul appui sur Rejouer
+local jeSuisSpectateur = false -- vrai quand les deux camps sont deja pris
+local distanceMesuree, debordementMesure = 0, 0 -- sonde de cadrage (copie de test)
+
+local COINS = {}
+for _, sx in ipairs({ -1, 1 }) do
+	for _, sz in ipairs({ -1, 1 }) do
+		table.insert(COINS, Vector3.new(sx * ARENE_DEMI_LARGEUR, 0, sz * ARENE_DEMI_LONGUEUR))
+		table.insert(COINS, Vector3.new(sx * ARENE_DEMI_LARGEUR, HAUTEUR_TOURS, sz * ARENE_DEMI_LONGUEUR))
+	end
+end
+
+RunService.RenderStepped:Connect(function()
+	camera.CameraType = Enum.CameraType.Scriptable
+	camera.FieldOfView = ANGLE_VUE
+	-- COPIE DE TEST (build.py --grosplan) : camera basse face a la rangee de test, pour juger le
+	-- sens des modeles. Camp 1 (z=-7) doit montrer son DOS, camp 2 (z=+7) son VISAGE.
+	if game:GetService("ReplicatedStorage"):FindFirstChild("BRR_GROSPLAN") then
+		camera.FieldOfView = 95
+		local g = game:GetService("ReplicatedStorage"):FindFirstChild("BRR_GALERIE")
+		if g and not string.find(g.Value, ",") then
+			-- une seule carte : camera tout pres de l'unite du camp 1 (x=0, z=-7), de trois quarts arriere
+			camera.CFrame = CFrame.lookAt(Vector3.new(6, 7, -15), Vector3.new(0, 2, -7))
+		else
+			camera.CFrame = CFrame.lookAt(Vector3.new(0, 17, -17), Vector3.new(0, 1, 4))
+		end
+		return
+	end
+
+	local sens = (monCamp == 2) and -1 or 1
+	-- Spectateur : vue NEUTRE, centree sur l'arene. Pas de decalage vers un camp, et pas de place
+	-- reservee a la main de cartes puisqu'elle est masquee.
+	local bandeBasse = jeSuisSpectateur and BANDE_HAUT or BANDE_CARTES
+	local cible = jeSuisSpectateur and Vector3.new(0, 0, 0)
+		or Vector3.new(0, 0, sens * (-2 - ARENE_DEMI_LONGUEUR * (bandeBasse - BANDE_HAUT)))
+	local direction = Vector3.new(0, math.sin(INCLINAISON), -sens * math.cos(INCLINAISON))
+	camera.CFrame = CFrame.lookAt(cible + direction * distance, cible)
+
+	-- Ou tombent les coins de l'arene ? On veut tout entre les deux bandes d'interface.
+	-- DEPART A -INFINI, et c'est le coeur du calcul : `pire` est le plus grand DEBORDEMENT, une
+	-- valeur NEGATIVE quand tout tient avec de la marge. En partant de 0 (version du 2026-09-14),
+	-- math.max ecrasait ces valeurs negatives : la camera ne se rapprochait JAMAIS et restait a sa
+	-- distance de depart. C'est ce qui laissait l'arene petite au milieu de l'ecran, surtout pour le
+	-- spectateur, dont la vue est centree et a donc le plus d'air a rattraper.
+	local pire = -math.huge
+	for _, coin in ipairs(COINS) do
+		local point = camera:WorldToViewportPoint(coin)
+		local vue = camera.ViewportSize
+		local x = (vue.X > 0) and (point.X / vue.X) or 0.5
+		local y = (vue.Y > 0) and (point.Y / vue.Y) or 0.5
+		-- Debordement, en part d'ecran, par rapport au cadre utile.
+		local basUtile = jeSuisSpectateur and BANDE_HAUT or BANDE_CARTES
+		pire = math.max(pire, -x, x - 1, BANDE_HAUT - y, y - (1 - basUtile))
+	end
+
+	distanceMesuree, debordementMesure = distance, pire
+	if pire > 0.005 then
+		distance = math.min(distance * (1 + math.min(pire, 0.12)), 260) -- trop gros : on recule
+	elseif pire < -0.008 then
+		-- Seuil de rapprochement. A -0.03, la camera s'arretait avec 2 a 3 % de marge inutilisee
+		-- (mesure 2026-09-14 : debordement -0.022, distance figee a 70). A -0.008, elle va chercher
+		-- le bord ; au-dessus, la premiere branche la fait reculer, les deux se stabilisent.
+		distance = math.max(distance * 0.995, 20)
+	end
+end)
+
+-- UI
+local gui = Instance.new("ScreenGui")
+gui.Name = "RoyaleUI"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function label(parent, text, size, pos)
+	local l = Instance.new("TextLabel")
+	l.BackgroundTransparency = 1
+	l.Size = size
+	l.Position = pos
+	l.Text = text
+	l.TextScaled = true
+	l.Font = Enum.Font.GothamBold
+	l.TextColor3 = Color3.new(1, 1, 1)
+	l.TextStrokeTransparency = 0.3
+	l.Parent = parent
+	return l
+end
+
+local top = label(gui, "3:00", UDim2.new(0, 300, 0, 40), UDim2.new(0.5, -150, 0, 10))
+local crownsLabel = label(gui, "0 - 0", UDim2.new(0, 300, 0, 30), UDim2.new(0.5, -150, 0, 50))
+
+local bottom = Instance.new("Frame")
+bottom.Size = UDim2.new(0, 560, 0, 170)
+bottom.Position = UDim2.new(0.5, -280, 1, -180)
+bottom.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+bottom.BackgroundTransparency = 0.2
+bottom.Parent = gui
+local corner = Instance.new("UICorner")
+corner.Parent = bottom
+-- petites fenetres : le panneau reduit pour ne pas couvrir le cote joueur
+local panelScale = Instance.new("UIScale")
+panelScale.Parent = bottom
+bottom.AnchorPoint = Vector2.new(0.5, 1)
+bottom.Position = UDim2.new(0.5, 0, 1, -6)
+local function fitPanel()
+	panelScale.Scale = math.clamp(camera.ViewportSize.Y / 900, 0.6, 1)
+end
+fitPanel()
+camera:GetPropertyChangedSignal("ViewportSize"):Connect(fitPanel)
+
+local buttons = {}
+local selected = nil
+local lastHand = {}
+local currentElixir = 0
+
+for i = 1, 4 do
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0, 110, 0, 120)
+	b.Position = UDim2.new(0, 10 + (i - 1) * 118, 0, 10)
+	b.TextWrapped = true
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBold
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextStrokeTransparency = 0.2
+	b.AutoButtonColor = true
+	b.Parent = bottom
+	local c = Instance.new("UICorner")
+	c.Parent = b
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 0
+	stroke.Color = Color3.fromRGB(255, 230, 80)
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Parent = b
+	b.MouseButton1Click:Connect(function()
+		if selected == i then
+			selected = nil
+		else
+			selected = i
+			Sons.jouer("selection")
+		end
+	end)
+	buttons[i] = { button = b, stroke = stroke }
+end
+
+local nextLabel = label(bottom, "Suivante :", UDim2.new(0, 116, 0, 120), UDim2.new(0, 482, 0, 10))
+nextLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+nextLabel.TextWrapped = true
+bottom.Size = UDim2.new(0, 608, 0, 170)
+
+-- Le chat Roblox couvrait le haut gauche de l'arene : inutile dans un duel contre le bot.
+task.spawn(function()
+	local StarterGui = game:GetService("StarterGui")
+	for _ = 1, 20 do
+		if pcall(function()
+			StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+		end) then
+			break
+		end
+		task.wait(0.5)
+	end
+end)
+
+local elixirBack = Instance.new("Frame")
+elixirBack.Size = UDim2.new(1, -20, 0, 24)
+elixirBack.Position = UDim2.new(0, 10, 0, 138)
+elixirBack.BackgroundColor3 = Color3.fromRGB(50, 20, 60)
+elixirBack.Parent = bottom
+local elixirFill = Instance.new("Frame")
+elixirFill.BorderSizePixel = 0
+elixirFill.BackgroundColor3 = Color3.fromRGB(210, 60, 230)
+elixirFill.Size = UDim2.new(0, 0, 1, 0)
+elixirFill.Parent = elixirBack
+local elixirText = label(elixirBack, "0", UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0))
+
+local overlay = Instance.new("Frame")
+overlay.Size = UDim2.new(1, 0, 1, 0)
+overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+overlay.BackgroundTransparency = 0.4
+overlay.Visible = false
+overlay.Parent = gui
+local resultLabel = label(overlay, "", UDim2.new(0, 500, 0, 100), UDim2.new(0.5, -250, 0.4, -50))
+local restart = Instance.new("TextButton")
+restart.Size = UDim2.new(0, 220, 0, 60)
+restart.Position = UDim2.new(0.5, -110, 0.55, 0)
+restart.Text = "Rejouer"
+restart.TextScaled = true
+restart.Font = Enum.Font.GothamBold
+restart.BackgroundColor3 = Color3.fromRGB(255, 200, 40)
+restart.Parent = overlay
+restart.MouseButton1Click:Connect(function()
+	RestartEvent:FireServer()
+end)
+
+-- MORT D'UNITE, SANS NOUVEL EVENEMENT RESEAU. Le serveur detruit la part de l'unite tuee ; cette
+-- suppression est repliquee. Les parts d'unites portent le nom de leur carte (spawnUnit :
+-- Name = card.id), ce qui les distingue du decor et des parts temporaires des effets.
+task.spawn(function()
+	local arene = workspace:WaitForChild("Arena", 30)
+	local function suivre(dossier)
+		dossier.ChildRemoved:Connect(function(enfant)
+			if Cards.byId[enfant.Name] then
+				Sons.jouer("mort", 0.7)
+			end
+		end)
+	end
+	if arene then
+		suivre(arene)
+	end
+	-- L'arene est reconstruite a chaque partie (buildArena) : se rebrancher sur la nouvelle.
+	workspace.ChildAdded:Connect(function(enfant)
+		if enfant.Name == "Arena" then
+			suivre(enfant)
+		end
+	end)
+end)
+
+-- MEMOIRE D'ETAT POUR LE SON. Le serveur n'envoie pas d'evenement « tour tombee » ni « fin » :
+-- il envoie l'ETAT. On compare donc a l'etat precedent, et on ne joue qu'au CHANGEMENT -- sinon
+-- chaque rafraichissement (plusieurs par seconde) rejouerait le meme son.
+local sonCouronnesMoi, sonCouronnesEnnemi, sonResultat = nil, nil, nil
+
+StateEvent.OnClientEvent:Connect(function(s)
+	local moi = s.spectateur and (s.crownsCamp1 or 0) or (s.crownsYou or 0)
+	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
+	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then
+		Sons.jouer("tourDetruite")
+	end
+	sonCouronnesMoi, sonCouronnesEnnemi = moi, lui
+	if s.result ~= sonResultat then
+		sonResultat = s.result
+		if s.result then
+			-- « VICTOIRE ! » est le mot pose par le serveur (GameServer:534) ; tout le reste
+			-- (« DEFAITE... », « EGALITE ») prend le son de defaite.
+			if string.find(string.lower(s.result), "victoire") then
+				Sons.jouer("victoire")
+			else
+				Sons.jouer("defaite")
+			end
+		end
+	end
+	currentElixir = s.elixir
+	if s.monCamp then
+		monCamp = s.monCamp
+	end
+	lastHand = s.hand
+	elixirFill.Size = UDim2.new(s.elixir / 10, 0, 1, 0)
+	elixirText.Text = tostring(math.floor(s.elixir))
+	local t = math.max(0, math.ceil(s.timeLeft))
+	top.Text = string.format("%d:%02d", math.floor(t / 60), t % 60)
+	if s.spectateur then
+		crownsLabel.Text = "Rouge " .. (s.crownsCamp1 or 0) .. "  -  " .. (s.crownsCamp2 or 0) .. " Bleu"
+	else
+		crownsLabel.Text = "Toi " .. s.crownsYou .. "  -  " .. s.crownsEnemy .. " Bot"
+	end
+	for i = 1, 4 do
+		local card = Cards.byId[s.hand[i]]
+		local b = buttons[i]
+		if card then
+			b.button.Text = card.name .. "\n" .. card.cost .. " elixir"
+			b.button.BackgroundColor3 = card.color
+			if s.elixir >= card.cost then
+				b.button.BackgroundTransparency = 0
+			else
+				b.button.BackgroundTransparency = 0.6
+			end
+		end
+		b.stroke.Thickness = (selected == i) and 4 or 0
+	end
+	local nextCard = Cards.byId[s.nextCard]
+	nextLabel.Text = "Suivante\n" .. (nextCard and nextCard.name or "?")
+	overlay.Visible = s.result ~= nil
+	-- Un spectateur voit le resultat mais pas le bouton : il n'a rien a relancer. Le refus reel est
+	-- pose cote serveur ; ceci evite seulement de lui montrer un bouton sans effet.
+	jeSuisSpectateur = s.spectateur == true
+	restart.Visible = not jeSuisSpectateur
+	-- Rien a jouer : ni main de cartes, ni jauge d'elixir. Les cacher evite d'afficher une main
+	-- vide et une jauge a zero, qui donneraient l'impression d'un jeu casse.
+	bottom.Visible = not jeSuisSpectateur
+	resultLabel.Text = s.result or ""
+	if s.result then
+		selected = nil
+	end
+end)
+
+-- ETAGEMENT DES ETIQUETTES, COTE CLIENT : positions EXACTES a l'ecran (WorldToViewportPoint).
+-- Le serveur estimait l'ecran par des coefficients de camera ; ses etiquettes restaient posees sur
+-- celles des tours (captures 3D du 2026-09-14). Les tours ne bougent pas ; chaque autre etiquette
+-- monte juste assez pour degager celles deja placees (6 px de marge : 2 px laissaient les barres effleurer le titre des tours). SizeOffset : une unite deplace d'une DEMI-hauteur
+-- (mesure sur captures 3D, facteur 2 applique), negatif = vers le haut. Local au client : rien n'est replique.
+local hauteurOrigine = setmetatable({}, { __mode = "k" })
+local ZONE_TOUR = 12 -- 8 laissait le titre d un groupe sur « Tour » (centre a plus de 8 studs, meme endroit a l ecran)
+local function etagerEtiquettes()
+	local arene = workspace:FindFirstChild("Arena")
+	if not arene then
+		return
+	end
+	-- ZONE DES TOURS : a moins de ZONE_TOUR studs (au sol) d'une tour, une unite ne garde que sa
+	-- barre de vie. Son nom se posait sur celui de la tour (captures 3D du 2026-09-14).
+	local tours = {}
+	for _, part in ipairs(arene:GetChildren()) do
+		if part.Name == "KingTower" or part.Name == "PrincessTower" then
+			table.insert(tours, part.Position)
+		end
+	end
+	local function dansZoneTour(position)
+		for _, t in ipairs(tours) do
+			if Vector2.new(position.X - t.X, position.Z - t.Z).Magnitude < ZONE_TOUR then
+				return true
+			end
+		end
+		return false
+	end
+	local items = {}
+	local enZone = {}
+	local groupesEnZone = {}
+	for _, membre in ipairs(arene:GetChildren()) do
+		local idGroupe = membre:IsA("BasePart") and membre:FindFirstChildWhichIsA("BillboardGui") == nil
+			and membre:GetAttribute("Groupe")
+		if idGroupe and dansZoneTour(membre.Position) then
+			groupesEnZone[idGroupe] = true
+		end
+	end
+	for _, gui in ipairs(arene:GetDescendants()) do
+		if gui:IsA("BillboardGui") and gui.Parent and gui.Parent:IsA("BasePart") then
+			local part = gui.Parent
+			if part.Name ~= "KingTower" and part.Name ~= "PrincessTower" then
+				local zone = dansZoneTour(part.Position)
+				-- Groupe : dans la zone des qu'un membre encore present y est.
+				local idGroupe = part:GetAttribute("Groupe")
+				if not zone and idGroupe and groupesEnZone[idGroupe] then
+					zone = true
+				end
+				local nom = gui:FindFirstChildWhichIsA("TextLabel")
+				if nom and nom.Visible == zone then
+					nom.Visible = not zone
+				end
+				-- Dans la zone, la barre passe SOUS le modele : au-dessus, elle traversait la barre de la
+				-- tour ou du Roi (captures 3D du 2026-09-14). Decalage d'origine memorise pour revenir.
+				if hauteurOrigine[gui] == nil then
+					hauteurOrigine[gui] = gui.StudsOffset.Y
+				end
+				local y = zone and -hauteurOrigine[gui] or hauteurOrigine[gui]
+				if math.abs(gui.StudsOffset.Y - y) > 0.01 then
+					gui.StudsOffset = Vector3.new(0, y, 0)
+				end
+				enZone[gui] = zone
+			end
+		end
+	end
+	for _, gui in ipairs(arene:GetDescendants()) do
+		if gui:IsA("BillboardGui") and gui.Parent and gui.Parent:IsA("BasePart") then
+			local part = gui.Parent
+			local ecran, visible = camera:WorldToViewportPoint(part.Position + gui.StudsOffset)
+			if visible then
+				table.insert(items, {
+					gui = gui, x = ecran.X, y = ecran.Y,
+					w = gui.Size.X.Offset, h = gui.Size.Y.Offset,
+					fixe = part.Name == "KingTower" or part.Name == "PrincessTower",
+					-- Barre sous le modele (zone d'une tour) : ne peut que DESCENDRE, et seulement pour
+					-- degager une tour. Hors etagement, ses barres restaient posees sur « Tour » quand
+					-- le groupe etait juste devant la tour (capture 3D du 2026-09-14).
+					bas = enZone[gui] == true,
+				})
+			end
+		end
+	end
+	table.sort(items, function(a, b)
+		if a.fixe ~= b.fixe then
+			return a.fixe
+		end
+		if a.y ~= b.y then
+			return a.y > b.y
+		end
+		return a.x < b.x
+	end)
+	local places = {}
+	for _, it in ipairs(items) do
+		local monte = 0
+		if it.bas then
+			for _ = 1, 10 do
+				local bouge = false
+				for _, p in ipairs(places) do
+					local ex = (p.w + it.w) / 2 + 6
+					local ey = (p.h + it.h) / 2 + 6
+					if p.fixe and math.abs(p.x - it.x) < ex and math.abs((it.y - monte) - (p.y - p.monte)) < ey then
+						monte = it.y - (p.y - p.monte) - ey -- negatif : vers le BAS
+						bouge = true
+					end
+				end
+				if not bouge then
+					break
+				end
+			end
+		elseif not it.fixe then
+			for _ = 1, 10 do
+				local bouge = false
+				for _, p in ipairs(places) do
+					local ex = (p.w + it.w) / 2 + 6
+					local ey = (p.h + it.h) / 2 + 6
+					if not p.bas and math.abs(p.x - it.x) < ex and math.abs((it.y - monte) - (p.y - p.monte)) < ey then
+						monte = it.y - (p.y - p.monte) + ey
+						bouge = true
+					end
+				end
+				if not bouge then
+					break
+				end
+			end
+		end
+		it.monte = monte
+		table.insert(places, it)
+		local y = -math.clamp(2 * monte / math.max(it.h, 1), -8, 8) -- facteur 2 : a -1, les captures montraient un decalage d environ une DEMI-hauteur
+		if math.abs(it.gui.SizeOffset.Y - y) > 0.02 then
+			it.gui.SizeOffset = Vector2.new(0, y)
+		end
+	end
+end
+
+local attenteEtage = 0
+RunService.Heartbeat:Connect(function(dt)
+	attenteEtage = attenteEtage + dt
+	if attenteEtage >= 0.1 then
+		attenteEtage = 0
+		etagerEtiquettes()
+	end
+end)
+
+-- Pose d'une carte : clic / tap sur sa moitie d'arene
+local function deployAtScreen(x, y)
+	if not selected then
+		return "aucune carte selectionnee"
+	end
+	local ray = camera:ScreenPointToRay(x, y)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	local arena = workspace:FindFirstChild("Arena")
+	if not arena then
+		return "arene absente"
+	end
+	params.FilterDescendantsInstances = { arena }
+	local hit = workspace:Raycast(ray.Origin, ray.Direction * 500, params)
+	if not hit then
+		return "clic hors arene"
+	end
+	if hit.Position.Z > -3 then
+		return string.format("clic cote ennemi z=%.1f", hit.Position.Z)
+	end
+	local card = Cards.byId[lastHand[selected]]
+	if not card or currentElixir < card.cost then
+		Sons.jouer("refus")
+		return "elixir insuffisant"
+	end
+	PlayCard:FireServer(selected, hit.Position)
+	Sons.jouer("pose")
+	selected = nil
+	return string.format("pose %s x=%.1f z=%.1f", card.id, hit.Position.X, hit.Position.Z)
+end
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then
+		return
+	end
+	local t = input.UserInputType
+	if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then
+		return
+	end
+	deployAtScreen(input.Position.X, input.Position.Y)
+end)
+
+-- Auto-test du client (copie de test seulement) : lit l'UI et pose des cartes par le vrai chemin clic
+if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") then
+	task.spawn(function()
+		task.wait(4)
+		local vp = camera.ViewportSize
+		print(string.format("[BRR] client ecran=%dx%d", vp.X, vp.Y))
+		local function sonde(fx, fy)
+			local ray = camera:ScreenPointToRay(vp.X * fx, vp.Y * fy)
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Include
+			params.FilterDescendantsInstances = { workspace.Arena }
+			local h = workspace:Raycast(ray.Origin, ray.Direction * 500, params)
+			if h then
+				return string.format("(%.0f,%.0f)", h.Position.X, h.Position.Z)
+			end
+			return "vide"
+		end
+		for _, fy in ipairs({ 0.01, 0.2, 0.4, 0.6, 0.7 }) do
+			print(string.format("[BRR] carte y=%.2f gauche=%s centre=%s droite=%s", fy, sonde(0.1, fy), sonde(0.5, fy), sonde(0.9, fy)))
+		end
+		local panelTop = bottom.AbsolutePosition.Y / vp.Y
+		print(string.format("[BRR] panneau cartes commence a y=%.2f ; sous lui : %s", panelTop, sonde(0.5, panelTop - 0.01)))
+		for round = 1, 6 do
+			task.wait(4)
+			local texts = {}
+			for i = 1, 4 do
+				table.insert(texts, (buttons[i].button.Text:gsub("\n", " / ")))
+			end
+			-- Le nom et le camp sont dans la ligne : a deux joueurs, le journal de Studio melange les
+			-- sorties des deux clients et « client main=... » seul ne disait pas QUI parlait.
+			print("[BRR] client " .. player.Name .. " camp" .. tostring(monCamp) .. " main=" .. table.concat(texts, " | ") .. " elixir=" .. elixirText.Text .. " chrono=" .. top.Text .. " " .. crownsLabel.Text)
+			local cheapest, cost = nil, 99
+			for i = 1, 4 do
+				local c = Cards.byId[lastHand[i]]
+				if c and c.cost < cost then
+					cheapest, cost = i, c.cost
+				end
+			end
+			selected = cheapest
+			-- clic simule : bas-centre de l'ecran, cote joueur
+			local x = vp.X * (0.35 + 0.3 * (round % 2))
+			print("[BRR] client clic -> " .. deployAtScreen(x, vp.Y * 0.62))
+			selected = cheapest
+			local refus = deployAtScreen(vp.X * 0.5, vp.Y * 0.12)
+			selected = nil
+			print("[BRR] client clic ennemi -> " .. refus)
+		end
+		-- COPIE DE TEST : le joueur 1 appuie tout seul sur « Rejouer » 3 s apres la fin, et les deux
+		-- clients redisent leur etat 5 s plus tard. C'est ce qui prouve que la partie repart POUR LES
+		-- DEUX, et pas seulement pour celui qui a clique.
+		if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") and not dejaRelance then
+			dejaRelance = true
+			-- Le SPECTATEUR essaie en premier : s'il pouvait relancer, la partie repartirait avant
+			-- l'appui du camp 1 et le refus passerait inapercu.
+			task.delay(3, function()
+				if jeSuisSpectateur then
+					print("[BRR] test : un SPECTATEUR appuie sur Rejouer")
+					RestartEvent:FireServer()
+				end
+			end)
+			task.delay(6, function()
+				if jeSuisSpectateur then
+					print("[BRR] test : apres l'appui du spectateur, chrono=" .. top.Text
+						.. " overlay=" .. tostring(overlay.Visible) .. " bouton=" .. tostring(restart.Visible))
+				elseif monCamp == 1 then
+					print("[BRR] test : le camp 1 appuie sur Rejouer")
+					RestartEvent:FireServer()
+				end
+			end)
+			task.delay(11, function()
+				print("[BRR] client APRES-REJOUER " .. player.Name .. " camp" .. tostring(monCamp)
+					.. " chrono=" .. top.Text .. " resultat=" .. (resultLabel.Text ~= "" and resultLabel.Text or "aucun")
+					.. " overlay=" .. tostring(overlay.Visible) .. " elixir=" .. elixirText.Text)
+			end)
+		end
+		print("[BRR] client FIN " .. player.Name .. " camp" .. tostring(monCamp)
+			.. " resultat=" .. (resultLabel.Text ~= "" and resultLabel.Text or "aucun")
+			.. " overlay=" .. tostring(overlay.Visible))
+	end)
+end
+
+
+-- SONDE DE CADRAGE (copie de test) : distance de camera et debordement reel.
+if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") then
+	task.delay(20, function()
+		print(string.format("[BRRCAD] %s spectateur=%s distance=%.1f debordement=%.3f vue=%s",
+			player.Name, tostring(jeSuisSpectateur), distanceMesuree, debordementMesure,
+			tostring(camera.ViewportSize)))
+	end)
+end
+]]></ProtectedString></Properties></Item><Item class="LocalScript" referent="RBX36"><Properties><string name="Name">Hub</string><ProtectedString name="Source"><![CDATA[-- HUB : ecran d'accueil (profil, Jouer, Boutique, bonus du jour) et boutique de cartes.
+-- Tout achat passe par la RemoteFunction « Boutique » : le serveur verifie prix et solde, le client
+-- ne fait qu'afficher la reponse. Les offres Robux n'apparaissent que si le createur a renseigne
+-- leurs identifiants (Economie.lua).
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
+-- Habillage sonore de l'accueil : clic, coffre ouvert, achat refuse.
+local Sons = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Sons"))
+local Boutique = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Boutique")
+local player = Players.LocalPlayer
+
+-- Copie de test : le hub reste ferme (la partie automatique doit se jouer), sauf build.py --hub.
+local test = ReplicatedStorage:FindFirstChild("BRR_AUTOTEST")
+local forcerHub = ReplicatedStorage:FindFirstChild("BRR_HUB")
+
+local OR = Color3.fromRGB(255, 205, 60)
+local FOND = Color3.fromRGB(22, 24, 38)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "Hub"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 10
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local function coin(o, r)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, r or 12)
+	c.Parent = o
+end
+
+local function texte(parent, t, taille, pos, couleur, alignement)
+	local l = Instance.new("TextLabel")
+	l.BackgroundTransparency = 1
+	l.Size = taille
+	l.Position = pos
+	l.Text = t
+	l.TextScaled = true
+	l.Font = Enum.Font.GothamBlack
+	l.TextColor3 = couleur or Color3.new(1, 1, 1)
+	l.TextStrokeTransparency = 0.4
+	l.TextXAlignment = alignement or Enum.TextXAlignment.Center
+	l.Parent = parent
+	return l
+end
+
+local function bouton(parent, t, taille, pos, couleur)
+	local b = Instance.new("TextButton")
+	b.Size = taille
+	b.Position = pos
+	b.BackgroundColor3 = couleur
+	b.Text = t
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBlack
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextStrokeTransparency = 0.3
+	b.AutoButtonColor = true
+	b.Parent = parent
+	coin(b)
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0.18, 0); pad.PaddingBottom = UDim.new(0.18, 0)
+	pad.Parent = b
+	return b
+end
+
+-- ACCUEIL ---------------------------------------------------------------------------------------
+local accueil = Instance.new("Frame")
+accueil.Size = UDim2.fromScale(1, 1)
+accueil.BackgroundColor3 = FOND
+accueil.BackgroundTransparency = 0.15
+accueil.Parent = gui
+
+texte(accueil, "BRAINROT ROYALE", UDim2.new(0.8, 0, 0.12, 0), UDim2.new(0.1, 0, 0.08, 0), OR)
+local ligneProfil = texte(accueil, "...", UDim2.new(0.8, 0, 0.06, 0), UDim2.new(0.1, 0, 0.22, 0))
+local ligneInfo = texte(accueil, "", UDim2.new(0.8, 0, 0.035, 0), UDim2.new(0.1, 0, 0.29, 0), Color3.fromRGB(180, 190, 210))
+
+local boutonJouer = bouton(accueil, "JOUER", UDim2.new(0.34, 0, 0.13, 0), UDim2.new(0.33, 0, 0.38, 0), Color3.fromRGB(60, 170, 80))
+-- BOUTIQUE et DECK cote a cote sur la ligne du milieu (l'accueil garde la meme hauteur)
+local boutonBoutique = bouton(accueil, "BOUTIQUE", UDim2.new(0.165, 0, 0.09, 0), UDim2.new(0.33, 0, 0.54, 0), Color3.fromRGB(70, 110, 220))
+local boutonDeck = bouton(accueil, "DECK", UDim2.new(0.165, 0, 0.09, 0), UDim2.new(0.505, 0, 0.54, 0), Color3.fromRGB(140, 80, 200))
+local boutonBonus = bouton(accueil, "BONUS DU JOUR", UDim2.new(0.34, 0, 0.07, 0), UDim2.new(0.33, 0, 0.66, 0), Color3.fromRGB(200, 120, 40))
+local message = texte(accueil, "", UDim2.new(0.8, 0, 0.04, 0), UDim2.new(0.1, 0, 0.745, 0), OR)
+
+-- COFFRES : 4 emplacements sous les boutons. Le serveur donne l'heure de fin ; le client ne fait
+-- qu'afficher le compte a rebours, et c'est le serveur qui refuse une ouverture trop tot.
+local COULEUR_COFFRE = { bois = Color3.fromRGB(140, 95, 55), argent = Color3.fromRGB(150, 160, 175), ["or"] = Color3.fromRGB(220, 170, 40) }
+local NOM_COFFRE = { bois = "BOIS", argent = "ARGENT", ["or"] = "OR" }
+local rangee = Instance.new("Frame")
+rangee.BackgroundTransparency = 1
+rangee.Size = UDim2.new(0.7, 0, 0.16, 0)
+rangee.Position = UDim2.new(0.15, 0, 0.8, 0)
+rangee.Parent = accueil
+local rangeeLayout = Instance.new("UIListLayout")
+rangeeLayout.FillDirection = Enum.FillDirection.Horizontal
+rangeeLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+rangeeLayout.Padding = UDim.new(0.02, 0)
+rangeeLayout.Parent = rangee
+local emplacements = {}
+local decalageHorloge = 0 -- os.time() serveur - os.time() client
+
+-- bouton de retour au hub, pendant la partie
+local boutonMenu = bouton(gui, "MENU", UDim2.new(0, 110, 0, 44), UDim2.new(0, 12, 0, 12), Color3.fromRGB(40, 45, 70))
+boutonMenu.Visible = false
+
+-- BOUTIQUE --------------------------------------------------------------------------------------
+local boutique = Instance.new("Frame")
+boutique.Size = UDim2.fromScale(0.86, 0.84)
+boutique.Position = UDim2.fromScale(0.07, 0.08)
+boutique.BackgroundColor3 = FOND
+boutique.Visible = false
+boutique.Parent = gui
+coin(boutique, 18)
+
+texte(boutique, "BOUTIQUE", UDim2.new(0.6, 0, 0.09, 0), UDim2.new(0.2, 0, 0.02, 0), OR)
+local soldeBoutique = texte(boutique, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.11, 0))
+local fermer = bouton(boutique, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
+
+local grille = Instance.new("Frame")
+grille.BackgroundTransparency = 1
+grille.Size = UDim2.new(0.94, 0, 0.62, 0)
+grille.Position = UDim2.new(0.03, 0, 0.18, 0)
+grille.Parent = boutique
+local layout = Instance.new("UIGridLayout")
+layout.CellSize = UDim2.new(0.23, 0, 0.47, 0)
+layout.CellPadding = UDim2.new(0.02, 0, 0.04, 0)
+layout.Parent = grille
+
+local offresRobux = Instance.new("Frame")
+offresRobux.BackgroundTransparency = 1
+offresRobux.Size = UDim2.new(0.94, 0, 0.12, 0)
+offresRobux.Position = UDim2.new(0.03, 0, 0.85, 0)
+offresRobux.Parent = boutique
+local layoutRobux = Instance.new("UIListLayout")
+layoutRobux.FillDirection = Enum.FillDirection.Horizontal
+layoutRobux.Padding = UDim.new(0.02, 0)
+layoutRobux.Parent = offresRobux
+
+local vue = nil
+local majDeck -- ecran DECK, defini plus bas : afficher() le rafraichit s'il existe deja
+local tuiles = {}
+
+local function majCoffres()
+	if not vue then
+		return
+	end
+	local maintenant = os.time() + decalageHorloge
+	for i = 1, 4 do
+		local e = emplacements[i]
+		local c = vue.coffres[i]
+		if not c then
+			e.cadre.BackgroundColor3 = Color3.fromRGB(40, 42, 60)
+			e.titre.Text = "vide"
+			e.etat.Text = "Gagne une partie"
+			e.etat.BackgroundTransparency = 1
+		else
+			e.cadre.BackgroundColor3 = COULEUR_COFFRE[c.type]
+			e.titre.Text = NOM_COFFRE[c.type]
+			e.etat.BackgroundTransparency = 0.2
+			if c.fin == 0 then
+				e.etat.Text = "DEMARRER"
+			elseif c.fin > maintenant then
+				local r = c.fin - maintenant
+				e.etat.Text = r >= 3600 and string.format("%dh%02d", r // 3600, (r % 3600) // 60)
+					or string.format("%d:%02d", r // 60, r % 60)
+			else
+				e.etat.Text = "OUVRIR !"
+			end
+		end
+	end
+end
+
+local function afficher(v)
+	if not v then
+		return
+	end
+	vue = v
+	ligneProfil.Text = string.format("%d pieces   |   %d trophees", v.pieces, v.trophees)
+	ligneInfo.Text = string.format("%d victoires sur %d parties%s", v.victoires, v.parties,
+		v.sauvegarde and "" or "   (progression non sauvegardee dans Studio)")
+	boutonBonus.Text = v.bonusDispo and "BONUS DU JOUR : +50" or "BONUS DEJA PRIS"
+	boutonBonus.BackgroundColor3 = v.bonusDispo and Color3.fromRGB(200, 120, 40) or Color3.fromRGB(80, 80, 90)
+	soldeBoutique.Text = v.pieces .. " pieces"
+	if v.maintenant then
+		decalageHorloge = v.maintenant - os.time()
+	end
+	majCoffres()
+	if majDeck then
+		majDeck()
+	end
+	for id, t in pairs(tuiles) do
+		local card = Cards.byId[id]
+		if v.cartes[id] then
+			-- NIVEAU : exemplaires possedes / requis, et bouton AMELIORER si possible
+			local n = (v.niveaux and v.niveaux[id]) or 1
+			local ex = (v.exemplaires and v.exemplaires[id]) or 0
+			t.niveau.Text = "Niv. " .. n
+			t.niveau.Visible = true
+			if n >= v.niveauMax then
+				t.etat.Text = "NIVEAU MAX"
+				t.action.Visible = false
+			else
+				local besoin, cout = v.besoinExemplaires[n], v.coutNiveau[n]
+				t.etat.Text = ex .. "/" .. besoin .. " exemplaires"
+				t.action.Visible = true
+				t.action.Text = "AMELIORER " .. cout
+				local possible = ex >= besoin and v.pieces >= cout
+				t.action.BackgroundColor3 = possible and Color3.fromRGB(230, 150, 30) or Color3.fromRGB(90, 90, 100)
+			end
+		else
+			t.niveau.Visible = false
+			t.action.Text = "ACHETER"
+			t.etat.Text = card.prix .. " pieces"
+			t.action.Visible = true
+			t.action.BackgroundColor3 = v.pieces >= card.prix and Color3.fromRGB(60, 170, 80) or Color3.fromRGB(90, 90, 100)
+		end
+	end
+	for _, c in ipairs(offresRobux:GetChildren()) do
+		if c:IsA("TextButton") then
+			c:Destroy()
+		end
+	end
+	for _, offre in ipairs(v.offresRobux) do
+		local b = bouton(offresRobux, offre.nom .. " (Robux)", UDim2.new(0.32, 0, 1, 0), UDim2.new(), Color3.fromRGB(0, 160, 90))
+		b.MouseButton1Click:Connect(function()
+			afficher(Boutique:InvokeServer("robux", offre.index).vue)
+		end)
+	end
+end
+
+for _, card in ipairs(Cards.list) do
+	local tuile = Instance.new("Frame")
+	tuile.BackgroundColor3 = card.color
+	tuile.Parent = grille
+	coin(tuile)
+	texte(tuile, card.name, UDim2.new(0.9, 0, 0.34, 0), UDim2.new(0.05, 0, 0.05, 0))
+	-- elixir a gauche, niveau a droite : sur toute la largeur, les deux textes se chevauchaient (capture 2026-09-14)
+	texte(tuile, card.cost .. " elixir", UDim2.new(0.52, 0, 0.13, 0), UDim2.new(0.06, 0, 0.42, 0), Color3.fromRGB(230, 210, 255))
+	local etat = texte(tuile, "", UDim2.new(0.9, 0, 0.14, 0), UDim2.new(0.05, 0, 0.58, 0), OR)
+	local action = bouton(tuile, "ACHETER", UDim2.new(0.8, 0, 0.2, 0), UDim2.new(0.1, 0, 0.76, 0), Color3.fromRGB(60, 170, 80))
+	local niveau = texte(tuile, "", UDim2.new(0.32, 0, 0.13, 0), UDim2.new(0.62, 0, 0.42, 0), Color3.fromRGB(255, 255, 255))
+	niveau.Visible = false
+	action.MouseButton1Click:Connect(function()
+		local debloquee = vue and vue.cartes[card.id]
+		local r = Boutique:InvokeServer(debloquee and "ameliorer" or "acheter", card.id)
+		afficher(r.vue)
+		if r.ok then
+			Sons.jouer("coffre", 0.8) -- meme sensation de gain qu'une ouverture de coffre
+			soldeBoutique.Text = debloquee and (card.name .. " : niveau " .. (r.vue.niveaux[card.id] or 1)) or ("Debloquee : " .. card.name)
+		else
+			Sons.jouer("refus")
+			soldeBoutique.Text = "Impossible : " .. tostring(r.motif)
+		end
+		task.delay(1.5, function() afficher(vue) end)
+	end)
+	tuiles[card.id] = { etat = etat, action = action, niveau = niveau }
+end
+
+-- DECK ------------------------------------------------------------------------------------------
+-- Le joueur choisit les cartes qu'il emporte. Le client ne fait que PROPOSER : c'est
+-- Economie.choisirDeck (serveur) qui verifie que chaque carte est bien possedee, et qui
+-- enregistre. Tant que le joueur possede moins de cartes qu'il n'y a de places, aucun choix
+-- n'existe : l'ecran le dit et le bouton reste inactif.
+local deckEcran = Instance.new("Frame")
+deckEcran.Size = UDim2.fromScale(0.86, 0.84)
+deckEcran.Position = UDim2.fromScale(0.07, 0.08)
+deckEcran.BackgroundColor3 = FOND
+deckEcran.Visible = false
+deckEcran.Parent = gui
+coin(deckEcran, 18)
+
+texte(deckEcran, "MON DECK", UDim2.new(0.6, 0, 0.09, 0), UDim2.new(0.2, 0, 0.02, 0), OR)
+local deckCompteur = texte(deckEcran, "", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.11, 0))
+local deckFermer = bouton(deckEcran, "X", UDim2.new(0, 44, 0, 44), UDim2.new(1, -56, 0, 12), Color3.fromRGB(170, 50, 50))
+local deckValider = bouton(deckEcran, "ENREGISTRER", UDim2.new(0.36, 0, 0.09, 0), UDim2.new(0.32, 0, 0.87, 0), Color3.fromRGB(60, 170, 80))
+
+local deckGrille = Instance.new("Frame")
+deckGrille.BackgroundTransparency = 1
+deckGrille.Size = UDim2.new(0.94, 0, 0.66, 0)
+deckGrille.Position = UDim2.new(0.03, 0, 0.18, 0)
+deckGrille.Parent = deckEcran
+local deckLayout = Instance.new("UIGridLayout")
+deckLayout.CellSize = UDim2.new(0.23, 0, 0.3, 0)
+deckLayout.CellPadding = UDim2.new(0.02, 0, 0.03, 0)
+deckLayout.Parent = deckGrille
+
+local choix = {}      -- id -> true : carte selectionnee dans l'ecran
+local nbChoix = 0
+local tuilesDeck = {}
+
+local function basculer(id)
+	if choix[id] then
+		choix[id] = nil
+		nbChoix -= 1
+	elseif nbChoix < (vue and vue.deckTaille or 8) then
+		choix[id] = true
+		nbChoix += 1
+	end
+	majDeck()
+end
+
+for _, card in ipairs(Cards.list) do
+	local tuile = Instance.new("TextButton")
+	tuile.BackgroundColor3 = card.color
+	tuile.Text = ""
+	tuile.AutoButtonColor = true
+	tuile.Parent = deckGrille
+	coin(tuile)
+	local bord = Instance.new("UIStroke")
+	bord.Thickness = 4
+	bord.Color = OR
+	bord.Transparency = 1
+	bord.Parent = tuile
+	texte(tuile, card.name, UDim2.new(0.9, 0, 0.4, 0), UDim2.new(0.05, 0, 0.06, 0))
+	texte(tuile, card.cost .. " elixir", UDim2.new(0.9, 0, 0.18, 0), UDim2.new(0.05, 0, 0.5, 0), Color3.fromRGB(230, 210, 255))
+	local etatDeck = texte(tuile, "", UDim2.new(0.9, 0, 0.2, 0), UDim2.new(0.05, 0, 0.72, 0), OR)
+	tuile.MouseButton1Click:Connect(function()
+		if vue and vue.cartes[card.id] then
+			basculer(card.id)
+		end
+	end)
+	tuilesDeck[card.id] = { tuile = tuile, bord = bord, etat = etatDeck }
+end
+
+-- definit la variable declaree plus haut (afficher l'appelle)
+majDeck = function()
+	if not vue or not deckEcran.Visible then
+		return
+	end
+	local taille = vue.deckTaille or 8
+	local possedees = 0
+	for _, card in ipairs(Cards.list) do
+		local t = tuilesDeck[card.id]
+		local possede = vue.cartes[card.id] == true
+		if possede then
+			possedees += 1
+		end
+		t.tuile.BackgroundTransparency = possede and 0 or 0.65
+		t.bord.Transparency = choix[card.id] and 0 or 1
+		t.etat.Text = possede and (choix[card.id] and "DANS LE DECK" or "") or "verrouillee"
+	end
+	if possedees < taille then
+		deckCompteur.Text = possedees .. " cartes sur " .. taille .. " : debloque-en pour choisir"
+		deckValider.Text = "PAS ASSEZ DE CARTES"
+		deckValider.BackgroundColor3 = Color3.fromRGB(90, 90, 100)
+	else
+		deckCompteur.Text = nbChoix .. " / " .. taille .. " cartes choisies"
+		deckValider.Text = "ENREGISTRER"
+		deckValider.BackgroundColor3 = nbChoix == taille and Color3.fromRGB(60, 170, 80) or Color3.fromRGB(90, 90, 100)
+	end
+end
+
+-- selection de depart = le deck effectivement emporte, tel que le serveur le voit
+local function chargerChoix()
+	choix, nbChoix = {}, 0
+	local taille = (vue and vue.deckTaille) or 8
+	for _, id in ipairs((vue and vue.deck) or {}) do
+		if nbChoix < taille then
+			choix[id] = true
+			nbChoix += 1
+		end
+	end
+end
+
+deckValider.MouseButton1Click:Connect(function()
+	local taille = (vue and vue.deckTaille) or 8
+	if nbChoix ~= taille then
+		deckCompteur.Text = "choisis " .. taille .. " cartes (" .. nbChoix .. " pour l'instant)"
+		return
+	end
+	local liste = {}
+	for _, card in ipairs(Cards.list) do
+		if choix[card.id] then
+			table.insert(liste, card.id)
+		end
+	end
+	local r = Boutique:InvokeServer("deck", liste)
+	afficher(r.vue)
+	if r.ok then
+		chargerChoix()
+		majDeck()
+		deckCompteur.Text = "deck enregistre !"
+	else
+		deckCompteur.Text = "Refuse : " .. tostring(r.motif)
+	end
+end)
+
+deckFermer.MouseButton1Click:Connect(function()
+	deckEcran.Visible = false
+end)
+
+for i = 1, 4 do
+	local cadre = Instance.new("Frame")
+	cadre.Size = UDim2.new(0.23, 0, 1, 0)
+	cadre.Parent = rangee
+	coin(cadre)
+	local titre = texte(cadre, "vide", UDim2.new(0.9, 0, 0.36, 0), UDim2.new(0.05, 0, 0.06, 0))
+	local etat = bouton(cadre, "", UDim2.new(0.9, 0, 0.44, 0), UDim2.new(0.05, 0, 0.5, 0), Color3.fromRGB(25, 25, 35))
+	etat.MouseButton1Click:Connect(function()
+		local c = vue and vue.coffres[i]
+		if not c then
+			return
+		end
+		local action = c.fin == 0 and "demarrerCoffre" or "ouvrirCoffre"
+		local r = Boutique:InvokeServer(action, i)
+		if r.gain then
+			Sons.jouer("coffre")
+			message.Text = "+" .. r.gain.pieces .. " pieces  +  " .. r.gain.exemplaires .. " x " .. Cards.byId[r.gain.exemplaireCarte].name
+				.. (r.gain.carte and ("  +  carte " .. Cards.byId[r.gain.carte].name .. " !") or "")
+		elseif not r.ok then
+			Sons.jouer("refus")
+			message.Text = "Coffre : " .. tostring(r.motif)
+		end
+		afficher(r.vue)
+	end)
+	emplacements[i] = { cadre = cadre, titre = titre, etat = etat }
+end
+task.spawn(function()
+	while true do
+		task.wait(1)
+		if accueil.Visible then
+			majCoffres()
+		end
+	end
+end)
+
+-- NAVIGATION ------------------------------------------------------------------------------------
+local function ouvrirAccueil()
+	accueil.Visible = true
+	boutique.Visible = false
+	deckEcran.Visible = false
+	boutonMenu.Visible = false
+	afficher(Boutique:InvokeServer("profil").vue)
+end
+
+boutonJouer.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	local r = Boutique:InvokeServer("jouer")
+	if r.ok then
+		accueil.Visible = false
+		boutonMenu.Visible = true
+	else
+		message.Text = "Les deux camps sont pris : tu regardes la partie"
+		accueil.Visible = false
+		boutonMenu.Visible = true
+	end
+end)
+boutonDeck.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	deckEcran.Visible = true
+	afficher(Boutique:InvokeServer("profil").vue)
+	chargerChoix()
+	majDeck()
+end)
+boutonBoutique.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	boutique.Visible = true
+	afficher(Boutique:InvokeServer("profil").vue)
+end)
+fermer.MouseButton1Click:Connect(function()
+	boutique.Visible = false
+end)
+boutonMenu.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	Boutique:InvokeServer("quitter")
+	ouvrirAccueil()
+end)
+boutonBonus.MouseButton1Click:Connect(function()
+	local r = Boutique:InvokeServer("bonus")
+	Sons.jouer(r.ok and "coffre" or "refus")
+	message.Text = r.ok and "+50 pieces !" or ("Bonus : " .. tostring(r.motif))
+	afficher(r.vue)
+end)
+
+-- le solde affiche suit les recompenses de fin de partie
+local ls = player:WaitForChild("leaderstats", 30)
+if ls then
+	for _, v in ipairs(ls:GetChildren()) do
+		v.Changed:Connect(function()
+			if accueil.Visible or boutique.Visible or deckEcran.Visible then
+				afficher(Boutique:InvokeServer("profil").vue)
+			end
+		end)
+	end
+end
+
+if test and not forcerHub then
+	accueil.Visible = false
+	boutonMenu.Visible = true
+	print("[HUB] copie de test : hub ferme")
+else
+	ouvrirAccueil()
+	if ReplicatedStorage:FindFirstChild("BRR_BOUTIQUE") then
+		boutique.Visible = true
+	end
+	print("[HUB] accueil ouvert")
+end
+]]></ProtectedString></Properties></Item></Item></Item></roblox>

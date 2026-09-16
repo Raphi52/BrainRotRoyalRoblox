@@ -1,0 +1,17 @@
+{
+  "name": "BrainRotRoyale",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": { "$path": "src/shared" }
+    },
+    "ServerScriptService": {
+      "GameServer": { "$path": "src/server/GameServer.server.lua" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "GameClient": { "$path": "src/client/GameClient.client.lua" }
+      }
+    }
+  }
+}

@@ -1,0 +1,180 @@
+-- Cartes Italian Brainrot
+--
+-- `morceaux` = la SILHOUETTE du personnage : des blocs simples accroches au corps (ecart `pos`,
+-- `taille`, `couleur`, `forme` parmi bloc/boule/cylindre, `rot` en degres). Le serveur les pose
+-- dans `habiller` et les fait suivre le corps. Choix assume : geometrie faite ici plutot qu'un
+-- modele importe du catalogue Roblox — aucun telechargement, aucun identifiant d'asset a
+-- maintenir, et rien qui disparaisse si son auteur le retire.
+-- targets : "any" (tout) ou "buildings" (tours uniquement)
+-- Le cube `size` reste la zone de contact mais est INVISIBLE : les morceaux dessinent tout le
+-- personnage (2026-09-14 : vu de loin, le cube colore dominait la silhouette).
+-- echelle : grossit les morceaux (visuel seul, la zone de contact ne change pas).
+-- hauteurModele / modeleRotY : hauteur visee (studs) et correction de rotation du modele de la Boutique.
+-- prix : carte a debloquer en boutique (pieces). Sans prix, la carte est offerte des le depart.
+-- range < 5 = melee : ne peut pas toucher les unites volantes
+local Cards = {
+	{
+		id = "Tralalero", hauteurModele = 4.5, modeleRotY = 0, name = "Tralalero Tralala", cost = 3, echelle = 1,
+		hp = 650, dmg = 95, range = 3.5, speed = 11, atkSpeed = 1.0, count = 1,
+		color = Color3.fromRGB(70, 150, 255), size = Vector3.new(3, 3, 4),
+		targets = "any", desc = "Requin en Nike, rapide et solide",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.3, 0), taille = Vector3.new(2.6, 2.2, 4.6), couleur = Color3.fromRGB(70, 150, 255) },
+			{ pos = Vector3.new(0, -0.3, -0.2), taille = Vector3.new(2.2, 1.2, 4), couleur = Color3.fromRGB(235, 240, 250) },
+			{ pos = Vector3.new(0, 0.3, -2.6), taille = Vector3.new(2.4, 2, 1.8), forme = "boule", couleur = Color3.fromRGB(70, 150, 255) },
+			{ pos = Vector3.new(0, -0.4, -2.9), taille = Vector3.new(1.8, 0.3, 1), couleur = Color3.fromRGB(255, 255, 255) },
+			{ pos = Vector3.new(0, 2.3, 0.2), taille = Vector3.new(0.5, 2.4, 1.8), rot = Vector3.new(-20, 0, 0), couleur = Color3.fromRGB(50, 120, 230) },
+			{ pos = Vector3.new(0, 0.9, 2.9), taille = Vector3.new(0.5, 2.4, 1.4), rot = Vector3.new(25, 0, 0), couleur = Color3.fromRGB(50, 120, 230) },
+			{ pos = Vector3.new(-1.35, 0.8, -2.8), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(1.35, 0.8, -2.8), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.9, -1.7, -0.6), taille = Vector3.new(1.2, 0.9, 2.4), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0.9, -1.7, -0.6), taille = Vector3.new(1.2, 0.9, 2.4), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-1.52, -1.6, -0.6), taille = Vector3.new(0.1, 0.4, 1.6), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(1.52, -1.6, -0.6), taille = Vector3.new(0.1, 0.4, 1.6), couleur = Color3.fromRGB(255, 60, 60) },
+		},
+	},
+	{
+		id = "Bombardiro", prix = 500, hauteurModele = 3.5, modeleRotY = 90, name = "Bombardiro Crocodilo", cost = 5,
+		hp = 750, dmg = 180, range = 3, speed = 8, atkSpeed = 2.0, count = 1,
+		color = Color3.fromRGB(60, 120, 50), size = Vector3.new(5, 2, 4),
+		targets = "buildings", flying = true, splash = 5, desc = "Bombardier volant, vise les tours",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.2, 1.8, 5), couleur = Color3.fromRGB(80, 150, 70) },
+			{ pos = Vector3.new(0, 0, -3.4), taille = Vector3.new(1.6, 1, 2.6), couleur = Color3.fromRGB(90, 165, 80) },
+			{ pos = Vector3.new(-0.5, 0.6, -2.4), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(255, 230, 80) },
+			{ pos = Vector3.new(0.5, 0.6, -2.4), taille = Vector3.new(0.5, 0.5, 0.5), forme = "boule", couleur = Color3.fromRGB(255, 230, 80) },
+			{ pos = Vector3.new(0, -0.45, -3.6), taille = Vector3.new(1.4, 0.15, 2), couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-4, 0.2, 0), taille = Vector3.new(5.5, 0.4, 2.4), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(4, 0.2, 0), taille = Vector3.new(5.5, 0.4, 2.4), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(-2.6, -0.6, -0.3), taille = Vector3.new(2.4, 1, 1), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(60, 60, 65), materiau = "Metal" },
+			{ pos = Vector3.new(2.6, -0.6, -0.3), taille = Vector3.new(2.4, 1, 1), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(60, 60, 65), materiau = "Metal" },
+			{ pos = Vector3.new(0, 1.2, 2.4), taille = Vector3.new(0.3, 1.8, 1.2), couleur = Color3.fromRGB(80, 150, 70) },
+			{ pos = Vector3.new(0, 0.3, 2.8), taille = Vector3.new(3, 0.3, 1), couleur = Color3.fromRGB(110, 120, 110), materiau = "Metal" },
+			{ pos = Vector3.new(0, -1.3, 0.3), taille = Vector3.new(1.8, 0.8, 0.8), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(40, 40, 40), materiau = "Metal" },
+		},
+	},
+	{
+		id = "TungSahur", hauteurModele = 6, modeleRotY = 0, name = "Tung Tung Tung Sahur", cost = 4,
+		hp = 1100, dmg = 150, range = 3.5, speed = 8, atkSpeed = 1.2, count = 1,
+		color = Color3.fromRGB(150, 100, 60), size = Vector3.new(2, 6, 2),
+		targets = "any", splash = 3, desc = "Coup de batte en zone",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.3, 0), taille = Vector3.new(5, 2.2, 2.2), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(195, 150, 100), materiau = "Wood" },
+			{ pos = Vector3.new(-0.5, 1.6, -1.05), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(0.5, 1.6, -1.05), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(-0.5, 1.6, -1.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.5, 1.6, -1.3), taille = Vector3.new(0.3, 0.3, 0.3), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 0.7, -1.12), taille = Vector3.new(1.2, 0.25, 0.1), couleur = Color3.fromRGB(60, 30, 20) },
+			{ pos = Vector3.new(1.5, 0.8, 0), taille = Vector3.new(0.5, 2.2, 0.5), rot = Vector3.new(0, 0, 40), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(-1.5, 0.8, 0), taille = Vector3.new(0.5, 2.2, 0.5), rot = Vector3.new(0, 0, -40), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(2.8, 2.6, 0), taille = Vector3.new(4.2, 0.9, 0.9), forme = "cylindre", rot = Vector3.new(0, 0, 35), couleur = Color3.fromRGB(110, 75, 45), materiau = "Wood" },
+			{ pos = Vector3.new(-0.6, -2.8, 0), taille = Vector3.new(0.6, 1.4, 0.6), couleur = Color3.fromRGB(170, 125, 80) },
+			{ pos = Vector3.new(0.6, -2.8, 0), taille = Vector3.new(0.6, 1.4, 0.6), couleur = Color3.fromRGB(170, 125, 80) },
+		},
+	},
+	{
+		id = "Patapim", prix = 800, hauteurModele = 6.5, modeleRotY = 0, name = "Brr Brr Patapim", cost = 5,
+		hp = 2200, dmg = 120, range = 3, speed = 5.5, atkSpeed = 1.5, count = 1,
+		color = Color3.fromRGB(40, 90, 30), size = Vector3.new(5, 5, 5),
+		targets = "buildings", desc = "Tank foret, fonce sur les tours",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(4.4, 4, 4), couleur = Color3.fromRGB(70, 120, 50), materiau = "Grass" },
+			{ pos = Vector3.new(0, 1, -2.2), taille = Vector3.new(3.6, 2.4, 1), couleur = Color3.fromRGB(200, 170, 140) },
+			{ pos = Vector3.new(-0.8, 0.6, -3), taille = Vector3.new(1.3, 1.3, 1.3), forme = "boule", couleur = Color3.fromRGB(215, 180, 150) },
+			{ pos = Vector3.new(0.8, 0.6, -3), taille = Vector3.new(1.3, 1.3, 1.3), forme = "boule", couleur = Color3.fromRGB(215, 180, 150) },
+			{ pos = Vector3.new(-1, 2.2, -2.75), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(1, 2.2, -2.75), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, 3.1, -0.4), taille = Vector3.new(4, 0.6, 3), couleur = Color3.fromRGB(40, 25, 15) },
+			{ pos = Vector3.new(-1.4, 4, 0.6), taille = Vector3.new(0.5, 3, 0.5), rot = Vector3.new(0, 0, -25), couleur = Color3.fromRGB(90, 60, 35), materiau = "Wood" },
+			{ pos = Vector3.new(1.4, 4.2, 0.2), taille = Vector3.new(0.5, 3.4, 0.5), rot = Vector3.new(0, 0, 20), couleur = Color3.fromRGB(90, 60, 35), materiau = "Wood" },
+			{ pos = Vector3.new(0, 5.2, 0.4), taille = Vector3.new(3, 3, 3), forme = "boule", couleur = Color3.fromRGB(50, 140, 45), materiau = "Grass" },
+			{ pos = Vector3.new(-1.2, -2.5, 0), taille = Vector3.new(1.2, 1.2, 1.6), couleur = Color3.fromRGB(90, 60, 35) },
+			{ pos = Vector3.new(1.2, -2.5, 0), taille = Vector3.new(1.2, 1.2, 1.6), couleur = Color3.fromRGB(90, 60, 35) },
+		},
+	},
+	{
+		id = "Cappuccino", hauteurModele = 5.5, modeleRotY = 0, name = "Cappuccino Assassino", cost = 2,
+		hp = 320, dmg = 130, range = 3, speed = 16, atkSpeed = 0.8, count = 1,
+		color = Color3.fromRGB(110, 70, 40), size = Vector3.new(2, 3, 2),
+		targets = "any", desc = "Assassin ultra rapide",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.2, 0), taille = Vector3.new(2.6, 2, 2), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(0, 1.5, 0), taille = Vector3.new(0.2, 1.9, 1.9), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(120, 75, 40) },
+			{ pos = Vector3.new(0, 1.75, 0), taille = Vector3.new(1.6, 1.6, 1.6), forme = "boule", couleur = Color3.fromRGB(250, 250, 250) },
+			{ pos = Vector3.new(1.3, 0.2, 0), taille = Vector3.new(0.4, 1.4, 1), couleur = Color3.fromRGB(245, 240, 230) },
+			{ pos = Vector3.new(0, 0.6, -1.02), taille = Vector3.new(2.05, 0.6, 0.1), couleur = Color3.fromRGB(30, 30, 40) },
+			{ pos = Vector3.new(-0.4, 0.6, -1.1), taille = Vector3.new(0.35, 0.25, 0.1), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(0.4, 0.6, -1.1), taille = Vector3.new(0.35, 0.25, 0.1), couleur = Color3.fromRGB(255, 60, 60) },
+			{ pos = Vector3.new(-1.4, 0, -0.4), taille = Vector3.new(0.2, 1.6, 0.5), rot = Vector3.new(30, 0, 0), couleur = Color3.fromRGB(200, 200, 210), materiau = "Metal" },
+			{ pos = Vector3.new(1.4, 0, -0.4), taille = Vector3.new(0.2, 1.6, 0.5), rot = Vector3.new(30, 0, 0), couleur = Color3.fromRGB(200, 200, 210), materiau = "Metal" },
+			{ pos = Vector3.new(-0.5, -1.6, 0), taille = Vector3.new(0.5, 0.8, 1.2), couleur = Color3.fromRGB(40, 40, 50) },
+			{ pos = Vector3.new(0.5, -1.6, 0), taille = Vector3.new(0.5, 0.8, 1.2), couleur = Color3.fromRGB(40, 40, 50) },
+		},
+	},
+	{
+		id = "Chimpanzini", hauteurModele = 4.5, modeleRotY = 180, name = "Chimpanzini Bananini", cost = 3,
+		hp = 220, dmg = 60, range = 3, speed = 14, atkSpeed = 0.7, count = 3,
+		color = Color3.fromRGB(240, 220, 60), size = Vector3.new(2, 2, 2),
+		targets = "any", desc = "Trois singes-bananes",
+		morceaux = {
+			{ pos = Vector3.new(0, 0, 0), taille = Vector3.new(2.6, 1.8, 1.8), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(250, 220, 60) },
+			{ pos = Vector3.new(-1, 0.9, 0), taille = Vector3.new(0.4, 1.8, 0.8), rot = Vector3.new(0, 0, 35), couleur = Color3.fromRGB(250, 225, 70) },
+			{ pos = Vector3.new(1, 0.9, 0), taille = Vector3.new(0.4, 1.8, 0.8), rot = Vector3.new(0, 0, -35), couleur = Color3.fromRGB(250, 225, 70) },
+			{ pos = Vector3.new(0, 1.6, 0), taille = Vector3.new(1.5, 1.5, 1.5), forme = "boule", couleur = Color3.fromRGB(140, 95, 60) },
+			{ pos = Vector3.new(0, 1.45, -0.6), taille = Vector3.new(0.8, 0.8, 0.8), forme = "boule", couleur = Color3.fromRGB(210, 170, 130) },
+			{ pos = Vector3.new(-0.85, 1.7, 0), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(170, 125, 85) },
+			{ pos = Vector3.new(0.85, 1.7, 0), taille = Vector3.new(0.6, 0.6, 0.6), forme = "boule", couleur = Color3.fromRGB(170, 125, 85) },
+			{ pos = Vector3.new(-0.3, 1.8, -0.7), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.3, 1.8, -0.7), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, -1.4, 0), taille = Vector3.new(0.5, 0.4, 0.5), couleur = Color3.fromRGB(90, 70, 30) },
+		},
+	},
+	{
+		id = "Lirili", hauteurModele = 5.5, modeleRotY = 90, name = "Lirili Larila", cost = 3, echelle = 1,
+		hp = 480, dmg = 75, range = 11, speed = 7, atkSpeed = 1.3, count = 1,
+		color = Color3.fromRGB(120, 200, 120), size = Vector3.new(3, 4, 3),
+		targets = "any", desc = "Elephant-cactus a distance",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.2, 0), taille = Vector3.new(2.6, 2.8, 2.4), couleur = Color3.fromRGB(120, 190, 110) },
+			{ pos = Vector3.new(0, 1.8, -0.8), taille = Vector3.new(2, 1.8, 1.8), couleur = Color3.fromRGB(130, 200, 120) },
+			{ pos = Vector3.new(0, 0.9, -2), taille = Vector3.new(0.7, 2.4, 0.7), rot = Vector3.new(35, 0, 0), couleur = Color3.fromRGB(120, 185, 110) },
+			{ pos = Vector3.new(-1.5, 1.9, -0.6), taille = Vector3.new(0.3, 1.8, 1.6), couleur = Color3.fromRGB(110, 175, 105) },
+			{ pos = Vector3.new(1.5, 1.9, -0.6), taille = Vector3.new(0.3, 1.8, 1.6), couleur = Color3.fromRGB(110, 175, 105) },
+			{ pos = Vector3.new(-0.5, 2.2, -1.72), taille = Vector3.new(0.35, 0.35, 0.35), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.5, 2.2, -1.72), taille = Vector3.new(0.35, 0.35, 0.35), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(-0.8, 3, 0), taille = Vector3.new(0.15, 0.8, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(0.6, 3.1, 0.4), taille = Vector3.new(0.15, 0.8, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(1.35, 0.6, 0.5), taille = Vector3.new(0.8, 0.15, 0.15), couleur = Color3.fromRGB(250, 245, 200) },
+			{ pos = Vector3.new(0, 1.2, 1.25), taille = Vector3.new(0.3, 1.2, 1.2), forme = "cylindre", rot = Vector3.new(0, 90, 0), couleur = Color3.fromRGB(240, 235, 200) },
+			{ pos = Vector3.new(-0.7, -1.8, 0), taille = Vector3.new(0.8, 0.3, 1.2), couleur = Color3.fromRGB(150, 100, 60) },
+			{ pos = Vector3.new(0.7, -1.8, 0), taille = Vector3.new(0.8, 0.3, 1.2), couleur = Color3.fromRGB(150, 100, 60) },
+		},
+	},
+	{
+		id = "Ballerina", hauteurModele = 5, modeleRotY = -90, name = "Ballerina Cappuccina", cost = 2,
+		hp = 260, dmg = 55, range = 9, speed = 10, atkSpeed = 0.9, count = 1,
+		color = Color3.fromRGB(255, 150, 200), size = Vector3.new(2, 4, 2),
+		targets = "any", desc = "Tireuse legere a distance",
+		morceaux = {
+			{ pos = Vector3.new(0, 0.5, 0), taille = Vector3.new(1, 1.6, 0.8), couleur = Color3.fromRGB(250, 200, 215) },
+			{ pos = Vector3.new(0, 2.2, 0), taille = Vector3.new(1.6, 1.7, 1.7), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(250, 245, 235) },
+			{ pos = Vector3.new(0, 3.05, 0), taille = Vector3.new(0.15, 1.5, 1.5), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(120, 75, 40) },
+			{ pos = Vector3.new(1.05, 2.2, 0), taille = Vector3.new(0.3, 1, 0.8), couleur = Color3.fromRGB(250, 245, 235) },
+			{ pos = Vector3.new(-0.35, 2.3, -0.87), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0.35, 2.3, -0.87), taille = Vector3.new(0.25, 0.25, 0.25), forme = "boule", couleur = Color3.fromRGB(15, 15, 20) },
+			{ pos = Vector3.new(0, -0.3, 0), taille = Vector3.new(0.5, 3.6, 3.6), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(255, 150, 205) },
+			{ pos = Vector3.new(0, -0.1, 0), taille = Vector3.new(0.4, 3, 3), forme = "cylindre", rot = Vector3.new(0, 0, 90), couleur = Color3.fromRGB(255, 190, 225) },
+			{ pos = Vector3.new(-1, 1.9, 0), taille = Vector3.new(0.3, 1.8, 0.3), rot = Vector3.new(0, 0, 30), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(1, 1.9, 0), taille = Vector3.new(0.3, 1.8, 0.3), rot = Vector3.new(0, 0, -30), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(-0.3, -1.4, 0), taille = Vector3.new(0.3, 1.4, 0.3), couleur = Color3.fromRGB(250, 215, 225) },
+			{ pos = Vector3.new(0.3, -1.4, 0), taille = Vector3.new(0.3, 1.4, 0.3), couleur = Color3.fromRGB(250, 215, 225) },
+		},
+	},
+}
+
+local byId = {}
+for _, c in ipairs(Cards) do
+	byId[c.id] = c
+end
+
+return { list = Cards, byId = byId }

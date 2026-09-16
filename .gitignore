@@ -1,0 +1,12 @@
+# Sauvegardes automatiques laissees par les outils d'edition (elles restent sur le disque,
+# elles ne sont simplement pas suivies : l'historique git les remplace desormais).
+*.bak
+*.bak-*
+
+# Verrous et copies de travail de Roblox Studio
+*.rbxlx.lock
+*.autotest.rbxlx
+
+# Python
+__pycache__/
+*.pyc
