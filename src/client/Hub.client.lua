@@ -5,6 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local SocialService = game:GetService("SocialService")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore de l'accueil : clic, coffre ouvert, achat refuse.
@@ -94,6 +95,25 @@ local boutonBoutique = bouton(accueil, "BOUTIQUE", UDim2.new(0.165, 0, 0.09, 0),
 local boutonDeck = bouton(accueil, "DECK", UDim2.new(0.165, 0, 0.09, 0), UDim2.new(0.505, 0, 0.54, 0), Color3.fromRGB(140, 80, 200))
 local boutonBonus = bouton(accueil, "BONUS DU JOUR", UDim2.new(0.34, 0, 0.07, 0), UDim2.new(0.33, 0, 0.66, 0), Color3.fromRGB(200, 120, 40))
 local message = texte(accueil, "", UDim2.new(0.8, 0, 0.04, 0), UDim2.new(0.1, 0, 0.745, 0), OR)
+
+-- DEFIER UN AMI : l'invitation Roblox fait arriver l'ami sur CE serveur ; les deux premiers
+-- joueurs d'un serveur s'affrontent. Les appels SocialService echouent dans Studio : pcall.
+local boutonInviter = bouton(accueil, "INVITER", UDim2.new(0.14, 0, 0.07, 0), UDim2.new(0.02, 0, 0.04, 0), Color3.fromRGB(40, 150, 170))
+boutonInviter.MouseButton1Click:Connect(function()
+	local ok, peut = pcall(function()
+		return SocialService:CanSendGameInviteAsync(player)
+	end)
+	if not (ok and peut) then
+		message.Text = "Invitation impossible ici (jeu non publie ou invitations bloquees)"
+		return
+	end
+	local okP = pcall(function()
+		SocialService:PromptGameInvite(player)
+	end)
+	if not okP then
+		message.Text = "Invitation impossible pour le moment"
+	end
+end)
 
 -- CLASSEMENT : top 10 des trophees tous serveurs confondus, a droite des boutons.
 texte(accueil, "TOP 10", UDim2.new(0.14, 0, 0.04, 0), UDim2.new(0.82, 0, 0.36, 0), OR)
