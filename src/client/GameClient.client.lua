@@ -12,6 +12,7 @@ local remotes = ReplicatedStorage:WaitForChild("Remotes")
 local PlayCard = remotes:WaitForChild("PlayCard")
 local StateEvent = remotes:WaitForChild("State")
 local RestartEvent = remotes:WaitForChild("Restart")
+local EmoteEvent = remotes:WaitForChild("Emote")
 
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
@@ -154,6 +155,33 @@ end
 
 local top = label(gui, "3:00", UDim2.new(0, 300, 0, 40), UDim2.new(0.5, -150, 0, 10))
 local crownsLabel = label(gui, "0 - 0", UDim2.new(0, 300, 0, 30), UDim2.new(0.5, -150, 0, 50))
+
+-- EMOTES RAPIDES : boutons en haut a droite, caches pour le spectateur (le serveur refuse de toute facon).
+local emotesBarre = Instance.new("Frame")
+emotesBarre.BackgroundTransparency = 1
+emotesBarre.Size = UDim2.new(0, 190, 0, 40)
+emotesBarre.Position = UDim2.new(1, -200, 0, 10)
+emotesBarre.Visible = false
+emotesBarre.Parent = gui
+local emotesListe = Instance.new("UIListLayout")
+emotesListe.FillDirection = Enum.FillDirection.Horizontal
+emotesListe.Padding = UDim.new(0, 6)
+emotesListe.Parent = emotesBarre
+for _, e in ipairs({ { "gg", "GG" }, { "rire", "HAHA" }, { "bravo", "Bravo" }, { "oups", "Oups" } }) do
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0, 42, 0, 36)
+	b.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+	b.BackgroundTransparency = 0.2
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBold
+	b.Text = e[2]
+	b.Parent = emotesBarre
+	Instance.new("UICorner").Parent = b
+	b.MouseButton1Click:Connect(function()
+		EmoteEvent:FireServer(e[1])
+	end)
+end
 
 local bottom = Instance.new("Frame")
 bottom.Size = UDim2.new(0, 560, 0, 170)
@@ -303,6 +331,7 @@ local sonCombatPermis = Sons.limiteur(6)
 StateEvent.OnClientEvent:Connect(function(s)
 	chatVoulu = s.chatVisible == true
 	appliquerChat()
+	emotesBarre.Visible = not s.spectateur
 	local moi = s.spectateur and (s.crownsCamp1 or 0) or (s.crownsYou or 0)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then

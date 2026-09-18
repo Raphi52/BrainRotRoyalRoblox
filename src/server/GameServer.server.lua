@@ -29,6 +29,10 @@ BoutiqueFn.Parent = remotes
 local RestartEvent = Instance.new("RemoteEvent")
 RestartEvent.Name = "Restart"
 RestartEvent.Parent = remotes
+-- EMOTES : le client demande une emote, le serveur la valide et la limite en frequence.
+local EmoteEvent = Instance.new("RemoteEvent")
+EmoteEvent.Name = "Emote"
+EmoteEvent.Parent = remotes
 
 -- Constantes
 -- Largeur de l'arene portee de 18 a 28 (2026-09-14) : a 36 studs de large pour 64 de long, l'arene
@@ -1287,6 +1291,69 @@ PlayCard.OnServerEvent:Connect(function(player, handIndex, pos)
 		return -- spectateur : il regarde, il ne pose pas de carte
 	end
 	tryPlay(camp, math.floor(handIndex), pos)
+end)
+
+-- EMOTES RAPIDES (facon Clash Royale) : une bulle au-dessus de la tour du Roi de l'expediteur.
+-- Liste FERMEE : le client envoie un identifiant, jamais un texte libre (pas de moderation a faire).
+local EMOTES = { gg = "GG !", rire = "HAHA", bravo = "Bien joue", oups = "Oups !" }
+local EMOTE_DELAI = 3 -- secondes minimum entre deux emotes du meme joueur
+local derniereEmote = {}
+
+-- Pure (testee hors Studio) : l'emote est-elle connue et le delai respecte ?
+local function emoteAutorisee(id, derniere, maintenant)
+	if type(id) ~= "string" or EMOTES[id] == nil then
+		return false
+	end
+	return derniere == nil or maintenant - derniere >= EMOTE_DELAI
+end
+
+local function afficherEmote(camp, texte)
+	local roi = teams[camp] and teams[camp].towers[3]
+	if not (roi and roi.part and roi.part.Parent) then
+		return
+	end
+	local ancienne = roi.part:FindFirstChild("BulleEmote")
+	if ancienne then
+		ancienne:Destroy()
+	end
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "BulleEmote"
+	gui.Size = UDim2.new(0, 120, 0, 40)
+	gui.StudsOffset = Vector3.new(0, roi.part.Size.Y / 2 + 7, 0)
+	gui.AlwaysOnTop = true
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, 0, 1, 0)
+	l.BackgroundColor3 = Color3.new(1, 1, 1)
+	l.TextColor3 = teamColor(camp)
+	l.Text = texte
+	l.TextScaled = true
+	l.Font = Enum.Font.GothamBold
+	l.Parent = gui
+	local coin = Instance.new("UICorner")
+	coin.CornerRadius = UDim.new(0.4, 0)
+	coin.Parent = l
+	gui.Parent = roi.part
+	task.delay(2.5, function()
+		if gui.Parent then
+			gui:Destroy()
+		end
+	end)
+end
+
+EmoteEvent.OnServerEvent:Connect(function(player, id)
+	local camp = equipeDe[player]
+	if not camp then
+		return -- spectateur : pas de tour, pas d'emote
+	end
+	local maintenant = os.clock()
+	if not emoteAutorisee(id, derniereEmote[player], maintenant) then
+		return
+	end
+	derniereEmote[player] = maintenant
+	afficherEmote(camp, EMOTES[id])
+end)
+Players.PlayerRemoving:Connect(function(player)
+	derniereEmote[player] = nil
 end)
 
 RestartEvent.OnServerEvent:Connect(function(player)
