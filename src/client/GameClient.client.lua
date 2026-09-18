@@ -345,7 +345,7 @@ StateEvent.OnClientEvent:Connect(function(s)
 	if s.spectateur then
 		crownsLabel.Text = "Rouge " .. (s.crownsCamp1 or 0) .. "  -  " .. (s.crownsCamp2 or 0) .. " Bleu"
 	else
-		crownsLabel.Text = "Toi " .. s.crownsYou .. "  -  " .. s.crownsEnemy .. " Bot"
+		crownsLabel.Text = "Toi " .. s.crownsYou .. "  -  " .. s.crownsEnemy .. " " .. (s.nomAdversaire or "Bot")
 	end
 	for i = 1, 4 do
 		local card = Cards.byId[s.hand[i]]

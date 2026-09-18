@@ -1232,6 +1232,12 @@ local function campLibre(camp)
 	return occupant[camp] == nil
 end
 
+-- Nom affiche dans le score : le joueur du camp adverse s'il y en a un, sinon le robot.
+local function nomAdversaire(monCamp)
+	local adversaire = occupant[3 - monCamp]
+	return adversaire and adversaire.DisplayName or "Bot"
+end
+
 local function sendState(player)
 	-- SPECTATEUR : aucun camp. Il recevait jusqu'ici l'etat du camp 1 (main, elixir, « Toi 0 - 1 »)
 	-- comme s'il jouait. On ne lui envoie donc ni main ni elixir, et le score est donne camp par
@@ -1264,6 +1270,7 @@ local function sendState(player)
 		spectateur = false,
 		crownsYou = crowns(monCamp),
 		crownsEnemy = crowns(3 - monCamp),
+		nomAdversaire = nomAdversaire(monCamp),
 		result = texteFin(monCamp),
 		combat = combat,
 	})
