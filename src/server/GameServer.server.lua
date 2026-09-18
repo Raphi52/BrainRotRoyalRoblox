@@ -33,6 +33,10 @@ RestartEvent.Parent = remotes
 local EmoteEvent = Instance.new("RemoteEvent")
 EmoteEvent.Name = "Emote"
 EmoteEvent.Parent = remotes
+-- PRONOSTIC : un spectateur parie (gratuitement) sur le camp gagnant.
+local PronosticEvent = Instance.new("RemoteEvent")
+PronosticEvent.Name = "Pronostic"
+PronosticEvent.Parent = remotes
 
 -- Constantes
 -- Largeur de l'arene portee de 18 a 28 (2026-09-14) : a 36 studs de large pour 64 de long, l'arene
@@ -518,6 +522,13 @@ local horloge = 0
 -- l'autre. On garde donc le NUMERO du vainqueur, et chaque client recoit la phrase de SON camp.
 local vainqueur = nil -- 1, 2, ou 0 pour une egalite
 
+-- PRONOSTICS DES SPECTATEURS : player -> camp choisi (1 rouge, 2 bleu), vide a chaque partie.
+local pronostics = {}
+-- Pure (testee hors Studio) : le client n'est pas cru, tout est reverifie ici.
+local function pronosticAccepte(camp, aUnCamp, dejaPris, finie)
+	return (camp == 1 or camp == 2) and not aUnCamp and not dejaPris and not finie
+end
+
 local function endMatch(winner)
 	if result then
 		return
@@ -532,6 +543,12 @@ local function endMatch(winner)
 	for camp, joueur in pairs(occupant) do
 		local issue = (vainqueur == 0) and "egalite" or (vainqueur == camp and "victoire" or "defaite")
 		task.spawn(Economie.recompenser, joueur, issue, occupant[3 - camp] ~= nil)
+	end
+	-- Spectateurs qui avaient vu juste : quelques pieces (une egalite ne paie personne).
+	for spectateur, camp in pairs(pronostics) do
+		if vainqueur == camp and spectateur.Parent then
+			task.spawn(Economie.gainPronostic, spectateur)
+		end
 	end
 	if winner == 1 then
 		result = "VICTOIRE !"
@@ -858,6 +875,7 @@ local function resetMatch()
 	groupes = {}
 	result = nil
 	vainqueur = nil
+	pronostics = {}
 	timeLeft = MATCH_TIME
 	buildArena()
 	for team = 1, 2 do
@@ -1356,6 +1374,15 @@ EmoteEvent.OnServerEvent:Connect(function(player, id)
 end)
 Players.PlayerRemoving:Connect(function(player)
 	derniereEmote[player] = nil
+end)
+
+PronosticEvent.OnServerEvent:Connect(function(player, camp)
+	if pronosticAccepte(camp, equipeDe[player] ~= nil, pronostics[player] ~= nil, result ~= nil) then
+		pronostics[player] = camp
+	end
+end)
+Players.PlayerRemoving:Connect(function(player)
+	pronostics[player] = nil
 end)
 
 RestartEvent.OnServerEvent:Connect(function(player)

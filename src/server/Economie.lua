@@ -37,6 +37,8 @@ local RECOMPENSE = {
 	egalite = { pieces = 15, trophees = 0 },
 }
 local BONUS_JOUR = 50
+-- Pronostic juste d'un spectateur (voir GameServer) : petite recompense, le pari est gratuit.
+local GAIN_PRONOSTIC = 15
 -- Victoire contre un HUMAIN (pas le bot) : pieces en plus, pour donner envie de jouer entre joueurs.
 local BONUS_HUMAIN = 20
 
@@ -554,6 +556,17 @@ function Economie.acheterCarte(player, id)
 	Economie.marquerSale(player)
 	print(string.format("[ECO] %s achete %s pour %d pieces", player.Name, id, card.prix))
 	return true
+end
+
+function Economie.gainPronostic(player)
+	local p = profils[player]
+	if not p then
+		return
+	end
+	p.pieces += GAIN_PRONOSTIC
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s : pronostic juste, +%d pieces", player.Name, GAIN_PRONOSTIC))
 end
 
 function Economie.bonusQuotidien(player)

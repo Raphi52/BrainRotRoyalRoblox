@@ -13,6 +13,7 @@ local PlayCard = remotes:WaitForChild("PlayCard")
 local StateEvent = remotes:WaitForChild("State")
 local RestartEvent = remotes:WaitForChild("Restart")
 local EmoteEvent = remotes:WaitForChild("Emote")
+local PronosticEvent = remotes:WaitForChild("Pronostic")
 
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
@@ -183,7 +184,36 @@ for _, e in ipairs({ { "gg", "GG" }, { "rire", "HAHA" }, { "bravo", "Bravo" }, {
 	end)
 end
 
-local bottom = Instance.new("Frame")
+-- PRONOSTIC (spectateur seulement) : parier sur le camp gagnant, une fois par partie.
+local pronoChoisi = nil
+local pronoFinVue = false
+local pronoBarre = Instance.new("Frame")
+pronoBarre.BackgroundTransparency = 1
+pronoBarre.Size = UDim2.new(0, 260, 0, 44)
+pronoBarre.Position = UDim2.new(0.5, -130, 0, 86)
+pronoBarre.Visible = false
+pronoBarre.Parent = gui
+local pronoListe = Instance.new("UIListLayout")
+pronoListe.FillDirection = Enum.FillDirection.Horizontal
+pronoListe.Padding = UDim.new(0, 8)
+pronoListe.Parent = pronoBarre
+for camp, def in ipairs({ { "Rouge gagne", Color3.fromRGB(200, 60, 60) }, { "Bleu gagne", Color3.fromRGB(60, 110, 210) } }) do
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0, 126, 1, 0)
+	b.BackgroundColor3 = def[2]
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBold
+	b.Text = def[1]
+	b.Parent = pronoBarre
+	Instance.new("UICorner").Parent = b
+	b.MouseButton1Click:Connect(function()
+		pronoChoisi = camp
+		pronoBarre.Visible = false
+		PronosticEvent:FireServer(camp)
+	end)
+end
+
 bottom.Size = UDim2.new(0, 560, 0, 170)
 bottom.Position = UDim2.new(0.5, -280, 1, -180)
 bottom.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
@@ -332,6 +362,12 @@ StateEvent.OnClientEvent:Connect(function(s)
 	chatVoulu = s.chatVisible == true
 	appliquerChat()
 	emotesBarre.Visible = not s.spectateur
+	if s.result then
+		pronoFinVue = true
+	elseif pronoFinVue then
+		pronoFinVue, pronoChoisi = false, nil -- nouvelle partie : nouveau pronostic
+	end
+	pronoBarre.Visible = s.spectateur == true and not s.result and pronoChoisi == nil
 	local moi = s.spectateur and (s.crownsCamp1 or 0) or (s.crownsYou or 0)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then
