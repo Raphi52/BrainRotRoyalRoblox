@@ -1,6 +1,6 @@
 # Brainrot Royale
 
-Clash Royale-like pour Roblox Studio, cartes Italian Brainrot. Joueur contre bot.
+Clash Royale-like pour Roblox Studio, cartes Italian Brainrot. En ligne : JOUER cherche un adversaire (file partagee entre serveurs, un serveur reserve par match) ; robot si personne apres 20 s. Dans Studio : joueur contre bot.
 
 ## Ouvrir
 1. Double-cliquer `BrainRotRoyale.rbxlx` (ou Studio > Fichier > Ouvrir).

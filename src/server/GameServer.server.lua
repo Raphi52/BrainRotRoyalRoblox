@@ -7,6 +7,8 @@ local Lighting = game:GetService("Lighting")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 local Economie = require(script.Parent:WaitForChild("Economie"))
+-- File d'attente entre serveurs + un serveur reserve par match (voir Matchmaking.lua)
+local Matchmaking = require(script.Parent:WaitForChild("Matchmaking"))
 -- Habillage visuel : particules, lumieres, anneau de pose. Aucun asset requis.
 local Effets = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Effets"))
 
@@ -534,6 +536,10 @@ local function endMatch(winner)
 		return
 	end
 	vainqueur = winner or 0
+	-- Serveur reserve pour CE match : il n'accueille pas de revanche, tout le monde rentre au hub.
+	if Matchmaking.estServeurDeMatch(game) then
+		task.delay(10, Matchmaking.retourHub)
+	end
 	if winner == 1 or winner == 2 then
 		-- Feu d'artifice au-dessus du camp qui gagne (z du Roi : -28 pour le camp 1, +28 pour le 2).
 		Effets.victoire(arena, Vector3.new(0, 0, winner == 1 and -28 or 28), teamColor(winner))
@@ -1201,6 +1207,10 @@ local function arrivee(player)
 	if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") and not ReplicatedStorage:FindFirstChild("BRR_HUB") then
 		rejoindre(player)
 	end
+	-- Serveur reserve : on y arrive DEPUIS la file d'attente, le camp est pris sans repasser par JOUER.
+	if Matchmaking.estServeurDeMatch(game) then
+		rejoindre(player)
+	end
 end
 
 BoutiqueFn.OnServerInvoke = function(player, action, arg)
@@ -1225,8 +1235,17 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 		local ok, motif = Economie.choisirDeck(player, arg)
 		return { ok = ok, motif = motif, vue = Economie.vue(player) }
 	elseif action == "jouer" then
+		if Matchmaking.actif() and not equipeDe[player] then
+			local etat = Matchmaking.entrer(player, rejoindre)
+			return { ok = true, attente = etat == "attente", vue = Economie.vue(player) }
+		end
 		return { ok = rejoindre(player) ~= nil, vue = Economie.vue(player) }
+	elseif action == "attente" then
+		return { ok = true, etat = Matchmaking.etat(player), camp = equipeDe[player], vue = Economie.vue(player) }
+	elseif action == "enMatch" then
+		return { ok = Matchmaking.estServeurDeMatch(game), vue = Economie.vue(player) }
 	elseif action == "quitter" then
+		Matchmaking.sortir(player)
 		quitter(player)
 		return { ok = true, vue = Economie.vue(player) }
 	elseif action == "classement" then
@@ -1241,6 +1260,7 @@ end
 Players.PlayerAdded:Connect(arrivee)
 Players.PlayerRemoving:Connect(function(player)
 	Economie.liberer(player)
+	Matchmaking.sortir(player)
 	local camp = equipeDe[player]
 	if camp then
 		occupant[camp] = nil

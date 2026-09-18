@@ -521,6 +521,20 @@ end
 boutonJouer.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
 	local r = Boutique:InvokeServer("jouer")
+	if r.attente then
+		-- Recherche d'un adversaire en ligne : le serveur donne le robot au bout de ~20 s.
+		message.Text = "Recherche d'un adversaire..."
+		local etat = "attente"
+		while etat == "attente" do
+			task.wait(1)
+			etat = Boutique:InvokeServer("attente").etat
+		end
+		if etat == "teleport" then
+			message.Text = "Adversaire trouve ! Depart vers l'arene..."
+			return
+		end
+		message.Text = "Personne pour l'instant : tu affrontes le robot"
+	end
 	Sons.boucle("combat")
 	if r.ok then
 		accueil.Visible = false
@@ -582,6 +596,12 @@ if test and not forcerHub then
 	print("[HUB] copie de test : hub ferme")
 else
 	ouvrirAccueil()
+	-- Arrive par la recherche d'adversaire (serveur reserve) : le match commence, pas d'accueil.
+	if Boutique:InvokeServer("enMatch").ok then
+		accueil.Visible = false
+		boutonMenu.Visible = true
+		Sons.boucle("combat")
+	end
 	if ReplicatedStorage:FindFirstChild("BRR_BOUTIQUE") then
 		accueil.Visible = false
 		boutique.Visible = true

@@ -141,7 +141,8 @@ place = "".join([
     item("ServerStorage", "ServerStorage", item("BoolValue", "BRR_AUTOTEST") if AUTOTEST else ""),
     item("ServerScriptService", "ServerScriptService",
          item("Script", "GameServer", source=src("server/GameServer.server.lua"))
-         + item("ModuleScript", "Economie", source=src("server/Economie.lua"))),
+         + item("ModuleScript", "Economie", source=src("server/Economie.lua"))
+         + item("ModuleScript", "Matchmaking", source=src("server/Matchmaking.lua"))),
     item("StarterPlayer", "StarterPlayer",
          item("StarterPlayerScripts", "StarterPlayerScripts",
               item("LocalScript", "GameClient", source=src("client/GameClient.client.lua"))
