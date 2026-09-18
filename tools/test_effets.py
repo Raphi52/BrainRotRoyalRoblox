@@ -47,13 +47,32 @@ TweenInfo = { new = function(...) return { ... } end }
 local V = {}
 V.__index = V
 V.__add = function(a, b) return setmetatable({ X = a.X + b.X, Y = a.Y + b.Y, Z = a.Z + b.Z }, V) end
+V.__sub = function(a, b) return setmetatable({ X = a.X - b.X, Y = a.Y - b.Y, Z = a.Z - b.Z }, V) end
+V.__mul = function(a, k) return setmetatable({ X = a.X * k, Y = a.Y * k, Z = a.Z * k }, V) end
+V.__index = function(t, k)
+  if k == "Magnitude" then return math.sqrt(t.X * t.X + t.Y * t.Y + t.Z * t.Z) end
+  return V[k]
+end
+Color3 = { new = function(r, g, b) return "BLANC" end }
+DIFFERES = {}
+math.clamp = function(x, a, b) return math.max(a, math.min(b, x)) end
+task = { delay = function(_, f) table.insert(DIFFERES, f) end, spawn = function(f) end }
+function piece(couleur, transparence, enfants)
+  local attrs = {}
+  return { Color = couleur, Transparency = transparence or 0,
+    IsA = function(_, c) return c == "BasePart" end,
+    GetAttribute = function(_, k) return attrs[k] end,
+    SetAttribute = function(_, k, v) attrs[k] = v end,
+    GetDescendants = function() return enfants or {} end }
+end
 Vector3 = { new = function(x, y, z) return setmetatable({ X = x or 0, Y = y or 0, Z = z or 0 }, V) end }
 Vector2 = { new = function(x, y) return { X = x, Y = y } end }
 local C = {}
 C.__index = C
 C.__mul = function(a, _b) return a end
 CFrame = setmetatable({ new = function(...) return setmetatable({}, C) end,
-                        Angles = function(...) return setmetatable({}, C) end }, {})
+                        Angles = function(...) return setmetatable({}, C) end,
+                        lookAt = function(...) return setmetatable({}, C) end }, {})
 """
 
 
@@ -112,11 +131,65 @@ def main():
     if "rbxassetid" in source:
         echecs.append("le module depend d'un identifiant d'asset : non portable")
 
+    # --- COUP ENCAISSE : flash blanc puis couleur d'origine, meme sur deux coups rapproches.
+    if Effets.coup is None:
+        echecs.append("Effets.coup absent : un coup encaisse ne se voit pas")
+    else:
+        bras = lua.eval('piece("VERT")')
+        cache = lua.eval('piece("GRIS", 1)')
+        corps = lua.eval('function(a, b) return piece("BLEU", 0, { a, b }) end')(bras, cache)
+        Effets.coup(corps)
+        Effets.coup(corps)  # 2e coup pendant le flash
+        if bras.Color != "BLANC" or corps.Color != "BLANC":
+            echecs.append("coup : la cible ne vire pas au blanc (%s)" % bras.Color)
+        if cache.Color != "GRIS":
+            echecs.append("coup : une piece invisible a ete touchee")
+        lua.execute("for _, f in ipairs(DIFFERES) do f() end")
+        if bras.Color != "VERT" or corps.Color != "BLEU":
+            echecs.append("coup : couleur non restauree (%s / %s)" % (bras.Color, corps.Color))
+        if "Effets.coup(" not in serveur:
+            echecs.append("Effets.coup n'est appele nulle part dans GameServer")
+    # --- POSE D'ANIMATION : la marche bouge, l'arret non, l'attaque avance, le coup recule.
+    if Effets.posture is None:
+        echecs.append("Effets.posture absent : les unites glissent")
+    else:
+        hauts = [Effets.posture(1, ph / 10.0, 99, 99)[0] for ph in range(0, 32)]
+        if max(hauts) - min(hauts) < 0.2:
+            echecs.append("pose : aucun rebond de marche (%.3f)" % (max(hauts) - min(hauts)))
+        if any(abs(x) > 1e-9 for x in Effets.posture(0, 1.3, 99, 99)):
+            echecs.append("pose : une unite a l'arret bouge encore")
+        if Effets.posture(0, 0, 0.125, 99)[2] < 0.5:
+            echecs.append("pose : pas d'elan a l'attaque")
+        if Effets.posture(0, 0, 99, 0.0)[2] > -0.29:
+            echecs.append("pose : pas de recul de 0,3 stud au coup")
+        if "animer(e, dt)" not in serveur or "Effets.posture(" not in serveur:
+            echecs.append("GameServer n'anime pas les unites")
+    # --- PROJECTILE : part de a, arrive en b, parabole seulement pour les zones.
+    if Effets.trajectoire is None or Effets.projectile is None:
+        echecs.append("Effets.trajectoire/projectile absents : les tirs sont instantanes")
+    else:
+        a, b = V3.new(0, 0, 0), V3.new(10, 0, 0)
+        d, m, f = (Effets.trajectoire(a, b, u, 4) for u in (0, 0.5, 1))
+        if abs(d.X) > 1e-9 or abs(f.X - 10) > 1e-9 or abs(f.Y) > 1e-9:
+            echecs.append("trajectoire : depart/arrivee faux")
+        if abs(m.Y - 4) > 1e-9:
+            echecs.append("trajectoire : sommet de cloche faux (%s)" % m.Y)
+        if abs(Effets.trajectoire(a, b, 0.5, 0).Y) > 1e-9:
+            echecs.append("trajectoire : un tir droit monte")
+        avant = g.CREES["Trail"] or 0
+        _, duree = Effets.projectile(arene, a, b, couleur, True)
+        if not (0.15 <= duree <= 0.35):
+            echecs.append("projectile : duree de vol hors 0,15-0,35 s (%s)" % duree)
+        if (g.CREES["Trail"] or 0) <= avant:
+            echecs.append("projectile : aucune trainee")
+        if "Effets.projectile(" not in serveur:
+            echecs.append("Effets.projectile n'est appele nulle part dans GameServer")
+
     if echecs:
         for e in echecs:
             print("ROUGE :", e)
         return 1
-    print("VERT : les 5 evenements produisent des effets, sans aucun identifiant d'asset.")
+    print("VERT : coup, pose, projectile OK ; les 5 evenements produisent des effets, sans aucun identifiant d'asset.")
     return 0
 
 

@@ -53,9 +53,19 @@ for _, sx in ipairs({ -1, 1 }) do
 end
 
 -- Secousse de camera a la chute d'une tour (declenchee plus bas, au meme endroit que le son).
+-- Amplitude PROPORTIONNELLE a l'evenement : chute de tour > mort d'unite > impact de zone. Une
+-- petite secousse n'ecrase jamais une plus forte encore en cours.
 local SECOUSSE_DUREE = 0.45
-local SECOUSSE_AMPLITUDE = 1.6
-local secousseFin = 0
+local SECOUSSE = { tour = 1.6, mort = 0.45, zone = 0.25 }
+local secousseFin, secousseAmplitude = 0, 0
+local function secouer(force)
+	local maintenant = os.clock()
+	local reste = math.max(0, (secousseFin - maintenant) / SECOUSSE_DUREE)
+	if force >= secousseAmplitude * reste * reste then
+		secousseAmplitude = force
+		secousseFin = maintenant + SECOUSSE_DUREE
+	end
+end
 
 RunService.RenderStepped:Connect(function()
 	camera.CameraType = Enum.CameraType.Scriptable
@@ -105,7 +115,7 @@ RunService.RenderStepped:Connect(function()
 	-- redevient exacte d'elle-meme : aucun decalage residuel n'est possible.
 	if secousseFin > os.clock() then
 		local reste = (secousseFin - os.clock()) / SECOUSSE_DUREE
-		local a = SECOUSSE_AMPLITUDE * reste * reste -- s'eteint vite, pas de tremblement qui traine
+		local a = secousseAmplitude * reste * reste -- s'eteint vite, pas de tremblement qui traine
 		camera.CFrame = camera.CFrame * CFrame.new(
 			(math.random() - 0.5) * a, (math.random() - 0.5) * a, 0)
 	end
@@ -256,6 +266,7 @@ task.spawn(function()
 		dossier.ChildRemoved:Connect(function(enfant)
 			if Cards.byId[enfant.Name] then
 				Sons.jouer("mort", 0.7)
+				secouer(SECOUSSE.mort)
 			end
 		end)
 	end
@@ -274,15 +285,39 @@ end)
 -- il envoie l'ETAT. On compare donc a l'etat precedent, et on ne joue qu'au CHANGEMENT -- sinon
 -- chaque rafraichissement (plusieurs par seconde) rejouerait le meme son.
 local sonCouronnesMoi, sonCouronnesEnnemi, sonResultat = nil, nil, nil
+local combatPrec = nil
+local sonCombatPermis = Sons.limiteur(6)
 
 StateEvent.OnClientEvent:Connect(function(s)
 	local moi = s.spectateur and (s.crownsCamp1 or 0) or (s.crownsYou or 0)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then
 		Sons.jouer("tourDetruite")
-		secousseFin = os.clock() + SECOUSSE_DUREE
+		secouer(SECOUSSE.tour)
 	end
 	sonCouronnesMoi, sonCouronnesEnnemi = moi, lui
+	-- SONS DE COMBAT : un son par type d'attaque en hausse depuis l'etat precedent, au plus 6 par
+	-- seconde en tout. Les compteurs ne redescendent jamais (une baisse = serveur redemarre).
+	local c = s.combat
+	if c then
+		if combatPrec then
+			local maintenant = os.clock()
+			if (c.zones or 0) > (combatPrec.zones or 0) then
+				secouer(SECOUSSE.zone)
+				if sonCombatPermis(maintenant) then Sons.jouer("explosion") end
+			end
+			if (c.coups or 0) > (combatPrec.coups or 0) and sonCombatPermis(maintenant) then
+				Sons.jouer("coupMelee")
+			end
+			if (c.tirs or 0) > (combatPrec.tirs or 0) and sonCombatPermis(maintenant) then
+				Sons.jouer("tir")
+			end
+		end
+		combatPrec = { tirs = c.tirs, coups = c.coups, zones = c.zones }
+	end
+	if not s.result then
+		Sons.tension(s.timeLeft)
+	end
 	if s.result ~= sonResultat then
 		sonResultat = s.result
 		if s.result then

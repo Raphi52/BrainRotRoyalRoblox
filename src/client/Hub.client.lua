@@ -469,6 +469,7 @@ end
 
 -- NAVIGATION ------------------------------------------------------------------------------------
 local function ouvrirAccueil()
+	Sons.boucle("hub")
 	accueil.Visible = true
 	boutique.Visible = false
 	deckEcran.Visible = false
@@ -479,6 +480,7 @@ end
 boutonJouer.MouseButton1Click:Connect(function()
 	Sons.jouer("clic")
 	local r = Boutique:InvokeServer("jouer")
+	Sons.boucle("combat")
 	if r.ok then
 		accueil.Visible = false
 		boutonMenu.Visible = true

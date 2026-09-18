@@ -23,6 +23,19 @@ Sons.banque = {
 	clic         = { B .. "volume_slider.ogg",          0.40, 1.00 }, -- bouton d'interface
 	coffre       = { B .. "action_jump_land.mp3",       0.70, 1.15 }, -- coffre ouvert
 	refus        = { B .. "action_falling.ogg",         0.45, 1.30 }, -- achat impossible
+	-- combat : un son par hausse des compteurs envoyes par le serveur (tirs, melee, zone)
+	tir          = { B .. "volume_slider.ogg",          0.30, 2.20 }, -- projectile tire
+	coupMelee    = { B .. "action_jump_land.mp3",       0.45, 1.40 }, -- coup au corps a corps
+	explosion    = { B .. "impact_explosion_03.mp3",    0.35, 1.35 }, -- degat de zone
+}
+
+-- AMBIANCES BOUCLEES. Aucun des 11 fichiers livres avec le client n'est une musique : ce sont des
+-- bruitages. On en tire un fond sonore continu (le « swim » ralenti donne une rumeur de foule).
+-- Une vraie musique demanderait un identifiant de la bibliotheque en ligne, exclu par le choix
+-- d'assets ci-dessus : c'est une decision a prendre par le createur, pas par ce module.
+Sons.boucles = {
+	hub    = { B .. "action_swim.mp3", 0.18, 0.55 },
+	combat = { B .. "action_swim.mp3", 0.22, 0.75 },
 }
 
 -- Joue un evenement. Retourne le Sound cree (ou nil si le nom est inconnu : un nom fautif ne doit
@@ -42,6 +55,77 @@ function Sons.jouer(nom, volumeRelatif)
 	s:Play()
 	Debris:AddItem(s, 6)
 	return s
+end
+
+-- LIMITEUR DE CADENCE (seau a jetons) : au plus `parSeconde` sons, pour qu'une grosse melee ne
+-- sature pas le mixage. Rend une fonction `autorise(maintenant)` -> vrai/faux.
+function Sons.limiteur(parSeconde)
+	local jetons, avant = parSeconde, nil
+	return function(maintenant)
+		if avant then
+			jetons = math.min(parSeconde, jetons + (maintenant - avant) * parSeconde)
+		end
+		avant = maintenant
+		if jetons >= 1 then
+			jetons = jetons - 1
+			return true
+		end
+		return false
+	end
+end
+
+-- Groupe de volume des ambiances : reglable a part des bruitages.
+local groupe = nil
+local function groupeAmbiance()
+	if not groupe then
+		groupe = Instance.new("SoundGroup")
+		groupe.Name = "BRR_Ambiance"
+		groupe.Volume = 1
+		groupe.Parent = SoundService
+	end
+	return groupe
+end
+
+-- Lance l'ambiance `nom` (une seule a la fois : la precedente s'arrete). Nom inconnu -> nil.
+local courante, courantNom = nil, nil
+function Sons.boucle(nom)
+	local e = Sons.boucles[nom]
+	if not e then
+		return nil
+	end
+	if courantNom == nom and courante then
+		return courante
+	end
+	if courante then
+		courante:Stop()
+		courante:Destroy()
+	end
+	local s = Instance.new("Sound")
+	s.Name = "BRR_Boucle_" .. nom
+	s.SoundId = e[1]
+	s.Volume = e[2]
+	s.PlaybackSpeed = e[3]
+	s.Looped = true
+	s.SoundGroup = groupeAmbiance()
+	s.Parent = SoundService
+	s:Play()
+	courante, courantNom = s, nom
+	return s
+end
+
+-- MONTEE DE TENSION : sous 60 s restantes, l'ambiance de combat accelere et monte (jusqu'a +30 %).
+-- Rend le facteur applique (1 = aucune tension).
+function Sons.tension(tempsRestant)
+	local f = 1
+	if tempsRestant and tempsRestant < 60 then
+		f = 1 + 0.3 * (1 - math.max(tempsRestant, 0) / 60)
+	end
+	if courante and courantNom == "combat" then
+		local e = Sons.boucles.combat
+		courante.PlaybackSpeed = e[3] * f
+		courante.Volume = e[2] * f
+	end
+	return f
 end
 
 return Sons

@@ -35,12 +35,15 @@ Instance = { new = function(cls)
   CREES = CREES + 1
   local o = { ClassName = cls }
   o.Play = function(self) JOUES = JOUES + 1; DERNIER = self end
+  o.Stop = function(self) self.arrete = true end
+  o.Destroy = function(self) self.detruit = true end
   return o
 end }
 """
 
 ATTENDUS = ["selection", "pose", "mort", "tourDetruite",
-            "victoire", "defaite", "clic", "coffre", "refus"]
+            "victoire", "defaite", "clic", "coffre", "refus",
+            "tir", "coupMelee", "explosion"]
 
 
 def main():
@@ -100,6 +103,49 @@ def main():
     for n in attendu_hub:
         if ('Sons.jouer("%s"' % n) not in hub:
             echecs.append("Hub ne joue jamais le son '%s'" % n)
+    # 5. combat : cadence limitee a 6 sons par seconde
+    if Sons.limiteur is None:
+        echecs.append("Sons.limiteur absent : une melee saturerait le son")
+    else:
+        lim = Sons.limiteur(6)
+        rafale = sum(1 for i in range(100) if lim(10.0 + i * 0.01))  # 100 demandes en 1 s
+        if rafale > 12 or rafale < 6:
+            echecs.append("limiteur : %d sons en 1 s (attendu 6 a 12 : 6 d'avance + 6/s)" % rafale)
+        lim2 = Sons.limiteur(6)
+        long = sum(1 for i in range(1000) if lim2(i * 0.01))  # 10 s de demandes continues
+        if long > 6 * 10 + 6:
+            echecs.append("limiteur : %d sons en 10 s, plus de 6/s" % long)
+    for n in ("tir", "coupMelee", "explosion"):
+        if ('Sons.jouer("%s"' % n) not in client:
+            echecs.append("GameClient ne joue jamais le son de combat '%s'" % n)
+    serveur = (ROOT / "src" / "server" / "GameServer.server.lua").read_text(encoding="utf-8")
+    if "combat = combat" not in serveur:
+        echecs.append("le serveur n'envoie pas les compteurs de combat dans l'etat")
+    # 6. ambiance bouclee, dans un groupe de volume, une seule a la fois, tension sous 60 s
+    if Sons.boucle is None:
+        echecs.append("Sons.boucle absent : aucun fond sonore")
+    else:
+        h = Sons.boucle("hub")
+        c = Sons.boucle("combat")
+        if h is None or c is None or not c.Looped or c.SoundGroup is None:
+            echecs.append("boucle : son non boucle ou hors groupe de volume")
+        elif not h.arrete:
+            echecs.append("boucle : l'ambiance du hub continue sous le combat")
+        elif not str(c.SoundId).startswith("rbxasset://sounds/"):
+            echecs.append("boucle : SoundId non portable")
+        if Sons.tension(90) != 1 or not (1.25 < Sons.tension(5) <= 1.3):
+            echecs.append("tension : pas de montee sous 60 s")
+        if 'Sons.boucle("hub")' not in hub or 'Sons.boucle("combat")' not in hub:
+            echecs.append("Hub ne lance pas les ambiances")
+        if "Sons.tension(" not in client:
+            echecs.append("GameClient n'applique pas la tension")
+    # 7. secousse proportionnelle : tour > mort > zone
+    if "secouer(SECOUSSE.mort)" not in client or "secouer(SECOUSSE.zone)" not in client:
+        echecs.append("secousse : ni mort d'unite ni impact de zone ne secouent la camera")
+    import re
+    m = re.search(r"SECOUSSE = \{ tour = ([\d.]+), mort = ([\d.]+), zone = ([\d.]+) \}", client)
+    if not m or not (float(m.group(1)) > float(m.group(2)) > float(m.group(3))):
+        echecs.append("secousse : amplitudes non ordonnees tour > mort > zone")
     # 4. le module doit etre EMBARQUE dans la place, sinon require() echoue en jeu
     if 'shared/Sons.lua' not in (ROOT / "build.py").read_text(encoding="utf-8"):
         echecs.append("build.py n'embarque pas Sons.lua dans la place")

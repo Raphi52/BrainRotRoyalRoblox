@@ -333,11 +333,17 @@ local function habiller(corps, card, teamColor)
 	end
 end
 
-local function suivreCorps(corps)
+-- `pose` (facultatif) : decalage d'animation (rebond, dandinement, elan, recul) applique a tous
+-- les morceaux sauf ceux marques « Sol » (le disque de camp reste pose par terre).
+local function suivreCorps(corps, pose)
 	for _, piece in ipairs(corps:GetChildren()) do
 		local ecart = piece:GetAttribute("Ecart")
 		if ecart then
-			local cf = corps.CFrame * CFrame.new(ecart) * CFrame.Angles(
+			local base = corps.CFrame
+			if pose and not piece:GetAttribute("Sol") then
+				base = base * pose
+			end
+			local cf = base * CFrame.new(ecart) * CFrame.Angles(
 				math.rad(piece:GetAttribute("RotX")), math.rad(piece:GetAttribute("RotY")),
 				math.rad(piece:GetAttribute("RotZ")))
 			if piece:IsA("Model") then
@@ -453,6 +459,7 @@ local function spawnUnit(card, team, pos, offset, enGroupe)
 	disque.Color = teamColor(team); disque.Material = Enum.Material.Neon; disque.Transparency = 0.25
 	local basY = -(card.size.Y / 2) - flyY + 0.08
 	disque:SetAttribute("Ecart", Vector3.new(0, basY, 0))
+	disque:SetAttribute("Sol", true)
 	disque:SetAttribute("RotX", 0); disque:SetAttribute("RotY", 0); disque:SetAttribute("RotZ", 90)
 	disque.CFrame = part.CFrame * CFrame.new(0, basY, 0) * CFrame.Angles(0, 0, math.rad(90))
 	disque.Parent = part
@@ -495,19 +502,11 @@ local function findTarget(e)
 	return best, bestD
 end
 
-local function shotEffect(from, to, color)
-	local a, b = from.part.Position, to.part.Position
-	local len = (b - a).Magnitude
-	local beam = Instance.new("Part")
-	beam.Anchored = true
-	beam.CanCollide = false
-	beam.Material = Enum.Material.Neon
-	beam.Color = color
-	beam.Size = Vector3.new(0.3, 0.3, len)
-	beam.CFrame = CFrame.lookAt(a, b) * CFrame.new(0, 0, -len / 2)
-	beam.Parent = arena
-	Debris:AddItem(beam, 0.12)
-end
+-- COMPTEURS DE COMBAT (envoyes dans l'etat) : le son se joue chez le client, qui ne voit pas les
+-- attaques. Il compare ces compteurs a ceux du dernier etat recu et joue un son a chaque hausse.
+local combat = { tirs = 0, coups = 0, zones = 0 }
+-- Temps de jeu (accelere avec SIM) : sert a dater les attaques et les coups pour l'animation.
+local horloge = 0
 
 -- FIN DE PARTIE VUE DE CHAQUE CAMP.
 -- Avant, `result` contenait la PHRASE du camp 1 (« VICTOIRE ! » / « DEFAITE... ») et `sendState`
@@ -572,6 +571,10 @@ local function damage(target, amount)
 		return
 	end
 	target.hp = target.hp - amount
+	target.coupT = horloge
+	if target.hp > 0 then
+		Effets.coup(target.part)
+	end
 	if target.isKing then
 		target.active = true
 	end
@@ -603,7 +606,19 @@ local function damage(target, amount)
 end
 
 local function attack(e, target)
-	shotEffect(e, target, teamColor(e.team))
+	e.attaqueT = horloge
+	-- Un tireur (portee >= 3) lance un projectile, en cloche pour les degats de zone ; la melee
+	-- n'en a pas : son elan vers la cible (Effets.posture) montre le coup.
+	if e.range >= 3 or e.isBuilding then
+		Effets.projectile(arena, e.part.Position, target.part.Position, teamColor(e.team), e.splash ~= nil)
+	end
+	if e.splash then
+		combat.zones = combat.zones + 1
+	elseif e.range >= 3 or e.isBuilding then
+		combat.tirs = combat.tirs + 1
+	else
+		combat.coups = combat.coups + 1
+	end
 	Effets.impact(arena, target.part.Position, teamColor(e.team))
 	if e.splash then
 		local center = target.part.Position
@@ -653,7 +668,24 @@ local function moveUnit(e, target, dt)
 	local step = math.min(dist, e.speed * dt)
 	local newPos = pos + delta.Unit * step
 	e.part.CFrame = CFrame.lookAt(newPos, newPos + delta.Unit)
-	suivreCorps(e.part)
+	e.bouge = true -- `animer` replace les morceaux, avec la pose de marche
+end
+
+-- ANIMATION PROCEDURALE : les pieces sont ancrees (pas de physique, pas d'Animator), on calcule
+-- donc la pose a chaque image : rebond + dandinement en marche, elan a l'attaque, recul au coup.
+local function animer(e, dt)
+	local cible = e.bouge and 1 or 0
+	e.bouge = false
+	e.marche = (e.marche or 0) + (cible - (e.marche or 0)) * math.min(1, dt * 10)
+	e.phase = (e.phase or 0) + dt * (5 + e.speed * 1.5)
+	local haut, roulis, avant, tangage = Effets.posture(e.marche, e.phase,
+		horloge - (e.attaqueT or -99), horloge - (e.coupT or -99))
+	local repos = e.marche < 0.01 and avant == 0 and tangage == 0
+	if repos and e.auRepos and cible == 0 then
+		return -- rien ne bouge : inutile de replacer les morceaux
+	end
+	e.auRepos = repos
+	suivreCorps(e.part, CFrame.new(0, haut, -avant) * CFrame.Angles(tangage, 0, roulis))
 end
 
 -- `permises` : cartes debloquees du joueur (nil = toutes, pour le robot). Avec moins de 8 cartes,
@@ -1217,6 +1249,7 @@ local function sendState(player)
 			crownsYou = crowns(1),
 			crownsEnemy = crowns(2),
 			result = texteFin(0), -- 0 : ni gagnant ni perdant, donc « EGALITE » ou rien
+			combat = combat,
 		})
 		return
 	end
@@ -1232,6 +1265,7 @@ local function sendState(player)
 		crownsYou = crowns(monCamp),
 		crownsEnemy = crowns(3 - monCamp),
 		result = texteFin(monCamp),
+		combat = combat,
 	})
 end
 
@@ -1359,6 +1393,7 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 	if not result then
 		timeLeft = timeLeft - dt
+		horloge = horloge + dt
 		for team = 1, 2 do
 			local t = teams[team]
 			t.elixir = math.min(MAX_ELIXIR, t.elixir + ELIXIR_PER_SEC * dt)
@@ -1386,6 +1421,9 @@ RunService.Heartbeat:Connect(function(dt)
 					elseif not e.isBuilding then
 						moveUnit(e, target, dt)
 					end
+				end
+				if e.alive and not e.isBuilding then
+					animer(e, dt)
 				end
 			end
 		end
