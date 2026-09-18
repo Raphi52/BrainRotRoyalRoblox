@@ -213,13 +213,25 @@ nextLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 nextLabel.TextWrapped = true
 bottom.Size = UDim2.new(0, 608, 0, 170)
 
--- Le chat Roblox couvrait le haut gauche de l'arene : inutile dans un duel contre le bot.
-task.spawn(function()
+-- Le chat Roblox couvre le haut gauche de l'arene : on le masque dans un duel contre le bot,
+-- mais on le rend face a un humain et aux spectateurs (le serveur envoie s.chatVisible).
+local chatVoulu = false
+local chatApplique = nil
+local function appliquerChat()
+	if chatApplique == chatVoulu then
+		return
+	end
 	local StarterGui = game:GetService("StarterGui")
+	if pcall(function()
+		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, chatVoulu)
+	end) then
+		chatApplique = chatVoulu
+	end
+end
+task.spawn(function()
 	for _ = 1, 20 do
-		if pcall(function()
-			StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-		end) then
+		appliquerChat()
+		if chatApplique ~= nil then
 			break
 		end
 		task.wait(0.5)
@@ -289,6 +301,8 @@ local combatPrec = nil
 local sonCombatPermis = Sons.limiteur(6)
 
 StateEvent.OnClientEvent:Connect(function(s)
+	chatVoulu = s.chatVisible == true
+	appliquerChat()
 	local moi = s.spectateur and (s.crownsCamp1 or 0) or (s.crownsYou or 0)
 	local lui = s.spectateur and (s.crownsCamp2 or 0) or (s.crownsEnemy or 0)
 	if sonCouronnesMoi and (moi > sonCouronnesMoi or lui > sonCouronnesEnnemi) then

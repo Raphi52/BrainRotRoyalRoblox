@@ -1250,6 +1250,7 @@ local function sendState(player)
 			nextCard = nil,
 			timeLeft = timeLeft,
 			spectateur = true,
+			chatVisible = true, -- le spectateur n'a pas de duel contre le bot : il peut parler
 			crownsCamp1 = crowns(1),
 			crownsCamp2 = crowns(2),
 			crownsYou = crowns(1),
@@ -1271,6 +1272,7 @@ local function sendState(player)
 		crownsYou = crowns(monCamp),
 		crownsEnemy = crowns(3 - monCamp),
 		nomAdversaire = nomAdversaire(monCamp),
+		chatVisible = occupant[3 - monCamp] ~= nil, -- chat seulement face a un humain
 		result = texteFin(monCamp),
 		combat = combat,
 	})
