@@ -214,6 +214,7 @@ for camp, def in ipairs({ { "Rouge gagne", Color3.fromRGB(200, 60, 60) }, { "Ble
 	end)
 end
 
+local bottom = Instance.new("Frame")
 bottom.Size = UDim2.new(0, 560, 0, 170)
 bottom.Position = UDim2.new(0.5, -280, 1, -180)
 bottom.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
