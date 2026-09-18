@@ -527,7 +527,7 @@ local function endMatch(winner)
 	-- task.spawn : la verification du pass VIP interroge Roblox et ne doit pas bloquer la boucle.
 	for camp, joueur in pairs(occupant) do
 		local issue = (vainqueur == 0) and "egalite" or (vainqueur == camp and "victoire" or "defaite")
-		task.spawn(Economie.recompenser, joueur, issue)
+		task.spawn(Economie.recompenser, joueur, issue, occupant[3 - camp] ~= nil)
 	end
 	if winner == 1 then
 		result = "VICTOIRE !"

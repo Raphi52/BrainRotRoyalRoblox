@@ -37,6 +37,8 @@ local RECOMPENSE = {
 	egalite = { pieces = 15, trophees = 0 },
 }
 local BONUS_JOUR = 50
+-- Victoire contre un HUMAIN (pas le bot) : pieces en plus, pour donner envie de jouer entre joueurs.
+local BONUS_HUMAIN = 20
 
 -- COFFRES : gagnes a la victoire, ouverts apres un temps d'attente (une ouverture a la fois).
 -- `chanceCarte` : probabilite de debloquer une carte encore verrouillee ; si tout est deja
@@ -317,14 +319,15 @@ local function aVip(player)
 	return ok and res
 end
 
--- issue : "victoire" | "defaite" | "egalite"
-function Economie.recompenser(player, issue)
+-- issue : "victoire" | "defaite" | "egalite" ; contreHumain : l'adversaire etait un joueur
+function Economie.recompenser(player, issue, contreHumain)
 	local p = profils[player]
 	local r = RECOMPENSE[issue]
 	if not (p and r) then
 		return nil
 	end
-	local pieces = r.pieces * (aVip(player) and 2 or 1)
+	local bonus = (issue == "victoire" and contreHumain) and BONUS_HUMAIN or 0
+	local pieces = (r.pieces + bonus) * (aVip(player) and 2 or 1)
 	p.pieces += pieces
 	p.trophees = math.max(0, p.trophees + r.trophees)
 	p.parties += 1
