@@ -95,6 +95,24 @@ local boutonDeck = bouton(accueil, "DECK", UDim2.new(0.165, 0, 0.09, 0), UDim2.n
 local boutonBonus = bouton(accueil, "BONUS DU JOUR", UDim2.new(0.34, 0, 0.07, 0), UDim2.new(0.33, 0, 0.66, 0), Color3.fromRGB(200, 120, 40))
 local message = texte(accueil, "", UDim2.new(0.8, 0, 0.04, 0), UDim2.new(0.1, 0, 0.745, 0), OR)
 
+-- CLASSEMENT : top 10 des trophees tous serveurs confondus, a droite des boutons.
+texte(accueil, "TOP 10", UDim2.new(0.14, 0, 0.04, 0), UDim2.new(0.82, 0, 0.36, 0), OR)
+local lignesClassement = {}
+for i = 1, 10 do
+	lignesClassement[i] = texte(accueil, "", UDim2.new(0.16, 0, 0.028, 0), UDim2.new(0.82, 0, 0.40 + (i - 1) * 0.032, 0),
+		Color3.fromRGB(220, 225, 235), Enum.TextXAlignment.Left)
+end
+local function majClassement(liste)
+	liste = liste or {}
+	for i = 1, 10 do
+		local l = liste[i]
+		lignesClassement[i].Text = l and string.format("%d. %s  %d", l.rang, l.nom, l.trophees) or ""
+	end
+	if #liste == 0 then
+		lignesClassement[1].Text = "(classement indisponible)"
+	end
+end
+
 -- COFFRES : 4 emplacements sous les boutons. Le serveur donne l'heure de fin ; le client ne fait
 -- qu'afficher le compte a rebours, et c'est le serveur qui refuse une ouverture trop tot.
 local COULEUR_COFFRE = { bois = Color3.fromRGB(140, 95, 55), argent = Color3.fromRGB(150, 160, 175), ["or"] = Color3.fromRGB(220, 170, 40) }
@@ -475,6 +493,9 @@ local function ouvrirAccueil()
 	deckEcran.Visible = false
 	boutonMenu.Visible = false
 	afficher(Boutique:InvokeServer("profil").vue)
+	task.spawn(function()
+		majClassement(Boutique:InvokeServer("classement").classement)
+	end)
 end
 
 boutonJouer.MouseButton1Click:Connect(function()

@@ -107,6 +107,8 @@ local DELAI_ECRITURE = 30
 -- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
 -- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
 local storeRecus = nil
+-- CLASSEMENT entre serveurs : trophees par joueur (cle u<UserId>), recopies a chaque sauvegarde.
+local storeClassement = nil
 do
 	local ok, res = pcall(function()
 		return DataStoreService:GetDataStore("BRR_Profils_v1")
@@ -115,6 +117,14 @@ do
 		store, persistant = res, true
 	else
 		warn("[ECO] sauvegarde indisponible : " .. tostring(res))
+	end
+	local okC, resC = pcall(function()
+		return DataStoreService:GetOrderedDataStore("BRR_Trophees_v1")
+	end)
+	if okC then
+		storeClassement = resC
+	else
+		warn("[ECO] classement indisponible : " .. tostring(resC))
 	end
 	local okR, resR = pcall(function()
 		return DataStoreService:GetDataStore("BRR_Recus")
@@ -213,7 +223,58 @@ function Economie.sauver(player)
 		warn("[ECO] sauvegarde ratee pour " .. player.Name .. " : " .. tostring(err))
 		return false
 	end
+	-- Classement : une panne ici ne doit pas faire croire que le PROFIL n'est pas ecrit.
+	if storeClassement then
+		local okC, errC = pcall(function()
+			storeClassement:SetAsync("u" .. player.UserId, p.trophees)
+		end)
+		if not okC then
+			warn("[ECO] classement non mis a jour pour " .. player.Name .. " : " .. tostring(errC))
+		end
+	end
 	return true
+end
+
+-- Pure (testee hors Studio) : entrees d'OrderedDataStore { key = "u<id>", value } -> top 10 affichable.
+local function formaterClassement(entrees, nomDe)
+	local top = {}
+	for i, entree in ipairs(entrees) do
+		if i > 10 then
+			break
+		end
+		local uid = tonumber(string.match(entree.key, "^u(%d+)$"))
+		table.insert(top, { rang = i, nom = (uid and nomDe(uid)) or "?", trophees = entree.value })
+	end
+	return top
+end
+
+-- Top 10 mondial, mis en cache CLASSEMENT_CACHE secondes : GetSortedAsync est plafonne par Roblox.
+local CLASSEMENT_CACHE = 60
+local cacheClassement, cacheClassementA = {}, -math.huge
+local nomsConnus = {}
+local function nomDe(uid)
+	if nomsConnus[uid] == nil then
+		local ok, nom = pcall(function()
+			return Players:GetNameFromUserIdAsync(uid)
+		end)
+		nomsConnus[uid] = ok and nom or false
+	end
+	return nomsConnus[uid] or nil
+end
+function Economie.classement()
+	if not storeClassement or os.clock() - cacheClassementA < CLASSEMENT_CACHE then
+		return cacheClassement
+	end
+	local ok, res = pcall(function()
+		return storeClassement:GetSortedAsync(false, 10):GetCurrentPage()
+	end)
+	if ok then
+		cacheClassement = formaterClassement(res, nomDe)
+		cacheClassementA = os.clock()
+	else
+		warn("[ECO] lecture du classement ratee : " .. tostring(res))
+	end
+	return cacheClassement
 end
 
 -- Le profil a change, mais rien d'irreversible : l'ecriture peut attendre le prochain passage.

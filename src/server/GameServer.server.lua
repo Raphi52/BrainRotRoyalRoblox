@@ -1211,6 +1211,8 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 	elseif action == "quitter" then
 		quitter(player)
 		return { ok = true, vue = Economie.vue(player) }
+	elseif action == "classement" then
+		return { ok = true, classement = Economie.classement(), vue = Economie.vue(player) }
 	elseif action == "robux" then
 		Economie.demanderRobux(player, tonumber(arg))
 		return { ok = true, vue = Economie.vue(player) }
