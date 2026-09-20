@@ -10,3 +10,24 @@
 # Python
 __pycache__/
 *.pyc
+
+# Places construites par build.py : regenerables a tout moment, plusieurs centaines de Ko
+# chacune. BrainRotRoyale.rbxlx reste SUIVI a dessein : c'est la place publiee.
+place-*.rbxlx
+priv-*.rbxlx
+
+# Captures d'ecran de verification (Studio) prises a la racine. Les icones de la boutique,
+# elles, sont de VRAIS assets du jeu et restent suivies (tools/boutique/*.png).
+/capture-*.png
+/cap-*.png
+/captures-ratees/
+/captures-perimees/
+
+# Journaux Studio et simulations : plusieurs milliers de lignes, rejouables par build.py
+*.log
+
+# Script de lancement Studio jetable (chemins de CETTE machine)
+/_run3.ps1
+
+# Base de connaissances locale : ce n'est pas le jeu.
+/brain/

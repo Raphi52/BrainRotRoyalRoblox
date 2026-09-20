@@ -21,6 +21,11 @@ DECK = AUTOTEST and "--deck" in sys.argv  # accueil + ecran DECK ouvert, pour la
 NIVEAUX = AUTOTEST and "--niveaux" in sys.argv  # boutique ouverte avec des niveaux varies
 BOUTIQUE = BOUTIQUE or NIVEAUX
 HUB = HUB or BOUTIQUE or COFFRES or DECK
+ONGLET = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--onglet=")), "") if AUTOTEST else ""  # onglet du hub a ouvrir pour la capture
+HUB = HUB or bool(ONGLET)
+APERCU = AUTOTEST and "--apercu" in sys.argv  # fige la visee pour capturer l'apercu de pose
+ROBOT = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--robot=")), "") if AUTOTEST else ""  # force un palier de difficulte
+PARTIE = PARTIE or APERCU
 ECOTEST = AUTOTEST and "--ecotest" in sys.argv  # scenario de test de l'economie
 SIM = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--sim=")), "") if AUTOTEST else ""  # simulation d'equilibre
 RUN = AUTOTEST and "--run" in sys.argv      # partie entiere bot contre bot, sans joueur
@@ -120,7 +125,33 @@ place = "".join([
               + item("ModuleScript", "Sons", source=src("shared/Sons.lua"))
               # Effets.lua est requis par GameServer : sans lui, le serveur reste bloque sur
               # WaitForChild("Effets") et AUCUN remote n'est cree (mesure Studio 2026-09-16).
-              + item("ModuleScript", "Effets", source=src("shared/Effets.lua")))
+              + item("ModuleScript", "Effets", source=src("shared/Effets.lua"))
+              # Regles.lua : double elixir, prolongation, zone de pose (fonctions pures).
+              + item("ModuleScript", "Regles", source=src("shared/Regles.lua"))
+              # Sorts.lua : zone visee, cibles, degats et rage (fonctions pures).
+              + item("ModuleScript", "Sorts", source=src("shared/Sorts.lua"))
+              # Tutoriel.lua : scenario de la premiere partie (fonctions pures).
+              + item("ModuleScript", "Tutoriel", source=src("shared/Tutoriel.lua"))
+              # Apercu.lua : disque de visee et fantome de l'unite. SANS lui, le client reste
+              # bloque sur WaitForChild("Apercu") et AUCUNE carte ne peut etre jouee.
+              + item("ModuleScript", "Apercu", source=src("shared/Apercu.lua"))
+              # Foule.lua : separation des unites (elles ne se traversent plus).
+              + item("ModuleScript", "Foule", source=src("shared/Foule.lua"))
+              # Cible.lua : menace et persistance du ciblage.
+              + item("ModuleScript", "Cible", source=src("shared/Cible.lua"))
+              # Robot.lua : profil de difficulte selon les trophees du joueur.
+              + item("ModuleScript", "Robot", source=src("shared/Robot.lua"))
+              # Charge.lua : unites qui prennent de l'elan et frappent plus fort.
+              + item("ModuleScript", "Charge", source=src("shared/Charge.lua"))
+              # Descendance.lua : les grosses cartes laissent des petites unites en mourant.
+              + item("ModuleScript", "Descendance", source=src("shared/Descendance.lua"))
+              # Modules requis par GameServer et jamais livres : SANS eux, le serveur reste bloque
+              # sur WaitForChild("Statuts") et AUCUNE partie ne demarre (mesure moteur 14:48).
+              + item("ModuleScript", "Statuts", source=src("shared/Statuts.lua"))
+              + item("ModuleScript", "Batiments", source=src("shared/Batiments.lua"))
+              + item("ModuleScript", "Projectiles", source=src("shared/Projectiles.lua"))
+              + item("ModuleScript", "Cycle", source=src("shared/Cycle.lua"))
+              + item("ModuleScript", "Arenes", source=src("shared/Arenes.lua")))
          + modeles()
          + (item("BoolValue", "BRR_AUTOTEST") if AUTOTEST else "")
          # Nombre de joueurs du test automatique : lu par le plugin tools/BRR_AutoRun.lua.
@@ -130,12 +161,18 @@ place = "".join([
          + (item("BoolValue", "BRR_PARTIE") if PARTIE else "")
          + (item("BoolValue", "BRR_GROSPLAN") if GROSPLAN else "")
          + (item("BoolValue", "BRR_MELEE") if MELEE else "")
+         # Capture de l'apercu : la visee est figee au centre de la moitie du joueur, sinon
+         # la souris d'une session sans utilisateur ne pointe jamais l'arene.
+         + (item("BoolValue", "BRR_APERCU") if APERCU else "")
+         # Palier de difficulte force (copie de test) : voir Robot.profilNomme.
+         + (item("StringValue", "BRR_ROBOT", extra=f'<string name="Value">{escape(ROBOT)}</string>') if ROBOT else "")
          + (item("BoolValue", "BRR_HUB") if HUB else "")
          + (item("BoolValue", "BRR_ECOTEST") if ECOTEST else "")
          + (item("BoolValue", "BRR_BOUTIQUE") if BOUTIQUE else "")
          + (item("BoolValue", "BRR_COFFRES") if COFFRES else "")
          + (item("BoolValue", "BRR_DECK") if DECK else "")
          + (item("BoolValue", "BRR_NIVEAUX") if NIVEAUX else "")
+         + (item("StringValue", "BRR_ONGLET", extra=f'<string name="Value">{escape(ONGLET)}</string>') if ONGLET else "")
          + (item("StringValue", "BRR_SIM", extra=f'<string name="Value">{escape(SIM)}</string>') if SIM else "")
          + (item("StringValue", "BRR_GALERIE", extra=f'<string name="Value">{escape(GALERIE)}</string>') if GALERIE else "")),
     item("ServerStorage", "ServerStorage", item("BoolValue", "BRR_AUTOTEST") if AUTOTEST else ""),
