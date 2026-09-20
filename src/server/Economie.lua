@@ -16,6 +16,9 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
+-- ARENES : paliers de trophees (nom, protection du bas de tableau, recompense de palier,
+-- cartes debloquees). Fonctions pures, verifiees par tools/test_arenes.py.
+local Arenes = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Arenes"))
 
 local Economie = {}
 
@@ -23,6 +26,7 @@ local Economie = {}
 Economie.PRODUITS = {
 	{ id = 0, nom = "Sac de 500 pieces", pieces = 500 },
 	{ id = 0, nom = "Coffre de 1500 pieces", pieces = 1500 },
+	{ id = 0, nom = "Poignee de 80 gemmes", gemmes = 80 }, -- monnaie premium, uniquement en Robux
 }
 Economie.PASS_VIP = 0 -- pass « VIP » : pieces x2 en fin de partie
 
@@ -37,6 +41,16 @@ local RECOMPENSE = {
 	egalite = { pieces = 15, trophees = 0 },
 }
 local BONUS_JOUR = 50
+-- SERIE DE VICTOIRES : +BONUS_SERIE pieces par victoire consecutive au-dela de la premiere,
+-- plafonne a SERIE_MAX. Fonction PURE : verifiee hors Studio (tools/test_serie.py).
+local BONUS_SERIE = 10
+Economie.SERIE_MAX = 5
+function Economie.bonusSerie(serie)
+	if not serie or serie < 2 then
+		return 0
+	end
+	return math.min(serie - 1, Economie.SERIE_MAX) * BONUS_SERIE
+end
 -- Pronostic juste d'un spectateur (voir GameServer) : petite recompense, le pari est gratuit.
 local GAIN_PRONOSTIC = 15
 -- Victoire contre un HUMAIN (pas le bot) : pieces en plus, pour donner envie de jouer entre joueurs.
@@ -147,7 +161,8 @@ local function profilNeuf()
 			cartes[c.id] = true
 		end
 	end
-	return { pieces = 100, trophees = 0, victoires = 0, parties = 0, cartes = cartes, dernierBonus = 0, coffres = {}, niveaux = {}, exemplaires = {} }
+	return { pieces = 100, gemmes = 0, trophees = 0, victoires = 0, parties = 0, cartes = cartes, dernierBonus = 0, coffres = {}, niveaux = {}, exemplaires = {}, serie = 0,
+		dernierCoffreGratuit = 0, quetes = nil }
 end
 
 local function leaderstats(player, p)
@@ -182,8 +197,11 @@ function Economie.charger(player)
 				p[k] = v
 			end
 			p.coffres = p.coffres or {} -- profil anterieur aux coffres
+			p.gemmes = p.gemmes or 0 -- profil anterieur aux gemmes
 			p.niveaux = p.niveaux or {} -- profil anterieur aux niveaux
 			p.exemplaires = p.exemplaires or {}
+			p.serie = p.serie or 0 -- profil anterieur aux series de victoires
+			p.dernierCoffreGratuit = p.dernierCoffreGratuit or 0 -- profil anterieur au coffre gratuit
 			-- une carte ajoutee au jeu apres la creation du profil, et gratuite, est offerte
 			for _, c in ipairs(Cards.list) do
 				if not c.prix then
@@ -356,6 +374,44 @@ function Economie.deck(player)
 	return ids
 end
 
+-- Trophees d'un joueur (0 si absent) : sert a regler la DIFFICULTE du robot d'en face.
+function Economie.tropheesDe(player)
+	local p = player and profils[player]
+	return p and p.trophees or 0
+end
+
+-- Cartes REELLEMENT possedees par un joueur (sans tenir compte de son deck choisi).
+function Economie.cartesPossedees(player)
+	local p = profils[player]
+	if not p then
+		return nil
+	end
+	local ids = {}
+	for _, c in ipairs(Cards.list) do
+		if p.cartes[c.id] then
+			table.insert(ids, c.id)
+		end
+	end
+	return ids
+end
+
+-- PAQUET DU ROBOT. Avant, un camp sans joueur tirait dans TOUT le catalogue : le robot sortait des
+-- cartes payantes (jusqu'a 1500 pieces) contre un joueur neuf qui ne peut pas y repondre en nature.
+-- Il joue desormais le paquet du joueur d'EN FACE ; sans joueur en face, seulement les cartes
+-- offertes. Fonction PURE : testee hors Roblox (tools/test_robot_deck.py).
+function Economie.cartesRobot(idsEnFace)
+	if idsEnFace and #idsEnFace >= Economie.DECK_TAILLE then
+		return idsEnFace
+	end
+	local ids = {}
+	for _, c in ipairs(Cards.list) do
+		if not c.prix then
+			table.insert(ids, c.id)
+		end
+	end
+	return ids
+end
+
 -- Le joueur choisit son deck depuis le hub. Rend (false, motif) si le serveur refuse.
 function Economie.choisirDeck(player, ids)
 	local p = profils[player]
@@ -390,9 +446,30 @@ function Economie.recompenser(player, issue, contreHumain)
 		return nil
 	end
 	local bonus = (issue == "victoire" and contreHumain) and BONUS_HUMAIN or 0
-	local pieces = (r.pieces + bonus) * (aVip(player) and 2 or 1)
+	-- SERIE DE VICTOIRES : enchainer des victoires rapporte de plus en plus, jusqu'a un plafond.
+	-- Sans elle, la 10e victoire rapportait exactement autant que la premiere — rien ne donnait
+	-- envie de rester une partie de plus. Une defaite ou une egalite remet la serie a zero.
+	if issue == "victoire" then
+		p.serie = (p.serie or 0) + 1
+	else
+		p.serie = 0
+	end
+	local bonusSerie = Economie.bonusSerie(p.serie)
+	local pieces = (r.pieces + bonus + bonusSerie) * (aVip(player) and 2 or 1)
 	p.pieces += pieces
-	p.trophees = math.max(0, p.trophees + r.trophees)
+	-- TROPHEES : l'issue passe par Arenes.apres, qui PROTEGE le bas de tableau. Un debutant qui
+	-- enchaine trois defaites ne descend plus sous le plancher : il gardait sinon un compteur
+	-- qui ne faisait que baisser, sans aucun repere de progression.
+	local avant = p.trophees
+	p.trophees = math.max(0, Arenes.apres(avant, issue))
+	-- RECOMPENSE DE PALIER : versee UNE SEULE FOIS a la premiere arrivee dans une arene, meme
+	-- si deux paliers sont franchis d'un coup.
+	local palier = Arenes.recompensePalier(avant, p.trophees)
+	if palier > 0 then
+		p.pieces += palier
+		print(string.format("[ECO] %s atteint %s : +%d pieces de palier",
+			player.Name, Arenes.nom(p.trophees), palier))
+	end
 	p.parties += 1
 	local coffre = nil
 	if issue == "victoire" then
@@ -401,8 +478,10 @@ function Economie.recompenser(player, issue, contreHumain)
 	end
 	leaderstats(player, p)
 	Economie.marquerSale(player)
-	print(string.format("[ECO] %s : %s, +%d pieces, %+d trophees", player.Name, issue, pieces, r.trophees))
-	return { pieces = pieces, trophees = r.trophees, coffre = coffre }
+	print(string.format("[ECO] %s : %s, +%d pieces (serie %d), %+d trophees",
+		player.Name, issue, pieces, p.serie or 0, p.trophees - avant))
+	return { pieces = pieces, trophees = p.trophees - avant, coffre = coffre, serie = p.serie,
+		bonusSerie = bonusSerie, palier = palier, arene = Arenes.nom(p.trophees) }
 end
 
 function Economie.gagnerCoffre(player, typeForce)
@@ -425,6 +504,16 @@ function Economie.gagnerCoffre(player, typeForce)
 			end
 		end
 		t = t or "bois"
+		-- PLAFOND D'ARENE : un joueur de la premiere arene ne tombe pas sur un coffre d'or. Le
+		-- meilleur coffre possible suit le palier atteint (Arenes.coffreMax).
+		local maxi = Arenes.coffreMax(p.trophees or 0)
+		local rang = {}
+		for i, id in ipairs(Economie.ORDRE_COFFRES) do
+			rang[id] = i
+		end
+		if (rang[t] or 1) > (rang[maxi] or #Economie.ORDRE_COFFRES) then
+			t = maxi
+		end
 	end
 	table.insert(p.coffres, { type = t, fin = 0 }) -- fin = 0 : pas encore demarre
 	print(string.format("[ECO] %s gagne un %s", player.Name, Economie.COFFRES[t].nom))
@@ -547,6 +636,13 @@ function Economie.acheterCarte(player, id)
 	if not card.prix then
 		return false, "carte non vendue"
 	end
+	-- DEBLOCAGE PAR ARENE : une carte rattachee a un palier ne s'achete pas avant de l'avoir
+	-- atteint. Jusqu'ici le seul frein etait le prix : une legendaire pouvait tomber dans le
+	-- deck d'un joueur de la premiere partie, qui ne savait pas encore quoi en faire.
+	local ouverte, areneRequise = Arenes.carteDebloquee(id, p.trophees or 0)
+	if not ouverte then
+		return false, "carte de " .. tostring(areneRequise)
+	end
 	if p.pieces < card.prix then
 		return false, "pas assez de pieces"
 	end
@@ -567,6 +663,162 @@ function Economie.gainPronostic(player)
 	leaderstats(player, p)
 	Economie.marquerSale(player)
 	print(string.format("[ECO] %s : pronostic juste, +%d pieces", player.Name, GAIN_PRONOSTIC))
+end
+
+-- ===== QUETES QUOTIDIENNES =====
+-- Trois quetes par jour, les MEMES pour tout le monde, DEDUITES du numero du jour : rien a tirer
+-- au hasard, rien a sauvegarder cote serveur, et deux joueurs peuvent parler de « la quete du
+-- jour ». Seule l'AVANCEE est dans le profil. Le jeu n'avait aucune raison de revenir demain :
+-- le bonus quotidien seul (+50 pieces) se prend en trois secondes et on repart.
+Economie.QUETES = {
+	{ id = "victoires", texte = "Gagner %d parties", cible = 2, gain = 80 },
+	{ id = "cartes", texte = "Poser %d cartes", cible = 25, gain = 60 },
+	{ id = "tours", texte = "Detruire %d tours", cible = 4, gain = 70 },
+	{ id = "sorts", texte = "Lancer %d sorts", cible = 5, gain = 50 },
+	{ id = "parties", texte = "Jouer %d parties", cible = 3, gain = 50 },
+}
+Economie.QUETES_PAR_JOUR = 3
+
+-- Numero du jour (UTC). Fonction a part pour que le banc puisse avancer le temps a la main.
+function Economie.jourDe(maintenant)
+	return math.floor((maintenant or os.time()) / 86400)
+end
+
+-- Les 3 quetes du jour : une fenetre glissante sur la liste, decalee par le numero du jour.
+-- Deterministe, donc reproductible au banc et identique pour tous les joueurs du meme jour.
+function Economie.quetesDuJour(jour)
+	local n = #Economie.QUETES
+	local choisies = {}
+	for k = 0, Economie.QUETES_PAR_JOUR - 1 do
+		local i = (jour + k) % n + 1
+		table.insert(choisies, Economie.QUETES[i])
+	end
+	return choisies
+end
+
+local function etatQuetes(p, maintenant)
+	local jour = Economie.jourDe(maintenant)
+	-- changement de jour : l'avancee repart de zero (les quetes changent aussi)
+	if not p.quetes or p.quetes.jour ~= jour then
+		p.quetes = { jour = jour, faits = {}, recus = {} }
+	end
+	return p.quetes
+end
+
+-- AVANCEE d'une quete. Appelee par le serveur de jeu a chaque evenement (carte posee, tour
+-- detruite, partie gagnee...). Ne fait rien si aucune quete du jour ne porte sur ce type.
+function Economie.avancerQuete(player, type, combien)
+	local p = profils[player]
+	if not p then
+		return
+	end
+	local q = etatQuetes(p, os.time())
+	local concernee = false
+	for _, quete in ipairs(Economie.quetesDuJour(q.jour)) do
+		if quete.id == type then
+			concernee = true
+		end
+	end
+	if not concernee then
+		return
+	end
+	q.faits[type] = (q.faits[type] or 0) + (combien or 1)
+	Economie.marquerSale(player)
+end
+
+-- RECLAMER une quete finie. Rend (true, gain) ou (false, motif).
+function Economie.reclamerQuete(player, id)
+	local p = profils[player]
+	if not p then
+		return false, "profil absent"
+	end
+	local q = etatQuetes(p, os.time())
+	local quete = nil
+	for _, candidate in ipairs(Economie.quetesDuJour(q.jour)) do
+		if candidate.id == id then
+			quete = candidate
+		end
+	end
+	if not quete then
+		return false, "quete inconnue"
+	end
+	if q.recus[id] then
+		return false, "deja recue"
+	end
+	if (q.faits[id] or 0) < quete.cible then
+		return false, "pas encore finie"
+	end
+	q.recus[id] = true
+	p.pieces += quete.gain
+	leaderstats(player, p)
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s : quete %s finie, +%d pieces", player.Name, id, quete.gain))
+	return true, quete.gain
+end
+
+-- ===== COFFRE GRATUIT =====
+-- Toutes les 4 h, un coffre offert. C'est le rendez-vous court qui fait revenir dans la journee,
+-- la ou le bonus quotidien ne donne qu'un rendez-vous par jour.
+Economie.COFFRE_GRATUIT_DELAI = 4 * 3600
+Economie.COFFRE_GRATUIT_TYPE = "argent"
+
+-- Secondes restantes avant le prochain coffre gratuit (0 = disponible maintenant). PURE.
+function Economie.attenteCoffreGratuit(dernier, maintenant)
+	local reste = (dernier or 0) + Economie.COFFRE_GRATUIT_DELAI - (maintenant or 0)
+	if reste < 0 then
+		return 0
+	end
+	return reste
+end
+
+function Economie.reclamerCoffreGratuit(player)
+	local p = profils[player]
+	if not p then
+		return false, "profil absent"
+	end
+	local maintenant = os.time()
+	local reste = Economie.attenteCoffreGratuit(p.dernierCoffreGratuit, maintenant)
+	if reste > 0 then
+		return false, string.format("revenir dans %dh%02d", reste // 3600, (reste % 3600) // 60)
+	end
+	if #p.coffres >= Economie.EMPLACEMENTS then
+		return false, "emplacements pleins"
+	end
+	local coffre = Economie.gagnerCoffre(player, Economie.COFFRE_GRATUIT_TYPE)
+	if not coffre then
+		return false, "emplacements pleins"
+	end
+	p.dernierCoffreGratuit = maintenant
+	Economie.marquerSale(player)
+	print(string.format("[ECO] %s : coffre gratuit (%s)", player.Name, Economie.COFFRE_GRATUIT_TYPE))
+	return true, coffre
+end
+
+-- Etat des quetes et du coffre gratuit, pour l'affichage (lecture seule).
+function Economie.vueQuetes(player)
+	local p = profils[player]
+	if not p then
+		return nil
+	end
+	local maintenant = os.time()
+	local q = etatQuetes(p, maintenant)
+	local liste = {}
+	for _, quete in ipairs(Economie.quetesDuJour(q.jour)) do
+		table.insert(liste, {
+			id = quete.id,
+			texte = string.format(quete.texte, quete.cible),
+			fait = math.min(q.faits[quete.id] or 0, quete.cible),
+			cible = quete.cible,
+			gain = quete.gain,
+			recue = q.recus[quete.id] == true,
+			finie = (q.faits[quete.id] or 0) >= quete.cible,
+		})
+	end
+	return {
+		quetes = liste,
+		coffreGratuitReste = Economie.attenteCoffreGratuit(p.dernierCoffreGratuit, maintenant),
+		coffreGratuitType = Economie.COFFRE_GRATUIT_TYPE,
+	}
 end
 
 function Economie.bonusQuotidien(player)
@@ -599,7 +851,7 @@ function Economie.vue(player)
 		end
 	end
 	return {
-		pieces = p.pieces, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
+		pieces = p.pieces, gemmes = p.gemmes, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
 		cartes = p.cartes, sauvegarde = Economie.sauvegardeActive(player), offresRobux = offres,
 		bonusDispo = p.dernierBonus + UN_JOUR <= os.time(),
 		coffres = p.coffres, maintenant = os.time(),
@@ -609,6 +861,11 @@ function Economie.vue(player)
 		deck = Economie.deck(player), deckTaille = Economie.DECK_TAILLE,
 		deckChoisi = p.deckChoisi ~= nil,
 		besoinExemplaires = Economie.EXEMPLAIRES, coutNiveau = Economie.COUT_NIVEAU,
+		-- serie de victoires en cours : le hub l'affiche, sinon le joueur ne sait pas ce qu'il
+		-- perd en s'arretant maintenant.
+		serie = p.serie or 0, serieMax = Economie.SERIE_MAX,
+		-- quetes du jour et coffre gratuit : l'onglet EVENEMENTS les affiche
+		evenements = Economie.vueQuetes(player),
 	}
 end
 
@@ -639,6 +896,19 @@ end
 -- Trois garanties : (1) un rappel apres coup ne recredite pas — le PurchaseId est enregistre ;
 -- (2) l'argent n'est confirme QUE si le profil est ecrit sur le disque ; (3) si l'ecriture rate,
 -- le credit est repris en memoire et la vente reste ouverte, donc Roblox rappellera.
+-- Credit (sens = 1) ou reprise (sens = -1) de ce que rapporte un produit : pieces et/ou gemmes.
+local function crediter(p, prod, sens)
+	p.pieces += sens * (prod.pieces or 0)
+	p.gemmes += sens * (prod.gemmes or 0)
+end
+
+local function libelleGain(prod)
+	if prod.gemmes then
+		return string.format("+%d gemmes", prod.gemmes)
+	end
+	return string.format("+%d pieces", prod.pieces)
+end
+
 MarketplaceService.ProcessReceipt = function(recu)
 	local player = Players:GetPlayerByUserId(recu.PlayerId)
 	if not player or not profils[player] then
@@ -657,10 +927,10 @@ MarketplaceService.ProcessReceipt = function(recu)
 				return Enum.ProductPurchaseDecision.NotProcessedYet
 			end
 			local p = profils[player]
-			p.pieces += prod.pieces
+			crediter(p, prod, 1)
 			leaderstats(player, p)
 			if not Economie.sauver(player) then
-				p.pieces -= prod.pieces -- le disque n'a pas pris : on ne vend pas du vide
+				crediter(p, prod, -1) -- le disque n'a pas pris : on ne vend pas du vide
 				leaderstats(player, p)
 				warn(string.format("[ECO] %s : achat Robux %s NON confirme (sauvegarde impossible)", player.Name, prod.nom))
 				return Enum.ProductPurchaseDecision.NotProcessedYet
@@ -669,18 +939,18 @@ MarketplaceService.ProcessReceipt = function(recu)
 				storeRecus:SetAsync(cle, { u = player.UserId, produit = prod.id, quand = os.time() })
 			end)
 			if not okR then
-				p.pieces -= prod.pieces -- recu non tracable : un rappel recrediterait
+				crediter(p, prod, -1) -- recu non tracable : un rappel recrediterait
 				leaderstats(player, p)
 				if not Economie.sauver(player) then
 					-- le disque garde un profil deja credite alors que la vente n'est pas confirmee :
 					-- un rappel ajoutera un second credit. Rare (l'ecriture precedente a reussi),
 					-- mais il faut pouvoir le retrouver dans les journaux.
-					warn(string.format("[ECO] %s : ECART de solde possible sur le recu %s (+%d pieces sur le disque, vente non confirmee)", player.Name, tostring(recu.PurchaseId), prod.pieces))
+					warn(string.format("[ECO] %s : ECART de solde possible sur le recu %s (%s sur le disque, vente non confirmee)", player.Name, tostring(recu.PurchaseId), libelleGain(prod)))
 				end
 				warn(string.format("[ECO] %s : recu %s non enregistre (%s), achat repousse", player.Name, tostring(recu.PurchaseId), tostring(errR)))
 				return Enum.ProductPurchaseDecision.NotProcessedYet
 			end
-			print(string.format("[ECO] %s : achat Robux %s, +%d pieces", player.Name, prod.nom, prod.pieces))
+			print(string.format("[ECO] %s : achat Robux %s, %s", player.Name, prod.nom, libelleGain(prod)))
 			return Enum.ProductPurchaseDecision.PurchaseGranted
 		end
 	end

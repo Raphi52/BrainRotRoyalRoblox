@@ -8,6 +8,11 @@ local TweenService = game:GetService("TweenService")
 local Cards = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cards"))
 -- Habillage sonore : joue CHEZ CE CLIENT, sur les evenements deja recus du serveur.
 local Sons = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Sons"))
+-- Memes regles de pose que le serveur (module partage) : le client ne fait que prevenir un aller-
+-- retour inutile, le serveur reverifie tout.
+local Regles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Regles"))
+-- Apercu de pose (disque au sol + fantome de l'unite) : regles pures, banc tools/test_apercu.py.
+local Apercu = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Apercu"))
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
 local PlayCard = remotes:WaitForChild("PlayCard")
 local StateEvent = remotes:WaitForChild("State")
@@ -140,6 +145,38 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- HABILLAGE DU HUD (2026-09-20) ------------------------------------------------------------
+-- fix-ok: cause mesuree du HUD « plat » — l'ecran de match ne contenait AUCUN degrade et UN
+-- seul contour (jauge d'elixir, panneau bas et cartes en aplat de couleur unie), alors que le
+-- hub avait deja recu sa couche premium. Ces trois fabriques ajoutent la couche manquante et
+-- s'appliquent a des elements DEJA construits : aucune logique de jeu n'est touchee.
+local function coinUI(o, r)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, r or 12)
+	c.Parent = o
+	return c
+end
+
+local function degradeUI(o, haut, bas, rotation)
+	local g = Instance.new("UIGradient")
+	g.Color = ColorSequence.new(haut, bas)
+	g.Rotation = rotation or 90
+	g.Parent = o
+	return g
+end
+
+local function contourUI(o, epaisseur, couleur, transparence, mode)
+	local st = Instance.new("UIStroke")
+	st.Thickness = epaisseur or 2
+	st.Color = couleur or Color3.fromRGB(12, 14, 24)
+	st.Transparency = transparence or 0
+	-- En mode Border, un UIStroke pose sur un label a fond transparent dessine le RECTANGLE du
+	-- label (cadres fantomes deja mesures dans le hub). Contextual ne trace que le texte.
+	st.ApplyStrokeMode = mode or Enum.ApplyStrokeMode.Border
+	st.Parent = o
+	return st
+end
+
 local function label(parent, text, size, pos)
 	local l = Instance.new("TextLabel")
 	l.BackgroundTransparency = 1
@@ -149,13 +186,19 @@ local function label(parent, text, size, pos)
 	l.TextScaled = true
 	l.Font = Enum.Font.GothamBold
 	l.TextColor3 = Color3.new(1, 1, 1)
-	l.TextStrokeTransparency = 0.3
+	l.TextStrokeTransparency = 1
 	l.Parent = parent
+	-- contour de police epais : lisible par-dessus l'arene claire comme par-dessus une gerbe.
+	contourUI(l, 2, Color3.fromRGB(10, 12, 20), 0.15, Enum.ApplyStrokeMode.Contextual)
 	return l
 end
 
 local top = label(gui, "3:00", UDim2.new(0, 300, 0, 40), UDim2.new(0.5, -150, 0, 10))
 local crownsLabel = label(gui, "0 - 0", UDim2.new(0, 300, 0, 30), UDim2.new(0.5, -150, 0, 50))
+-- ARENE : le nom du palier de trophees, sous le score. En partie, rien ne disait dans quelle
+-- arene on jouait — l'information n'existait que dans le hub, et seulement en chiffres.
+local areneLabel = label(gui, "", UDim2.new(0, 360, 0, 22), UDim2.new(0.5, -180, 0, 80))
+areneLabel.TextColor3 = Color3.fromRGB(210, 195, 150)
 
 -- EMOTES RAPIDES : boutons en haut a droite, caches pour le spectateur (le serveur refuse de toute facon).
 local emotesBarre = Instance.new("Frame")
@@ -178,7 +221,9 @@ for _, e in ipairs({ { "gg", "GG" }, { "rire", "HAHA" }, { "bravo", "Bravo" }, {
 	b.Font = Enum.Font.GothamBold
 	b.Text = e[2]
 	b.Parent = emotesBarre
-	Instance.new("UICorner").Parent = b
+	coinUI(b, 10)
+	degradeUI(b, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 150, 170))
+	contourUI(b, 2, Color3.fromRGB(10, 12, 20), 0.2)
 	b.MouseButton1Click:Connect(function()
 		EmoteEvent:FireServer(e[1])
 	end)
@@ -206,7 +251,9 @@ for camp, def in ipairs({ { "Rouge gagne", Color3.fromRGB(200, 60, 60) }, { "Ble
 	b.Font = Enum.Font.GothamBold
 	b.Text = def[1]
 	b.Parent = pronoBarre
-	Instance.new("UICorner").Parent = b
+	coinUI(b, 10)
+	degradeUI(b, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 150, 170))
+	contourUI(b, 2, Color3.fromRGB(10, 12, 20), 0.15)
 	b.MouseButton1Click:Connect(function()
 		pronoChoisi = camp
 		pronoBarre.Visible = false
@@ -221,7 +268,11 @@ bottom.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 bottom.BackgroundTransparency = 0.2
 bottom.Parent = gui
 local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 16)
 corner.Parent = bottom
+-- relief du panneau : le haut s'eclaircit, le bas s'assombrit, un trait sombre le detache de l'arene.
+degradeUI(bottom, Color3.fromRGB(255, 255, 255), Color3.fromRGB(120, 120, 140))
+contourUI(bottom, 3, Color3.fromRGB(10, 12, 20), 0.1)
 -- petites fenetres : le panneau reduit pour ne pas couvrir le cote joueur
 local panelScale = Instance.new("UIScale")
 panelScale.Parent = bottom
@@ -238,6 +289,134 @@ local selected = nil
 local lastHand = {}
 local currentElixir = 0
 
+-- ===== APERCU DE POSE =====
+-- Tant qu'une carte est choisie, un disque au sol suit la visee : VERT si la pose passe, ROUGE
+-- sinon, et a la taille reelle de ce qu'on pose (le rayon d'effet pour un sort). Un fantome
+-- transparent montre la silhouette de l'unite. Tout est LOCAL a ce client : rien n'est replique,
+-- l'adversaire ne voit pas ou l'on hesite.
+local apercuDossier, apercuDisque, apercuPieces = nil, nil, {}
+local apercuCarteId = nil
+
+local function effacerApercu()
+	if apercuDossier then
+		apercuDossier:Destroy()
+	end
+	apercuDossier, apercuDisque, apercuPieces, apercuCarteId = nil, nil, {}, nil
+end
+
+-- (Re)construit le disque et le fantome pour CETTE carte. Refait seulement au changement de carte :
+-- on ne recree pas des dizaines de pieces a chaque image.
+local function construireApercu(card)
+	effacerApercu()
+	apercuDossier = Instance.new("Folder")
+	apercuDossier.Name = "ApercuPose"
+	apercuDossier.Parent = workspace
+	local rayon = Apercu.rayonCercle(card)
+	apercuDisque = Instance.new("Part")
+	apercuDisque.Name = "ApercuDisque"
+	apercuDisque.Anchored = true
+	apercuDisque.CanCollide = false
+	apercuDisque.CanQuery = false
+	apercuDisque.CastShadow = false
+	apercuDisque.Shape = Enum.PartType.Cylinder
+	apercuDisque.Size = Vector3.new(0.15, rayon * 2, rayon * 2)
+	apercuDisque.Material = Enum.Material.Neon
+	apercuDisque.Transparency = 0.45
+	apercuDisque.Parent = apercuDossier
+	for _, piece in ipairs(Apercu.piecesFantome(card, true)) do
+		local part = Instance.new("Part")
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CastShadow = false
+		part.Size = piece.taille
+		part.Transparency = piece.transparence
+		-- SmoothPlastic et non Neon : en neon, toutes les pieces se fondaient en une seule tache
+		-- verte et la carte n'etait plus reconnaissable (capture du 2026-09-20).
+		part.Material = Enum.Material.SmoothPlastic
+		part.Color = piece.couleur
+		if piece.forme == "boule" then
+			part.Shape = Enum.PartType.Ball
+		elseif piece.forme == "cylindre" then
+			part.Shape = Enum.PartType.Cylinder
+		end
+		part.Parent = apercuDossier
+		table.insert(apercuPieces, { part = part, ecart = piece.pos, rot = piece.rot })
+	end
+	apercuCarteId = card.id
+end
+
+-- Suit la visee a chaque image. Sans carte choisie, l'apercu disparait.
+local function majApercu()
+	if ReplicatedStorage:FindFirstChild("BRR_APERCU") and not selected and lastHand[1] then
+		selected = 1 -- capture : une carte reste choisie pour que l'apercu soit visible
+	end
+	if not selected or jeSuisSpectateur then
+		if apercuDossier then
+			effacerApercu()
+		end
+		return
+	end
+	local card = Cards.byId[lastHand[selected]]
+	local arene = workspace:FindFirstChild("Arena")
+	if not card or not arene then
+		effacerApercu()
+		return
+	end
+	if apercuCarteId ~= card.id then
+		construireApercu(card)
+	end
+	-- CAPTURE (copie de test) : sans utilisateur, la souris ne pointe jamais l'arene et l'apercu
+	-- ne se montrerait sur aucune image. BRR_APERCU fige la visee a un point fixe de la moitie
+	-- du joueur. Ce chemin n'existe que dans la copie de test.
+	local fige = ReplicatedStorage:FindFirstChild("BRR_APERCU")
+	local ray
+	if fige then
+		local cible = Vector3.new(-8, 0.5, -14)
+		ray = { Origin = cible + Vector3.new(0, 60, 0), Direction = Vector3.new(0, -1, 0) }
+	else
+		local pos = UserInputService:GetMouseLocation()
+		ray = camera:ScreenPointToRay(pos.X, pos.Y)
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { arene }
+	local hit = workspace:Raycast(ray.Origin, ray.Direction * 500, params)
+	if not hit then
+		apercuDossier.Parent = nil -- hors de l'arene : on cache sans detruire
+		return
+	end
+	apercuDossier.Parent = workspace
+	local p = hit.Position
+	-- meme regle que le serveur : le joueur voit EXACTEMENT ce qui sera accepte
+	local permise
+	if card.sort then
+		permise = math.abs(p.X) <= ARENE_DEMI_LARGEUR - 1 and math.abs(p.Z) <= ARENE_DEMI_LONGUEUR - 1
+	else
+		local sensEnnemi = (monCamp == 1) and 1 or -1
+		local debout = { [-1] = false, [1] = false }
+		for _, part in ipairs(arene:GetChildren()) do
+			if part.Name == "PrincessTower" and part.Position.Z * sensEnnemi > 0 then
+				debout[part.Position.X < 0 and -1 or 1] = true
+			end
+		end
+		permise = Regles.posePermise(monCamp, p.X, p.Z, not debout[-1], not debout[1])
+			and math.abs(p.X) <= ARENE_DEMI_LARGEUR - 1 and math.abs(p.Z) <= ARENE_DEMI_LONGUEUR - 1
+	end
+	local teinte = Apercu.teinte(permise)
+	apercuDisque.Color = teinte
+	apercuDisque.CFrame = CFrame.new(p.X, 0.62, p.Z) * CFrame.Angles(0, 0, math.rad(90))
+	local hauteur = Apercu.hauteurAuSol(card, 0.5)
+	for _, f in ipairs(apercuPieces) do
+		-- la couleur de la piece ne bouge pas (on reconnait la carte) ; seul le disque dit oui/non
+		f.part.CFrame = CFrame.new(p.X, hauteur, p.Z) * CFrame.new(f.ecart)
+			* CFrame.Angles(math.rad(f.rot and f.rot.X or 0), math.rad(f.rot and f.rot.Y or 0),
+				math.rad(f.rot and f.rot.Z or 0))
+	end
+end
+
+RunService.RenderStepped:Connect(majApercu)
+
 for i = 1, 4 do
 	local b = Instance.new("TextButton")
 	b.Size = UDim2.new(0, 110, 0, 120)
@@ -249,8 +428,10 @@ for i = 1, 4 do
 	b.TextStrokeTransparency = 0.2
 	b.AutoButtonColor = true
 	b.Parent = bottom
-	local c = Instance.new("UICorner")
-	c.Parent = b
+	coinUI(b, 14)
+	-- carte en relief + contour cartoon ; le liseré jaune de selection reste au-dessus.
+	degradeUI(b, Color3.fromRGB(255, 255, 255), Color3.fromRGB(145, 145, 165))
+	contourUI(b, 3, Color3.fromRGB(10, 12, 20), 0.05)
 	local stroke = Instance.new("UIStroke")
 	stroke.Thickness = 0
 	stroke.Color = Color3.fromRGB(255, 230, 80)
@@ -302,12 +483,79 @@ elixirBack.Size = UDim2.new(1, -20, 0, 24)
 elixirBack.Position = UDim2.new(0, 10, 0, 138)
 elixirBack.BackgroundColor3 = Color3.fromRGB(50, 20, 60)
 elixirBack.Parent = bottom
+coinUI(elixirBack, 12)
+contourUI(elixirBack, 2, Color3.fromRGB(10, 12, 20), 0.1)
+elixirBack.ClipsDescendants = true
 local elixirFill = Instance.new("Frame")
 elixirFill.BorderSizePixel = 0
 elixirFill.BackgroundColor3 = Color3.fromRGB(210, 60, 230)
 elixirFill.Size = UDim2.new(0, 0, 1, 0)
 elixirFill.Parent = elixirBack
+coinUI(elixirFill, 12)
+-- lueur dans la jauge : clair en haut, sature en bas — c'est ce qui donne l'aspect « liquide »
+-- au lieu d'une barre de couleur unie.
+degradeUI(elixirFill, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 110, 200))
 local elixirText = label(elixirBack, "0", UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0))
+
+-- BANNIERE DE PHASE : « DOUBLE ELIXIR ! » puis « PROLONGATION ! ». Sans elle, le rythme changeait
+-- sans que personne ne le voie — le joueur ne comprenait pas pourquoi l'adversaire posait deux
+-- fois plus de cartes. Elle s'affiche 2,5 s au CHANGEMENT de phase, puis s'efface toute seule.
+local banniere = Instance.new("TextLabel")
+banniere.BackgroundTransparency = 1
+banniere.Size = UDim2.new(1, 0, 0, 54)
+banniere.Position = UDim2.new(0, 0, 0.16, 0)
+banniere.Font = Enum.Font.GothamBlack
+banniere.TextScaled = false
+banniere.TextSize = 42
+banniere.TextStrokeTransparency = 0
+banniere.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+banniere.Visible = false
+banniere.ZIndex = 20
+banniere.Parent = gui
+local phasePrec = nil
+local function annoncerPhase(phase)
+	if phase == phasePrec then
+		return
+	end
+	phasePrec = phase
+	if phase == "double" then
+		banniere.Text = "DOUBLE ELIXIR !"
+		banniere.TextColor3 = Color3.fromRGB(225, 120, 255)
+	elseif phase == "prolongation" then
+		banniere.Text = "PROLONGATION !"
+		banniere.TextColor3 = Color3.fromRGB(255, 200, 80)
+	else
+		banniere.Visible = false
+		return
+	end
+	banniere.Visible = true
+	banniere.TextTransparency = 0
+	Sons.jouer("coffre", 0.9)
+	secouer(0.25)
+	TweenService:Create(banniere, TweenInfo.new(2.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+		{ TextTransparency = 1 }):Play()
+	task.delay(2.6, function()
+		if phasePrec == phase then
+			banniere.Visible = false
+		end
+	end)
+end
+
+-- ELIXIR PLEIN = ELIXIR PERDU : la jauge pulse quand elle est au maximum, pour que le gaspillage
+-- se VOIE. C'est la faute n^o 1 des debutants, et rien ne la signalait.
+local pulseElixir = nil
+local function pulserElixir(plein)
+	if plein and not pulseElixir then
+		pulseElixir = TweenService:Create(elixirBack,
+			TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+			{ BackgroundColor3 = Color3.fromRGB(235, 150, 255) })
+		pulseElixir:Play()
+	elseif not plein and pulseElixir then
+		pulseElixir:Cancel()
+		pulseElixir = nil
+		elixirBack.BackgroundColor3 = Color3.fromRGB(50, 20, 60)
+	end
+end
 
 local overlay = Instance.new("Frame")
 overlay.Size = UDim2.new(1, 0, 1, 0)
@@ -420,8 +668,32 @@ StateEvent.OnClientEvent:Connect(function(s)
 	TweenService:Create(elixirFill, TweenInfo.new(0.28, Enum.EasingStyle.Linear),
 		{ Size = UDim2.new(s.elixir / 10, 0, 1, 0) }):Play()
 	elixirText.Text = tostring(math.floor(s.elixir))
+	-- couleur de la jauge selon la phase : rose normal, violet vif en double, or en prolongation
+	if s.phase == "prolongation" then
+		elixirFill.BackgroundColor3 = Color3.fromRGB(255, 195, 70)
+	elseif s.phase == "double" then
+		elixirFill.BackgroundColor3 = Color3.fromRGB(235, 90, 255)
+	else
+		elixirFill.BackgroundColor3 = Color3.fromRGB(210, 60, 230)
+	end
+	if not s.spectateur then
+		pulserElixir(s.elixir >= 9.95)
+	end
+	if not s.result then
+		annoncerPhase(s.phase or "normale")
+	end
 	local t = math.max(0, math.ceil(s.timeLeft))
 	top.Text = string.format("%d:%02d", math.floor(t / 60), t % 60)
+	areneLabel.Text = s.arene or ""
+	-- DERNIERES SECONDES : le chrono vire au rouge sous 30 s (et en prolongation). Il etait blanc
+	-- du debut a la fin : rien ne disait qu'il fallait se depecher.
+	if s.phase == "prolongation" then
+		top.TextColor3 = Color3.fromRGB(255, 195, 70)
+	elseif t <= 30 then
+		top.TextColor3 = Color3.fromRGB(255, 90, 90)
+	else
+		top.TextColor3 = Color3.new(1, 1, 1)
+	end
 	if s.spectateur then
 		crownsLabel.Text = "Rouge " .. (s.crownsCamp1 or 0) .. "  -  " .. (s.crownsCamp2 or 0) .. " Bleu"
 	else
@@ -431,7 +703,7 @@ StateEvent.OnClientEvent:Connect(function(s)
 		local card = Cards.byId[s.hand[i]]
 		local b = buttons[i]
 		if card then
-			b.button.Text = card.name .. "\n" .. card.cost .. " elixir"
+			b.button.Text = card.name .. (card.sort and "\nSORT " or "\n") .. card.cost .. " elixir"
 			b.button.BackgroundColor3 = card.color
 			if s.elixir >= card.cost then
 				b.button.BackgroundTransparency = 0
@@ -439,10 +711,24 @@ StateEvent.OnClientEvent:Connect(function(s)
 				b.button.BackgroundTransparency = 0.6
 			end
 		end
-		b.stroke.Thickness = (selected == i) and 4 or 0
+		-- CADRE DE RARETE : la couleur du contour dit la rarete de la carte (gris commune, bleu
+		-- rare, violet epique, or legendaire). Selectionnee, le cadre s'epaissit sans changer de
+		-- couleur : on garde l'information de rarete pendant la visee.
+		local rar = card and Cards.RARETES[card.rarete]
+		b.stroke.Color = rar and rar.couleur or Color3.fromRGB(255, 230, 80)
+		b.stroke.Thickness = (selected == i) and 5 or (card and 2 or 0)
 	end
-	local nextCard = Cards.byId[s.nextCard]
-	nextLabel.Text = "Suivante\n" .. (nextCard and nextCard.name or "?")
+	-- CARTES A VENIR : les DEUX prochaines, et non la seule suivante. Compter son cycle pour
+	-- savoir quand la carte cle revient est le coeur du genre ; avec une seule carte annoncee,
+	-- le joueur ne pouvait pas le faire. La liste vient du serveur (Cycle.suivantes).
+	local aVenir = {}
+	for _, id in ipairs(s.suivantes or { s.nextCard }) do
+		local c = Cards.byId[id]
+		if c then
+			table.insert(aVenir, c.name .. " " .. c.cost)
+		end
+	end
+	nextLabel.Text = "A venir\n" .. (#aVenir > 0 and table.concat(aVenir, "\n") or "?")
 	overlay.Visible = s.result ~= nil
 	-- Un spectateur voit le resultat mais pas le bouton : il n'a rien a relancer. Le refus reel est
 	-- pose cote serveur ; ceci evite seulement de lui montrer un bouton sans effet.
@@ -617,8 +903,30 @@ local function deployAtScreen(x, y)
 	if not hit then
 		return "clic hors arene"
 	end
-	if hit.Position.Z > -3 then
-		return string.format("clic cote ennemi z=%.1f", hit.Position.Z)
+	-- ZONE DE POSE. Ce test etait ECRIT EN DUR POUR LE CAMP 1 (`z > -3`) : le joueur du camp 2,
+	-- dont la moitie est en z POSITIF, voyait donc TOUS ses clics refuses par son propre client —
+	-- il ne pouvait poser aucune carte en duel humain contre humain (mesure 2026-09-20). On passe
+	-- par la meme regle que le serveur, qui tient compte du camp ET des tours ennemies tombees.
+	-- UN SORT VISE TOUTE L'ARENE : c'est ce qui le distingue d'une unite. On saute donc le test
+	-- de moitie, et le serveur revalide de son cote (Sorts.cibleValide).
+	local carteVisee = Cards.byId[lastHand[selected]]
+	if carteVisee and carteVisee.sort then
+		if math.abs(hit.Position.X) > 27 or math.abs(hit.Position.Z) > 31 then
+			Sons.jouer("refus")
+			return "sort hors arene"
+		end
+	else
+	local sensEnnemi = (monCamp == 1) and 1 or -1
+	local debout = { [-1] = false, [1] = false } -- tour ennemie encore debout, par cote
+	for _, part in ipairs(arena:GetChildren()) do
+		if part.Name == "PrincessTower" and part.Position.Z * sensEnnemi > 0 then
+			debout[part.Position.X < 0 and -1 or 1] = true
+		end
+	end
+	if not Regles.posePermise(monCamp, hit.Position.X, hit.Position.Z, not debout[-1], not debout[1]) then
+		Sons.jouer("refus")
+		return string.format("clic hors zone z=%.1f", hit.Position.Z)
+	end
 	end
 	local card = Cards.byId[lastHand[selected]]
 	if not card or currentElixir < card.cost then
@@ -627,6 +935,9 @@ local function deployAtScreen(x, y)
 	end
 	PlayCard:FireServer(selected, hit.Position)
 	Sons.jouer("pose")
+	effacerApercu() -- la carte part : plus rien a viser
+	-- La pose se SENT : plus la carte est chere, plus l'arrivee cogne (l'unite tombe du ciel).
+	secouer(0.12 + card.cost * 0.05)
 	selected = nil
 	return string.format("pose %s x=%.1f z=%.1f", card.id, hit.Position.X, hit.Position.Z)
 end

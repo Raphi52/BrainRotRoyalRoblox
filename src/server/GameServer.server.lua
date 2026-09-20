@@ -11,6 +11,31 @@ local Economie = require(script.Parent:WaitForChild("Economie"))
 local Matchmaking = require(script.Parent:WaitForChild("Matchmaking"))
 -- Habillage visuel : particules, lumieres, anneau de pose. Aucun asset requis.
 local Effets = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Effets"))
+-- Regles de partie en fonctions PURES (double elixir, prolongation, zone de pose) :
+-- verifiables hors Studio par tools/test_regles.py.
+local Regles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Regles"))
+-- SORTS : regles pures (zone visee, cibles, degats, rage), verifiees par tools/test_sorts.py.
+local Sorts = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Sorts"))
+-- FOULE : les unites s'encombrent au lieu de se traverser (fonctions pures, tools/test_foule.py).
+local Foule = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Foule"))
+-- CIBLAGE : menace et persistance de la cible (fonctions pures, tools/test_cibles.py).
+local Cible = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cible"))
+-- DIFFICULTE DU ROBOT : profil deduit des trophees du joueur d'en face (tools/test_robot.py).
+local Robot = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Robot"))
+-- STATUTS : gel, ralentissement, poison, bouclier, soin (fonctions pures, tools/test_statuts.py).
+local Statuts = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Statuts"))
+-- BATIMENTS POSES : duree de vie, usure, collecteur, invocateur (tools/test_batiments.py).
+local Batiments = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Batiments"))
+-- PROJECTILES : un tir met du temps a arriver, et peut se perdre (tools/test_projectiles.py).
+local Projectiles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Projectiles"))
+-- CYCLE DES CARTES : paquet sans doublon, file de 8, cartes a venir (tools/test_cycle.py).
+local Cycle = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Cycle"))
+-- ARENES : paliers de trophees, leur nom et ce qu'ils debloquent (tools/test_arenes.py).
+local Arenes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Arenes"))
+-- Charge : elan des unites qui foncent (degats du premier coup, acceleration).
+local Charge = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Charge"))
+-- Descendance : ce qu'une grosse unite laisse derriere elle en mourant.
+local Descendance = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Descendance"))
 
 Players.CharacterAutoLoads = false
 
@@ -167,9 +192,26 @@ local function decorerArene()
 	end
 end
 
+-- RESTES : les corps en cours d'agonie vivent ICI, hors de l'arene. Le client joue le son de mort
+-- et secoue la camera sur la DISPARITION de la part dans l'arene (GameClient, ChildRemoved) : si le
+-- corps restait dans l'arene pendant son agonie, le son arriverait 0,45 s APRES l'explosion.
+local restes = nil
+local function dossierRestes()
+	if not restes or not restes.Parent then
+		restes = Instance.new("Folder")
+		restes.Name = "Restes"
+		restes.Parent = workspace
+	end
+	return restes
+end
+
 local function buildArena()
 	if arena then
 		arena:Destroy()
+	end
+	if restes then
+		restes:Destroy()
+		restes = nil
 	end
 	arena = Instance.new("Folder")
 	arena.Name = "Arena"
@@ -270,6 +312,8 @@ local function spawnTower(team, x, z, isKing)
 		maxHp = (isKing and 5200 or 3400) * (ReplicatedStorage:FindFirstChild("BRR_MELEE") and 20 or 1), dmg = isKing and 70 or 55,
 		range = isKing and 12 or 14, atkSpeed = 0.85, speed = 0,
 		targets = "any", active = not isKing,
+		-- une tour est un obstacle : les unites la contournent au lieu d'entrer dedans
+		rayonFoule = math.max(size.X, size.Z) / 2,
 	})
 end
 
@@ -277,7 +321,46 @@ end
 -- liste de morceaux (decalage, taille, couleur, forme) soudes au corps : museau, nageoire, ailes,
 -- batte, tasse, banane. C'est de la geometrie simple, sans fichier externe ni dependance a un
 -- modele du catalogue — donc rien a telecharger et rien qui puisse disparaitre.
+-- Temps de jeu (accelere avec SIM) : sert a dater les attaques et les coups pour l'animation.
+local horloge = 0
+
 local MODELES = ReplicatedStorage:FindFirstChild("Modeles")
+
+-- SILHOUETTE ET ANCRAGE AU SOL (2026-09-20) ----------------------------------------------------
+-- fix-ok: cause mesuree du rendu « unites en cubes » — aucune unite ne portait de contour ni
+-- d'ombre : posee sur l'arene claire, la geometrie se confondait avec le decor et on ne lisait
+-- ni la silhouette ni le camp. Le trait cartoon (Highlight, contour SEUL : FillTransparency = 1,
+-- donc aucune teinte ajoutee sur les couleurs de la carte) redonne la decoupe, et le disque
+-- d'ombre pose l'unite au sol au lieu de la laisser flotter.
+local function poserSilhouette(corps, card, teamColor)
+	local trait = Instance.new("Highlight")
+	trait.FillTransparency = 1
+	trait.OutlineColor = teamColor:Lerp(Color3.new(0, 0, 0), 0.65)
+	trait.OutlineTransparency = 0.05
+	trait.DepthMode = Enum.HighlightDepthMode.Occluded
+	trait.Adornee = corps
+	trait.Parent = corps
+
+	local rayon = math.max(card.size.X, card.size.Z) * (card.echelle or 1) * 1.15
+	local ombre = Instance.new("Part")
+	ombre.Name = "OmbreSol"
+	ombre.Shape = Enum.PartType.Cylinder
+	ombre.Anchored = true
+	ombre.CanCollide = false
+	ombre.CanQuery = false
+	ombre.CastShadow = false
+	ombre.Size = Vector3.new(0.12, rayon, rayon)
+	ombre.Color = Color3.fromRGB(0, 0, 0)
+	ombre.Material = Enum.Material.SmoothPlastic
+	ombre.Transparency = 0.62
+	local ecart = Vector3.new(0, -card.size.Y / 2 + 0.06, 0)
+	ombre.CFrame = corps.CFrame * CFrame.new(ecart) * CFrame.Angles(0, 0, math.rad(90))
+	ombre:SetAttribute("Ecart", ecart)
+	ombre:SetAttribute("RotX", 0); ombre:SetAttribute("RotY", 0); ombre:SetAttribute("RotZ", 90)
+	-- « Sol » : le disque ne suit PAS le rebond de l'animation, il reste par terre.
+	ombre:SetAttribute("Sol", true)
+	ombre.Parent = corps
+end
 
 local function habiller(corps, card, teamColor)
 	-- MODELE DE LA BOUTIQUE (ecrit dans la place par build.py, sans aucun script) : prioritaire
@@ -309,6 +392,7 @@ local function habiller(corps, card, teamColor)
 		modele.Parent = corps
 		-- sommet visuel (au-dessus du centre du corps) : sert a poser la marque de camp
 		corps:SetAttribute("HautVisuel", ecart.Y + apres.Y / 2)
+		poserSilhouette(corps, card, teamColor)
 		return
 	end
 	local morceaux = card.morceaux
@@ -325,6 +409,8 @@ local function habiller(corps, card, teamColor)
 		piece.Material = m.materiau and Enum.Material[m.materiau] or Enum.Material.SmoothPlastic
 		piece.TopSurface = Enum.SurfaceType.Smooth
 		piece.BottomSurface = Enum.SurfaceType.Smooth
+		-- l'ombre portee est ce qui donne du volume : sans elle, la piece reste un aplat de couleur.
+		piece.CastShadow = true
 		if m.forme == "boule" then
 			piece.Shape = Enum.PartType.Ball
 		elseif m.forme == "cylindre" then
@@ -341,6 +427,7 @@ local function habiller(corps, card, teamColor)
 		piece:SetAttribute("RotY", m.rot and m.rot.Y or 0)
 		piece:SetAttribute("RotZ", m.rot and m.rot.Z or 0)
 	end
+	poserSilhouette(corps, card, teamColor)
 end
 
 -- `pose` (facultatif) : decalage d'animation (rebond, dandinement, elan, recul) applique a tous
@@ -420,6 +507,16 @@ local function majNiveauxRobot()
 			end
 			teams[camp].niveaux = niv
 			teams[camp].niveauRobot = n
+			-- DIFFICULTE : jusqu'ici seule la FORCE de ses cartes suivait le joueur ; son
+			-- comportement, lui, etait le meme a 0 trophee et a 3000. Le profil regle son temps
+			-- de reflexion, son taux d'erreur et son agressivite.
+			-- BRR_ROBOT (copie de test) : force un palier, pour verifier en moteur un comportement
+			-- que les trophees d'un joueur neuf ne declencheraient jamais (ex. la contre-attaque).
+			local force = ReplicatedStorage:FindFirstChild("BRR_ROBOT")
+			teams[camp].profilRobot = (force and Robot.profilNomme(force.Value))
+				or Robot.profil(Economie.tropheesDe(occupant[3 - camp]))
+			print(string.format("[BOT] camp=%d difficulte=%s (trophees=%d)", camp,
+				teams[camp].profilRobot.nom, teams[camp].profilRobot.trophees))
 		end
 	end
 	majTours()
@@ -473,14 +570,41 @@ local function spawnUnit(card, team, pos, offset, enGroupe)
 	disque:SetAttribute("RotX", 0); disque:SetAttribute("RotY", 0); disque:SetAttribute("RotZ", 90)
 	disque.CFrame = part.CFrame * CFrame.new(0, basY, 0) * CFrame.Angles(0, 0, math.rad(90))
 	disque.Parent = part
-	return addEntity({
-		part = part, team = team, isBuilding = false, label = card.name,
+	local e = addEntity({
+		part = part, team = team, isBuilding = Batiments.est(card), label = card.name,
 		-- niveau de la carte pour le JOUEUR du camp (le robot reste niveau 1)
 		maxHp = math.floor(card.hp * multNiveau(team, card.id)), dmg = math.floor(card.dmg * multNiveau(team, card.id)),
 		range = card.range, atkSpeed = card.atkSpeed,
 		speed = card.speed, targets = card.targets, flying = card.flying, splash = card.splash,
 		active = true, lane = offset.X, enGroupe = enGroupe,
+		-- ANIMATION : demarche propre a la carte (vol, bond, pas lourd, tireur) et instant de la
+		-- pose, qui declenche l'arrivee du ciel dans `animer`.
+		style = Effets.style(card), poseT = horloge,
+		-- encombrement au sol : sert a la separation (Foule). Une unite ne traverse plus ses voisines.
+		rayonFoule = Foule.rayon(card),
+		-- CHARGE : nil pour la plupart des cartes. Celles qui en ont une accumulent leur elan dans
+		-- `chargeParcouru` pendant la marche, et le perdent des qu'on les arrete.
+		chargeProfil = Charge.profil(card.id), chargeParcouru = 0,
+		-- PROFONDEUR : 0 pour une unite posee par un joueur, 1 pour une unite nee d'une mort.
+		-- C'est la garde qui empeche une descendance en cascade (voir Descendance.autorisee).
+		profondeur = 0,
+		-- STATUTS : gel, ralentissement, poison vivent ici (module pur Statuts).
+		statuts = {}, carte = card,
+		-- BATIMENT POSE : il ne marche pas, et meurt tout seul au bout de sa duree de vie.
+		estBatimentPose = Batiments.est(card),
 	})
+	-- BOUCLIER : il encaisse AVANT les points de vie et ne se regenere pas.
+	if card.bouclier then
+		Statuts.poserBouclier(e, math.floor(card.bouclier * multNiveau(team, card.id)))
+	end
+	-- USURE d'un batiment pose : ses points de vie sont etales sur sa duree de vie, si bien
+	-- qu'il tient EXACTEMENT le temps annonce sur la carte meme si personne ne l'attaque.
+	if e.estBatimentPose then
+		e.usure = Batiments.usure(card, e.maxHp)
+		e.etatBatiment = { poseT = horloge }
+		e.speed = 0
+	end
+	return e
 end
 
 local function flatDist(a, b)
@@ -498,31 +622,54 @@ local function canHit(attacker, target)
 	return true
 end
 
+-- CHOIX DE CIBLE. Deux regles, toutes deux dans le module pur `Cible` :
+--  - MENACE : une TOUR vise d'abord ce qui la detruit (une unite anti-tours compte comme
+--    Cible.BONUS_ANTI_TOUR studs plus proche). Une unite, elle, frappe ce qu'elle a devant.
+--  - PERSISTANCE : on garde la cible en cours tant qu'aucune autre n'est franchement meilleure.
+--    Sans cela, deux ennemis a distance quasi egale faisaient papillonner la tour, qui etalait
+--    ses degats sans jamais achever personne.
 local function findTarget(e)
-	local best, bestD = nil, math.huge
+	local best, bestD, bestP = nil, math.huge, math.huge
 	local sight = e.isBuilding and e.range or math.max(e.range, 10)
+	local enCours, dEnCours = nil, nil
 	for _, o in ipairs(entities) do
 		if o.alive and o.team ~= e.team and canHit(e, o) then
 			local d = flatDist(e, o)
-			if d < bestD and (d <= sight or o.isBuilding) then
-				best, bestD = o, d
+			if d <= sight or o.isBuilding then
+				local pr = Cible.priorite(e, o, d)
+				if pr < bestP then
+					best, bestD, bestP = o, d, pr
+				end
+				if o == e.cibleEnCours then
+					enCours, dEnCours = o, d
+				end
 			end
 		end
 	end
+	-- la cible en cours est toujours valable : on ne la lache que pour nettement mieux
+	if enCours and Cible.garder(Cible.priorite(e, enCours, dEnCours), bestP) then
+		best, bestD = enCours, dEnCours
+	end
+	e.cibleEnCours = best
 	return best, bestD
 end
 
 -- COMPTEURS DE COMBAT (envoyes dans l'etat) : le son se joue chez le client, qui ne voit pas les
 -- attaques. Il compare ces compteurs a ceux du dernier etat recu et joue un son a chaque hausse.
 local combat = { tirs = 0, coups = 0, zones = 0 }
--- Temps de jeu (accelere avec SIM) : sert a dater les attaques et les coups pour l'animation.
-local horloge = 0
+-- CHIFFRES DE DEGATS : au plus 25 par seconde pour tout le monde. Sans plafond, une melee en
+-- produisait un par coup et par unite — illisible a l'ecran et couteux a repliquer.
+local chiffrePermis = Effets.limiteurChiffres(25)
 
 -- FIN DE PARTIE VUE DE CHAQUE CAMP.
 -- Avant, `result` contenait la PHRASE du camp 1 (« VICTOIRE ! » / « DEFAITE... ») et `sendState`
 -- l'envoyait telle quelle a tous les clients : a deux joueurs, le perdant lisait la victoire de
 -- l'autre. On garde donc le NUMERO du vainqueur, et chaque client recoit la phrase de SON camp.
 local vainqueur = nil -- 1, 2, ou 0 pour une egalite
+-- PROLONGATION : ouverte quand le temps reglementaire finit sur une egalite de couronnes. La
+-- premiere tour prise y termine la partie sur-le-champ ; sinon c'est la tour la plus entamee qui
+-- decide. Une partie ne se finit donc presque plus sur un match nul.
+local prolongation = false
 
 -- PRONOSTICS DES SPECTATEURS : player -> camp choisi (1 rouge, 2 bleu), vide a chaque partie.
 local pronostics = {}
@@ -549,6 +696,10 @@ local function endMatch(winner)
 	for camp, joueur in pairs(occupant) do
 		local issue = (vainqueur == 0) and "egalite" or (vainqueur == camp and "victoire" or "defaite")
 		task.spawn(Economie.recompenser, joueur, issue, occupant[3 - camp] ~= nil)
+		Economie.avancerQuete(joueur, "parties", 1)
+		if issue == "victoire" then
+			Economie.avancerQuete(joueur, "victoires", 1)
+		end
 	end
 	-- Spectateurs qui avaient vu juste : quelques pieces (une egalite ne paie personne).
 	for spectateur, camp in pairs(pronostics) do
@@ -579,6 +730,18 @@ local function texteFin(camp)
 	return "DEFAITE..."
 end
 
+-- Proportion de points de vie de la tour la plus ENTAMEE encore debout (0 a 1). Sert a trancher
+-- une prolongation ou personne n'a pris de tour : le camp le plus abime perd.
+local function pvBasTour(team)
+	local bas = 1
+	for _, tw in ipairs(teams[team].towers) do
+		if tw.alive then
+			bas = math.min(bas, tw.hp / tw.maxHp)
+		end
+	end
+	return bas
+end
+
 local function crowns(team)
 	-- couronnes gagnees par `team` = tours ennemies detruites
 	local n = 0
@@ -597,8 +760,30 @@ local function damage(target, amount)
 	if not target.alive then
 		return
 	end
+	-- GRACE A LA POSE : pendant la fraction de seconde ou l'unite tombe du ciel, elle ne peut
+	-- pas etre effacee. Sans elle, un sort lance PILE sur la zone de pose la tuait avant
+	-- qu'elle touche le sol, et le joueur ne voyait jamais ce qu'il venait de payer.
+	if Statuts.invulnerable(target, horloge) then
+		return
+	end
+	-- BOUCLIER : il absorbe le coup AVANT les points de vie (Statuts.encaisser).
+	local surPV, reste, casse = Statuts.encaisser(target, amount)
+	if casse then
+		Effets.impact(arena, target.part.Position, Color3.fromRGB(235, 225, 140))
+	end
+	amount = surPV
+	if amount <= 0 then
+		target.coupT = horloge
+		Effets.coup(target.part)
+		return -- tout est parti dans le bouclier
+	end
 	target.hp = target.hp - amount
 	target.coupT = horloge
+	-- COMBIEN a fait ce coup : le chiffre monte au-dessus de la cible, a la couleur du camp qui
+	-- encaisse. Plafonne (chiffrePermis) pour ne pas noyer l'ecran en melee.
+	if amount > 0 and chiffrePermis(os.clock()) then
+		Effets.chiffreDegats(arena, target.part.Position, amount, teamColor(target.team))
+	end
 	if target.hp > 0 then
 		Effets.coup(target.part)
 	end
@@ -608,22 +793,77 @@ local function damage(target, amount)
 	if target.hp <= 0 then
 		target.alive = false
 		local ou = target.part.Position
+		-- EXPLOSION A LA MORT : certaines cartes (Bomba Salsiccia) partent en emportant ce qui
+		-- les entoure. La regle est dans Statuts.explosionMort ; ici on l'applique et on la dessine.
+		local carteMorte = target.carte
+		if carteMorte and carteMorte.mort then
+			local objets, refs = {}, {}
+			for _, o in ipairs(entities) do
+				if o.alive then
+					table.insert(objets, { camp = o.team, x = o.part.Position.X, z = o.part.Position.Z })
+					table.insert(refs, o)
+				end
+			end
+			local touches, degatsMort = Statuts.explosionMort(carteMorte, objets, target.team, ou.X, ou.Z)
+			Effets.tourDetruite(arena, ou, carteMorte.color or teamColor(target.team))
+			for _, i in ipairs(touches) do
+				damage(refs[i], math.floor(degatsMort * multNiveau(target.team, carteMorte.id)))
+			end
+		end
+		-- DESCENDANCE : certaines grosses cartes laissent des petites unites derriere elles. Abattre
+		-- le colosse ne suffit donc pas : il reste du travail. La garde de profondeur fait qu'une
+		-- fille ne pond jamais a son tour.
+		if carteMorte and not target.isBuilding then
+			local ne = Descendance.aLaMort(carteMorte.id, target.profondeur, ou.X, ou.Z)
+			if ne then
+				local carteFille = Cards.byId[ne.fille]
+				if carteFille then
+					for _, pt in ipairs(ne.positions) do
+						local bebe = spawnUnit(carteFille, target.team,
+							Vector3.new(pt.x, ou.Y, pt.z), Vector3.new(), false)
+						if bebe then
+							bebe.profondeur = ne.profondeur
+						end
+					end
+					Effets.pose(arena, ou, teamColor(target.team))
+					print("[DESCENDANCE]", carteMorte.name, "laisse", ne.nombre, carteFille.name)
+				end
+			end
+		end
 		if target.isBuilding then
 			Effets.tourDetruite(arena, ou, teamColor(target.team))
+			target.part:Destroy()
 		else
 			Effets.mort(arena, ou, teamColor(target.team))
+			-- l'unite bascule et s'efface au lieu de disparaitre d'un coup ; elle est deja hors
+			-- du combat (alive = false), donc rien ne change cote regles. Elle sort de l'arene
+			-- TOUT DE SUITE : c'est cette sortie que le client entend comme une mort.
+			if target.etiquette then
+				target.etiquette:Destroy() -- sinon un nom et une barre vide flottent sur le cadavre
+			end
+			target.part.Parent = dossierRestes()
+			Effets.agonie(target.part)
 		end
-		target.part:Destroy()
 		if target.fill then
 			target.fill.Size = UDim2.new(0, 0, 1, 0)
 		end
-		if target.isBuilding then
+		-- UNE TOUR DU DEPART, pas un batiment POSE : un canon ou un collecteur detruit ne doit ni
+		-- compter dans la quete « tours », ni reveiller la tour du roi, ni — surtout — terminer la
+		-- partie en prolongation, ou la premiere TOUR prise fait la mort subite.
+		if target.isBuilding and not target.estBatimentPose then
+			local vainqueurTour = occupant[3 - target.team]
+			if vainqueurTour then
+				Economie.avancerQuete(vainqueurTour, "tours", 1)
+			end
 			for _, t in ipairs(teams[target.team].towers) do
 				if t.isKing then
 					t.active = true
 				end
 			end
 			if target.isKing then
+				endMatch(3 - target.team)
+			elseif prolongation then
+				-- MORT SUBITE : en prolongation, la premiere tour prise termine la partie.
 				endMatch(3 - target.team)
 			end
 		end
@@ -632,13 +872,50 @@ local function damage(target, amount)
 	end
 end
 
+-- TIRS EN VOL. Un tir n'est plus un dessin pose APRES coup : c'est un objet qui met du temps a
+-- arriver (module pur Projectiles). Deux consequences visibles : une unite rapide peut sortir de
+-- la trajectoire, et les degats tombent quand la boule touche — plus jamais avant.
+local tirs = {}
+
+-- STATUTS PORTES PAR UN COUP : ralentissement de la Regina, poison du Serpente. La regle de cumul
+-- (on prolonge, on n'empile pas) est dans Statuts.appliquer.
+local function appliquerEffets(carte, cible)
+	local eff = carte and carte.effet
+	if not eff or not cible or not cible.alive then
+		return
+	end
+	if eff.lent then
+		Statuts.appliquer(cible, "lent", eff.lent, horloge)
+		Effets.impact(arena, cible.part.Position, Color3.fromRGB(150, 220, 255))
+	end
+	if eff.poison then
+		Statuts.appliquer(cible, "poison", eff.poison, horloge)
+	end
+end
+
+-- IMPACT : ce qui se passe a l'ARRIVEE du coup (que le tir ait vole ou non).
+local function impact(e, target, centre, degats)
+	if e.splash then
+		for _, o in ipairs(entities) do
+			if o.alive and o.team ~= e.team then
+				local d = o.part.Position - centre
+				if Vector3.new(d.X, 0, d.Z).Magnitude <= e.splash then
+					damage(o, degats)
+					appliquerEffets(e.carte, o)
+				end
+			end
+		end
+	elseif target and target.alive then
+		damage(target, degats)
+		appliquerEffets(e.carte, target)
+	end
+	Effets.impact(arena, centre, teamColor(e.team))
+end
+
 local function attack(e, target)
 	e.attaqueT = horloge
-	-- Un tireur (portee >= 3) lance un projectile, en cloche pour les degats de zone ; la melee
-	-- n'en a pas : son elan vers la cible (Effets.posture) montre le coup.
-	if e.range >= 3 or e.isBuilding then
-		Effets.projectile(arena, e.part.Position, target.part.Position, teamColor(e.team), e.splash ~= nil)
-	end
+	-- ELAN : seul le premier coup d'une charge est majore.
+	local degats = e.splash and e.dmg or Charge.degats(e.dmg, e.chargeProfil, e.chargeLancee)
 	if e.splash then
 		combat.zones = combat.zones + 1
 	elseif e.range >= 3 or e.isBuilding then
@@ -646,20 +923,44 @@ local function attack(e, target)
 	else
 		combat.coups = combat.coups + 1
 	end
-	Effets.impact(arena, target.part.Position, teamColor(e.team))
-	if e.splash then
-		local center = target.part.Position
-		for _, o in ipairs(entities) do
-			if o.alive and o.team ~= e.team then
-				local d = o.part.Position - center
-				if Vector3.new(d.X, 0, d.Z).Magnitude <= e.splash then
-					damage(o, e.dmg)
+	-- Un TIREUR envoie un projectile : ses degats n'arrivent qu'avec lui. Une melee frappe au
+	-- contact, immediatement — y faire voler quelque chose ne ferait que retarder le corps a corps.
+	if e.range >= 3 or e.isBuilding then
+		local depart, arrivee = e.part.Position, target.part.Position
+		local duree = Projectiles.duree(e.carte, (arrivee - depart).Magnitude)
+		Effets.projectile(arena, depart, arrivee, teamColor(e.team), e.splash ~= nil)
+		table.insert(tirs, {
+			tireur = e, cible = target, visee = arrivee, depart = depart,
+			degats = degats, t0 = horloge, duree = duree,
+		})
+	else
+		impact(e, target, target.part.Position, degats)
+	end
+	if e.chargeProfil then
+		e.chargeParcouru, e.chargeLancee = 0, false
+	end
+end
+
+-- Fait avancer les tirs et applique ceux qui ARRIVENT. Un tir simple dont la cible s'est deplacee
+-- de plus de Projectiles.MARGE_ESQUIVE studs est PERDU : c'est l'esquive.
+local function majTirs()
+	local restants = {}
+	for _, p in ipairs(tirs) do
+		if Projectiles.arrive(horloge - p.t0, p.duree) then
+			local vivant = p.cible and p.cible.alive
+			if p.tireur.splash then
+				impact(p.tireur, nil, p.visee, p.degats)
+			elseif vivant then
+				local d = p.cible.part.Position - p.visee
+				if Vector3.new(d.X, 0, d.Z).Magnitude <= Projectiles.MARGE_ESQUIVE then
+					impact(p.tireur, p.cible, p.cible.part.Position, p.degats)
 				end
 			end
+		else
+			table.insert(restants, p)
 		end
-	else
-		damage(target, e.dmg)
 	end
+	tirs = restants
 end
 
 local function moveUnit(e, target, dt)
@@ -692,7 +993,34 @@ local function moveUnit(e, target, dt)
 	if dist < 0.01 then
 		return
 	end
-	local step = math.min(dist, e.speed * dt)
+	-- RAGE : un sort de rage accelere la marche pendant sa duree, puis tout revient net.
+	local rage = Sorts.multiplicateurRage(e.rageSort, e.rageT and (horloge - e.rageT) or nil)
+	-- GEL et RALENTISSEMENT : le gel met la vitesse a zero, le froid la divise (Statuts).
+	rage = Statuts.facteurVitesse(e, horloge, rage)
+	if rage <= 0 then
+		return -- gelee : elle ne marche plus du tout
+	end
+	-- FOULE : gênée par ses voisines, l'unite ralentit au lieu de les traverser. C'est ce qui
+	-- fait qu'un mur d'unites RETIENT vraiment une poussee adverse.
+	-- CHARGE : lancee, l'unite accelere. Le calcul se fait sur l'elan DEJA acquis, donc
+	-- l'acceleration arrive apres la course, jamais avant.
+	local vitesse = e.speed
+	if e.chargeProfil then
+		e.chargeLancee = Charge.lancee(e.chargeParcouru, e.chargeProfil)
+		vitesse = Charge.vitesse(vitesse, e.chargeProfil, e.chargeLancee)
+	end
+	local step = math.min(dist, vitesse * rage * (e.freinFoule or 1) * dt)
+	if e.chargeProfil then
+		-- L'elan compte le pas REELLEMENT parcouru : une unite freinee par la foule ou bloquee par
+		-- un mur ne charge pas, elle pietine.
+		local avant = e.chargeLancee
+		e.chargeParcouru = Charge.maj(e.chargeParcouru, step)
+		e.chargeLancee = Charge.lancee(e.chargeParcouru, e.chargeProfil)
+		if e.chargeLancee and not avant then
+			print("[CHARGE]", e.label, "lancee apres", math.floor(e.chargeParcouru), "studs, coup a",
+				Charge.degats(e.dmg, e.chargeProfil, true), "au lieu de", e.dmg)
+		end
+	end
 	local newPos = pos + delta.Unit * step
 	e.part.CFrame = CFrame.lookAt(newPos, newPos + delta.Unit)
 	e.bouge = true -- `animer` replace les morceaux, avec la pose de marche
@@ -704,19 +1032,26 @@ local function animer(e, dt)
 	local cible = e.bouge and 1 or 0
 	e.bouge = false
 	e.marche = (e.marche or 0) + (cible - (e.marche or 0)) * math.min(1, dt * 10)
-	e.phase = (e.phase or 0) + dt * (5 + e.speed * 1.5)
-	local haut, roulis, avant, tangage = Effets.posture(e.marche, e.phase,
-		horloge - (e.attaqueT or -99), horloge - (e.coupT or -99))
-	local repos = e.marche < 0.01 and avant == 0 and tangage == 0
+	e.phase = (e.phase or 0) + dt * (5 + e.speed * 1.5) * Effets.cadence(e.style)
+	local haut, roulis, avant, tangage, lacet = Effets.posture(e.marche, e.phase,
+		horloge - (e.attaqueT or -99), horloge - (e.coupT or -99), e.style)
+	-- ARRIVEE : pendant la demi-seconde qui suit la pose, l'unite tombe du ciel et rebondit.
+	local hautArrivee, tangageArrivee = Effets.apparition(horloge - (e.poseT or -99))
+	haut = haut + hautArrivee
+	tangage = tangage + tangageArrivee
+	local repos = e.marche < 0.01 and avant == 0 and tangage == 0 and haut == 0 and lacet == 0
 	if repos and e.auRepos and cible == 0 then
 		return -- rien ne bouge : inutile de replacer les morceaux
 	end
 	e.auRepos = repos
-	suivreCorps(e.part, CFrame.new(0, haut, -avant) * CFrame.Angles(tangage, 0, roulis))
+	suivreCorps(e.part, CFrame.new(0, haut, -avant) * CFrame.Angles(tangage, lacet, roulis))
 end
 
 -- `permises` : cartes debloquees du joueur (nil = toutes, pour le robot). Avec moins de 8 cartes,
 -- la file est completee en repetant le paquet : la main et la file ne sont jamais vides.
+-- `permises` : cartes debloquees du joueur (nil = toutes, pour le robot). Le paquet est monte par
+-- le module pur Cycle : SANS DOUBLON tant qu'il y a de quoi (jusqu'ici, un joueur a moins de 8
+-- cartes voyait la meme carte occuper deux cases de sa main, et son cycle n'avait plus de sens).
 local function newDeck(permises)
 	local ids = {}
 	if permises then
@@ -728,17 +1063,9 @@ local function newDeck(permises)
 			table.insert(ids, c.id)
 		end
 	end
-	local base = #ids
-	while #ids < 8 do
-		table.insert(ids, ids[(#ids % base) + 1])
-	end
-	for i = #ids, 2, -1 do
-		local j = math.random(1, i)
-		ids[i], ids[j] = ids[j], ids[i]
-	end
-	local hand = { ids[1], ids[2], ids[3], ids[4] }
-	local queue = { ids[5], ids[6], ids[7], ids[8] }
-	return hand, queue
+	return Cycle.distribuer(ids, function(n)
+		return math.random(1, n)
+	end)
 end
 
 -- Groupe (ex. 3 Chimpanzini) : triangle espace. Alignes a 2,5 studs, leurs etiquettes de 90 px
@@ -847,6 +1174,96 @@ end
 
 -- Etagement des etiquettes : fait COTE CLIENT (GameClient), qui connait la vraie position a l'ecran.
 
+-- LANCER UN SORT : aucune unite posee. On collecte les cibles (Sorts.cibles), on applique les
+-- degats (moins fort sur les tours) ou la rage, et on dessine l'explosion. Le cout en elixir et
+-- le cycle de cartes sont geres par tryPlay, comme pour une unite.
+-- LANCER UN SORT : aucune unite posee. On collecte les cibles (Sorts.cibles), on applique l'effet
+-- — degats, rage, GEL, POISON, SOIN, recul — puis on dessine. Le cout en elixir et le cycle de
+-- cartes restent geres par tryPlay, comme pour une unite.
+local function lancerSort(card, team, pos)
+	local sort = card.sort
+	-- objets a plat : le module pur ne connait ni Roblox ni nos entites
+	local objets, refs = {}, {}
+	for _, e in ipairs(entities) do
+		if e.alive then
+			table.insert(objets, {
+				camp = e.team, x = e.part.Position.X, z = e.part.Position.Z,
+				batiment = e.isBuilding, vole = e.flying == true, pv = e.hp,
+			})
+			table.insert(refs, e)
+		end
+	end
+	local touches = Sorts.cibles(objets, team, pos.X, pos.Z, sort.rayon, sort.effet)
+	-- TRONC QUI ROULE : il ne touche QUE le sol, un volant lui passe au-dessus.
+	if sort.solSeulement then
+		touches = Sorts.auSol(objets, touches)
+	end
+	-- FOUDRE : elle ne nettoie pas la zone, elle tombe sur les cibles les plus SOLIDES.
+	if sort.cibles then
+		touches = Sorts.plusSolides(objets, touches, sort.cibles)
+	end
+	if sort.effet == "rage" then
+		for _, i in ipairs(touches) do
+			refs[i].rageT = horloge -- `animer` et le combat lisent cet instant
+			refs[i].rageSort = sort
+		end
+	elseif sort.effet == "gel" then
+		-- GEL : tout s'arrete dans la zone — la marche comme les coups (Statuts.peutAgir).
+		for _, i in ipairs(touches) do
+			local cible = refs[i]
+			if not cible.isBuilding or not cible.isKing then
+				Statuts.appliquer(cible, "gel", { duree = sort.duree }, horloge)
+			end
+			if (sort.degats or 0) > 0 then
+				damage(cible, Sorts.degats(sort, cible.isBuilding))
+			end
+			Effets.impact(arena, cible.part.Position, sort.couleur or card.color)
+		end
+		combat.zones = combat.zones + 1
+	elseif sort.effet == "poison" then
+		-- FLAQUE : elle ronge dans la DUREE. C'est la reponse aux batiments et aux gros tas, la ou
+		-- un sort instantane ne fait qu'entamer.
+		for _, i in ipairs(touches) do
+			Statuts.appliquer(refs[i], "poison",
+				{ duree = sort.duree, degats = sort.parTic, tic = sort.tic }, horloge)
+		end
+		combat.zones = combat.zones + 1
+	elseif sort.effet == "soin" then
+		-- SOIN : jamais au-dela des PV maximaux, jamais sur un mort (Statuts.soigner).
+		for _, i in ipairs(touches) do
+			local cible = refs[i]
+			local gagne = Statuts.soigner(cible, math.floor((sort.soin or 0) * multNiveau(team, card.id)))
+			if gagne > 0 and cible.fill then
+				cible.fill.Size = UDim2.new(cible.hp / cible.maxHp, 0, 1, 0)
+			end
+			Effets.impact(arena, cible.part.Position, sort.couleur or card.color)
+		end
+	else
+		for _, i in ipairs(touches) do
+			local cible = refs[i]
+			damage(cible, Sorts.degats(sort, cible.isBuilding))
+			-- RECUL : le tronc repousse ce qu'il touche hors de son elan. Une tour ne bouge pas.
+			local dx, dz = Sorts.recul(sort, objets[i], pos.X, pos.Z)
+			if (dx ~= 0 or dz ~= 0) and cible.alive then
+				local q = cible.part.Position
+				local nx = math.clamp(q.X + dx, -HALF_W + 1, HALF_W - 1)
+				local nz = math.clamp(q.Z + dz, -HALF_L + 1, HALF_L - 1)
+				cible.part.CFrame = CFrame.new(nx, q.Y, nz) * (cible.part.CFrame - q)
+			end
+		end
+		combat.zones = combat.zones + 1
+	end
+	-- Rendu : anneau de pose a la couleur du sort, plus une gerbe au centre.
+	local couleur = sort.couleur or card.color
+	Effets.pose(arena, pos, couleur)
+	if sort.effet == "rage" or sort.effet == "soin" then
+		Effets.impact(arena, pos + Vector3.new(0, 2, 0), couleur)
+	else
+		Effets.tourDetruite(arena, pos + Vector3.new(0, 1, 0), couleur)
+	end
+	print("[BRR] sort", team, card.id, "cibles=" .. #touches)
+end
+
 local function tryPlay(team, handIndex, pos)
 	if result then
 		return false
@@ -857,22 +1274,63 @@ local function tryPlay(team, handIndex, pos)
 	if not card or t.elixir < card.cost then
 		return false
 	end
-	-- zone de pose : sa propre moitie, dans l'arene
+	-- ZONE DE POSE : sa propre moitie, PLUS la moitie adverse du cote d'une tour ennemie tombee
+	-- (Regles.posePermise). Casser une tour donne desormais un avantage de terrain, pas seulement
+	-- une couronne.
 	local z = pos.Z
 	local ok = math.abs(pos.X) <= HALF_W - 1 and math.abs(z) <= HALF_L - 1
-	if team == 1 then
-		ok = ok and z <= -3
+	local gauche, droite = false, false
+	for _, tw in ipairs(teams[3 - team].towers) do
+		if not tw.isKing and not tw.alive then
+			if tw.part.Position.X < 0 then
+				gauche = true
+			else
+				droite = true
+			end
+		end
+	end
+	if card.sort then
+		-- Un SORT vise toute l'arene (c'est sa raison d'etre) : seuls les bords le limitent.
+		ok = Sorts.cibleValide(pos.X, z, HALF_W, HALF_L)
+	elseif card.poseLibre then
+		-- MINEUR : il CREUSE. Sa carte dit explicitement qu'il sort n'importe ou, y compris
+		-- derriere les tours adverses : c'est toute sa raison d'etre, et le seul moyen d'aller
+		-- chercher un collecteur pose au fond du camp d'en face.
+		ok = ok
+	elseif Batiments.est(card) then
+		-- BATIMENT : dans sa moitie seulement, jamais sur la bande de la riviere (il boucherait
+		-- le pont), et jamais colle a un autre batiment (Batiments.posePermise).
+		local autres = {}
+		for _, o in ipairs(entities) do
+			if o.alive and o.estBatimentPose and o.team == team then
+				table.insert(autres, { x = o.part.Position.X, z = o.part.Position.Z })
+			end
+		end
+		ok = ok and Batiments.posePermise(team, pos.X, z, autres)
 	else
-		ok = ok and z >= 3
+		ok = ok and Regles.posePermise(team, pos.X, z, gauche, droite)
 	end
 	if not ok then
 		return false
 	end
 	t.elixir = t.elixir - card.cost
-	Effets.pose(arena, pos, teamColor(team))
-	spawnGroupe(card, team, pos)
-	t.hand[handIndex] = table.remove(t.queue, 1)
-	table.insert(t.queue, id)
+	if card.sort then
+		lancerSort(card, team, pos)
+	else
+		Effets.pose(arena, pos, teamColor(team))
+		spawnGroupe(card, team, pos)
+	end
+	-- CYCLE : la carte jouee repart en FOND de file, la tete de file prend sa place.
+	Cycle.jouer(t.hand, t.queue, handIndex)
+	-- QUETES DU JOUR : chaque carte posee (et chaque sort lance) fait avancer celles qui portent
+	-- dessus. Le joueur d'en face n'a pas de profil quand c'est le robot : occupant peut etre nil.
+	local joueur = occupant[team]
+	if joueur then
+		Economie.avancerQuete(joueur, "cartes", 1)
+		if card.sort then
+			Economie.avancerQuete(joueur, "sorts", 1)
+		end
+	end
 	return true
 end
 
@@ -881,16 +1339,23 @@ local function resetMatch()
 	groupes = {}
 	result = nil
 	vainqueur = nil
+	prolongation = false
 	pronostics = {}
 	timeLeft = MATCH_TIME
 	buildArena()
 	for team = 1, 2 do
 		local s = team == 1 and -1 or 1
-		local hand, queue = newDeck(occupant[team] and Economie.deck(occupant[team]))
+		-- Le robot ne sort plus les cartes PAYANTES qu'un joueur neuf n'a pas : son paquet est
+		-- celui du joueur d'en face, sinon les seules cartes offertes (Economie.cartesRobot).
+		local permises = occupant[team] and Economie.deck(occupant[team])
+			or Economie.cartesRobot(occupant[3 - team] and Economie.cartesPossedees(occupant[3 - team]))
+		local hand, queue = newDeck(permises)
 		local niveaux = occupant[team] and Economie.niveaux(occupant[team]) or nil
 		-- BRR_PARTIE (capture d'une partie normale) : 10 d'elixir au depart, sinon a 25 s de jeu
 		-- -- limite du client de test -- le terrain ne portait que 3 unites (mesure 2026-09-14).
-		teams[team] = { elixir = ReplicatedStorage:FindFirstChild("BRR_PARTIE") and MAX_ELIXIR or 5, hand = hand, queue = queue, towers = {}, botTimer = 2, niveaux = niveaux }
+		teams[team] = { elixir = ReplicatedStorage:FindFirstChild("BRR_PARTIE") and MAX_ELIXIR or 5, hand = hand, queue = queue, towers = {}, botTimer = 2, niveaux = niveaux,
+			-- robot REACTIF par defaut ; le journal [BOT] doit dire la verite sur qui joue.
+			botVersion = "nouveau" }
 		table.insert(teams[team].towers, spawnTower(team, -VOIE_X, s * 22, false))
 		table.insert(teams[team].towers, spawnTower(team, VOIE_X, s * 22, false))
 		table.insert(teams[team].towers, spawnTower(team, 0, s * 28, true))
@@ -898,7 +1363,17 @@ local function resetMatch()
 	majNiveauxRobot()
 end
 
-local function botThink(team, dt)
+-- Journal des decisions du robot : une ligne [BOT] par tour de reflexion, pour lire POURQUOI il
+-- joue (ou passe), pas seulement la carte jouee. Format stable, lisible par un script.
+local function journalBot(team, action, cardId, cout, elixir, raison, x, z)
+	print(string.format("[BOT] camp=%d version=%s action=%s carte=%s cout=%d elixir=%.1f raison=%s pos=%s",
+		team, tostring(teams[team].botVersion or "nouveau"), action, tostring(cardId), cout or 0,
+		elixir or 0, raison, x and string.format("%.0f,%.0f", x, z) or "-"))
+end
+
+-- Robot d'origine (joue au hasard). Garde tel quel : il sert d'adversaire de reference a la
+-- simulation « nouveau contre ancien » (--sim="v:8").
+local function botThinkAncien(team, dt)
 	local t = teams[team]
 	t.botTimer = t.botTimer - dt
 	if t.botTimer > 0 then
@@ -919,9 +1394,234 @@ local function botThink(team, dt)
 		if team == 1 then
 			z = -z
 		end
+		local elixirAvant = t.elixir
 		if tryPlay(team, idx, Vector3.new(x, 0, z)) then
 			print("[BRR] joue", team, card.id)
+			journalBot(team, "joue", card.id, card.cost, elixirAvant, "hasard", x, z)
+		else
+			journalBot(team, "refus", card.id, card.cost, elixirAvant, "pose_refusee", x, z)
 		end
+	else
+		journalBot(team, "passe", card and card.id or "?", card and card.cost or 0, t.elixir,
+			card and "trop_cher" or "carte_absente")
+	end
+end
+
+-- Robot reactif : (1) ne choisit que parmi les cartes JOUABLES ; (2) defend la voie ou l'ennemi
+-- entre dans sa moitie ; (3) sinon garde son elixir, et n'attaque (voie de la tour ennemie la plus
+-- faible) que lorsque l'elixir approche du plafond, pour ne pas le perdre. Aucune triche : il ne
+-- lit que l'etat du serveur, sans elixir en plus.
+local function botThinkNouveau(team, dt)
+	local t = teams[team]
+	t.botTimer = t.botTimer - dt
+	if t.botTimer > 0 then
+		return
+	end
+	local melee = ReplicatedStorage:FindFirstChild("BRR_MELEE") ~= nil
+	-- Le temps de reflexion vient du PROFIL : un robot de debutant reagit en ~3 s, un expert en
+	-- ~1 s. Sans profil (cas de test), on garde l'ancienne cadence.
+	local profil = t.profilRobot
+	t.botTimer = melee and 0.4 or (profil and Robot.delai(profil, math.random()) or (1.5 + math.random() * 2.5))
+	if melee then
+		t.elixir = MAX_ELIXIR
+	end
+	local s = team == 1 and -1 or 1 -- signe de z de sa propre moitie
+	-- (2) menace : PV des unites ennemies deja dans sa moitie, par voie (x < 0 -> voie 1)
+	local menace = { 0, 0 }
+	local menaceVolante = false
+	for _, e in ipairs(entities) do
+		if e.alive ~= false and not e.isBuilding and e.team ~= team and e.part and (e.hp or 0) > 0 then
+			local p = e.part.Position
+			if p.Z * s > 0 then
+				local voie = p.X < 0 and 1 or 2
+				menace[voie] += e.hp
+				if e.flying then
+					menaceVolante = true
+				end
+			end
+		end
+	end
+	local voieMenace = menace[1] >= menace[2] and 1 or 2
+	local enDanger = menace[voieMenace] > 0
+	-- MEMOIRE DE DEFENSE. Une attaque repoussee, c'est : une menace reelle dans sa moitie a la
+	-- reflexion precedente, plus rien maintenant, et des unites a lui encore debout. C'est LE
+	-- moment ou l'adversaire n'a plus d'elixir — le robot le punit au lieu de retourner en garde.
+	local menaceTotale = menace[1] + menace[2]
+	local survivants = 0
+	for _, e in ipairs(entities) do
+		if e.alive and not e.isBuilding and e.team == team and e.part and e.part.Position.Z * s > 0 then
+			survivants += 1
+		end
+	end
+	if (t.menacePrecedente or 0) > 0 and menaceTotale == 0 then
+		t.defenseT = horloge
+		t.menaceRepoussee = t.menacePrecedente
+		t.voieDefendue = t.voieMenacePrecedente or voieMenace
+		t.survivantsDefense = survivants
+	end
+	t.menacePrecedente = menaceTotale
+	if enDanger then
+		t.voieMenacePrecedente = voieMenace
+	end
+	-- (1) cartes jouables : en defense la plus chere (plus solide), en attaque aussi
+	-- ANTI-AERIEN : s'il a un volant sur le dos, il prend d'abord une carte capable de le toucher.
+	-- Avant, il posait une melee sous un bombardier et la regardait se faire raser sans riposte.
+	local meilleur, meilleurCout = nil, -1
+	local function choisir(filtre)
+		local idx, cout = nil, -1
+		for i = 1, 4 do
+			local c = Cards.byId[t.hand[i]]
+			if c and t.elixir >= c.cost and c.cost > cout and (not filtre or filtre(c)) then
+				idx, cout = i, c.cost
+			end
+		end
+		return idx, cout
+	end
+	-- ANTICIPATION : seul un robot au-dela du palier debutant pense a repondre aux volants.
+	if menaceVolante and (not profil or profil.anticipe) then
+		meilleur, meilleurCout = choisir(Regles.peutViserVolant)
+	end
+	if not meilleur then
+		meilleur, meilleurCout = choisir(nil)
+	end
+	-- ERREUR DE DEBUTANT : de temps en temps, il pose une carte au hasard parmi celles qu'il peut
+	-- payer, au lieu de la meilleure. C'est ce qui rend une premiere partie gagnable.
+	if meilleur and profil and Robot.seTrompe(profil, math.random()) then
+		local jouables = {}
+		for i = 1, 4 do
+			local c = Cards.byId[t.hand[i]]
+			if c and t.elixir >= c.cost then
+				table.insert(jouables, i)
+			end
+		end
+		if #jouables > 0 then
+			meilleur = jouables[math.random(1, #jouables)]
+			meilleurCout = Cards.byId[t.hand[meilleur]].cost
+		end
+	end
+	if not meilleur then
+		journalBot(team, "passe", "-", 0, t.elixir, enDanger and "menace_sans_carte" or "aucune_jouable")
+		return
+	end
+	local card = Cards.byId[t.hand[meilleur]]
+	local voie, z, raison
+	-- CONTRE-ATTAQUE : juste apres avoir repousse une vraie attaque, on relance dans la voie qu'on
+	-- vient de defendre, avec les survivants pour accompagner.
+	local contre = not enDanger and Robot.contreAttaque(profil, {
+		menaceRepoussee = t.menaceRepoussee or 0,
+		survivants = t.survivantsDefense or 0,
+		depuisDefense = t.defenseT and (horloge - t.defenseT) or nil,
+		elixir = t.elixir,
+		cout = card.cost,
+	})
+	if contre then
+		voie = t.voieDefendue or voieMenace
+		z = math.random(10, 16)
+		raison = "contre_attaque_voie" .. voie
+		t.defenseT = nil -- une seule relance par defense
+	elseif enDanger then
+		voie, z, raison = voieMenace, math.random(8, 12), "defense_voie" .. voieMenace
+	elseif melee or t.elixir >= (profil
+			and Robot.gardeAttaque(profil, Robot.enOuverture(MATCH_TIME - timeLeft, MATCH_TIME))
+			or (MAX_ELIXIR - 3)) then
+		-- fix-ok: seuil 9 jamais atteint (sim-v20.log : elixir en garde <= 7,9, 0 attaque) -> 7
+		-- (3) elixir haut : attaquer la voie de la tour ennemie (non-roi) la plus faible
+		local faible, pvMin = nil, math.huge
+		for _, tw in ipairs(teams[3 - team].towers) do
+			if tw.alive and not tw.isKing and tw.hp < pvMin then
+				faible, pvMin = tw, tw.hp
+			end
+		end
+		voie = faible and (faible.part.Position.X < 0 and 1 or 2) or math.random(1, 2)
+		z, raison = melee and math.random(4, 9) or math.random(14, 20), "attaque_tour_faible"
+	else
+		journalBot(team, "passe", card.id, card.cost, t.elixir, "garde_elixir")
+		return
+	end
+	local x = BRIDGES[voie] + math.random(-2, 2)
+	z = z * s
+	-- ERREUR DE PLACEMENT : la faute la plus courante d'un debutant n'est pas de choisir la
+	-- mauvaise carte, c'est de la poser au mauvais endroit. L'ecart depend du palier (0 pour un
+	-- expert). On garde la pose DANS sa moitie : sinon la carte serait refusee et le robot
+	-- perdrait son tour sans rien depenser, ce qui n'est pas une erreur, c'est une panne.
+	if profil then
+		local dx, dz = Robot.deviation(profil, math.random(), math.random())
+		x = math.clamp(x + dx, -HALF_W + 2, HALF_W - 2)
+		z = z + dz
+		if z * s < 4 then
+			z = 4 * s -- jamais au-dela de sa propre moitie
+		end
+	end
+	-- UN SORT NE SE POSE PAS COMME UNE UNITE : le robot le lache sur le CENTRE du paquet ennemi
+	-- le plus fourni (il vise donc la ou ca paie), sinon sur la tour qu'il attaque.
+	if card.sort then
+		local sx, sz, n = 0, 0, 0
+		for _, e in ipairs(entities) do
+			if e.alive and not e.isBuilding and e.team ~= team then
+				sx, sz, n = sx + e.part.Position.X, sz + e.part.Position.Z, n + 1
+			end
+		end
+		if n > 0 and card.sort.effet ~= "rage" then
+			x, z = sx / n, sz / n
+		elseif card.sort.effet == "rage" then
+			-- rage : sur SES propres unites les plus avancees
+			local rx, rz, m = 0, 0, 0
+			for _, e in ipairs(entities) do
+				if e.alive and not e.isBuilding and e.team == team then
+					rx, rz, m = rx + e.part.Position.X, rz + e.part.Position.Z, m + 1
+				end
+			end
+			if m == 0 then
+				journalBot(team, "passe", card.id, card.cost, t.elixir, "rage_sans_unite")
+				return
+			end
+			x, z = rx / m, rz / m
+		end
+	end
+	-- UN SORT DE SOIN se lache sur SES unites, comme la rage : sur le paquet ennemi il ne
+	-- ferait rien du tout, et le robot aurait depense sa carte pour rien.
+	if card.sort and card.sort.effet == "soin" then
+		local rx, rz, m = 0, 0, 0
+		for _, e in ipairs(entities) do
+			if e.alive and not e.isBuilding and e.team == team and (e.hp or 0) < (e.maxHp or 0) then
+				rx, rz, m = rx + e.part.Position.X, rz + e.part.Position.Z, m + 1
+			end
+		end
+		if m == 0 then
+			journalBot(team, "passe", card.id, card.cost, t.elixir, "soin_sans_blesse")
+			return
+		end
+		x, z = rx / m, rz / m
+	end
+	-- UN BATIMENT ne se pose ni comme une unite ni comme un sort : il tient une voie DERRIERE
+	-- la ligne, loin de la riviere. Pose a l'avant, il etait refuse et le robot perdait son
+	-- tour sans rien depenser — une panne, pas une erreur de debutant.
+	if Batiments.est(card) then
+		z = s * math.random(12, 18)
+		if card.batiment.type == "collecteur" then
+			-- le collecteur se met a l'abri, au fond, derriere la tour du roi
+			x, z = math.random(-6, 6), s * math.random(24, 27)
+		else
+			x = (voie == 1 or (x or 0) < 0) and -VOIE_X or VOIE_X
+		end
+	end
+	local elixirAvant = t.elixir
+	if tryPlay(team, meilleur, Vector3.new(x, 0, z)) then
+		print("[BRR] joue", team, card.id)
+		journalBot(team, "joue", card.id, card.cost, elixirAvant, raison, x, z)
+	else
+		journalBot(team, "refus", card.id, card.cost, elixirAvant, "pose_refusee", x, z)
+	end
+end
+
+-- Chaque camp porte sa version de robot (t.botVersion). Par defaut le REACTIF : mesure du
+-- 2026-09-18, deux series independantes de 20 parties (sim-v20.log, sim-v20-seuil7.log), il bat
+-- l'aleatoire 16 fois sur 20. L'aleatoire ne sert plus que de temoin dans la simulation « v:N ».
+local function botThink(team, dt)
+	if teams[team].botVersion ~= "ancien" then
+		botThinkNouveau(team, dt)
+	else
+		botThinkAncien(team, dt)
 	end
 end
 
@@ -1078,8 +1778,15 @@ local function ecotest(player)
 	cas("ouverture une fois pret", true, ok)
 	cas("pieces du coffre d'or entre 150 et 250", true, gain.pieces >= 150 and gain.pieces <= 250)
 	cas("solde credite du gain", avant + gain.pieces, p.pieces)
-	cas("coffre d'or : carte verrouillee debloquee", "Patapim", gain.carte)
-	cas("carte bien ajoutee au profil", true, p.cartes.Patapim)
+	-- Le coffre d'or debloque TOUJOURS une carte verrouillee, mais LAQUELLE depend du catalogue :
+	-- l'attendre par son nom (« Patapim ») cassait ce banc a chaque carte payante ajoutee, sans
+	-- qu'aucun defaut du jeu n'existe. On verifie donc la PROPRIETE : une carte payante, que le
+	-- joueur n'avait pas, et qu'il possede apres coup.
+	local carteTiree = gain.carte
+	cas("coffre d'or : une carte est debloquee", true, carteTiree ~= nil)
+	cas("coffre d'or : la carte tiree etait payante", true,
+		carteTiree ~= nil and Cards.byId[carteTiree] ~= nil and Cards.byId[carteTiree].prix ~= nil)
+	cas("carte bien ajoutee au profil", true, carteTiree ~= nil and p.cartes[carteTiree] == true)
 	cas("coffre retire apres ouverture", 3, #p.coffres)
 	ok = Economie.demarrerCoffre(player, 1)
 	cas("demarrage possible apres ouverture", true, ok)
@@ -1184,6 +1891,32 @@ local function ecotest(player)
 	else
 		print("[ECOTEST] joueur sans camp : cas robot en partie non joues")
 	end
+	-- CAS LIMITES DU ROBOT (version « nouveau », camp 2) : ils doivent rester verts quand
+	-- botThinkNouveau (robot reactif) change. Etat remis a neuf avant et apres.
+	resetMatch()
+	local tb = teams[2]
+	tb.botVersion = "nouveau"
+	tb.elixir, tb.botTimer = 0, 0
+	local mainAvant = table.concat(tb.hand, ",")
+	local okA, errA = pcall(botThink, 2, 0.1)
+	cas("robot sans carte jouable : pas d'erreur", "true", tostring(okA) .. (errA and tostring(errA) or ""))
+	cas("robot sans carte jouable : main inchangee", mainAvant, table.concat(tb.hand, ","))
+	cas("robot sans carte jouable : elixir reste 0", 0, tb.elixir)
+	resetMatch()
+	tb = teams[2]
+	tb.botVersion = "nouveau"
+	tb.elixir, tb.botTimer = MAX_ELIXIR, 0
+	local okB, errB = pcall(botThink, 2, 0.1)
+	cas("robot sans unite ennemie : pas d'erreur", "true", tostring(okB) .. (errB and tostring(errB) or ""))
+	local intactes = true
+	for _, tw in ipairs(teams[1].towers) do
+		intactes = intactes and tw.hp == tw.maxHp
+	end
+	cas("robot tours ennemies intactes : etat de depart", true, intactes)
+	tb.botTimer = 0
+	local okC, errC = pcall(botThink, 2, 0.1)
+	cas("robot tours ennemies intactes : pas d'erreur", "true", tostring(okC) .. (errC and tostring(errC) or ""))
+	resetMatch()
 	print("[ECOTEST] FIN")
 end
 
@@ -1220,6 +1953,13 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 	elseif action == "bonus" then
 		local ok, motif = Economie.bonusQuotidien(player)
 		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "quete" then
+		-- `arg` = identifiant de la quete reclamee ; le serveur verifie l'avancee lui-meme.
+		local ok, motif = Economie.reclamerQuete(player, arg)
+		return { ok = ok, motif = motif, vue = Economie.vue(player) }
+	elseif action == "coffreGratuit" then
+		local ok, motif = Economie.reclamerCoffreGratuit(player)
+		return { ok = ok, motif = type(motif) == "table" and nil or motif, vue = Economie.vue(player) }
 	elseif action == "demarrerCoffre" then
 		local ok, motif = Economie.demarrerCoffre(player, tonumber(arg))
 		return { ok = ok, motif = motif, vue = Economie.vue(player) }
@@ -1253,8 +1993,15 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 	elseif action == "robux" then
 		Economie.demanderRobux(player, tonumber(arg))
 		return { ok = true, vue = Economie.vue(player) }
+	elseif action == "profil" then
+		-- lecture seule : l'ecran de menu redemande la vue a chaque ouverture d'onglet.
+		return { ok = true, vue = Economie.vue(player) }
 	end
-	return { ok = true, vue = Economie.vue(player) }
+	-- ACTION INCONNUE = REFUS EXPLICITE. Avant, ce retour rendait ok = true : un bouton dont
+	-- l'action etait mal orthographiee se comportait comme un succes silencieux, et l'ecran se
+	-- rafraichissait comme si tout allait bien. Le client peut maintenant afficher le motif.
+	warn(string.format("[BOUTIQUE] %s : action inconnue « %s » refusee", player.Name, tostring(action)))
+	return { ok = false, motif = "action inconnue : " .. tostring(action), vue = Economie.vue(player) }
 end
 
 Players.PlayerAdded:Connect(arrivee)
@@ -1293,6 +2040,7 @@ local function sendState(player)
 			hand = {},
 			nextCard = nil,
 			timeLeft = timeLeft,
+			phase = Regles.phase(timeLeft, MATCH_TIME, prolongation),
 			spectateur = true,
 			chatVisible = true, -- le spectateur n'a pas de duel contre le bot : il peut parler
 			crownsCamp1 = crowns(1),
@@ -1310,7 +2058,14 @@ local function sendState(player)
 		elixir = t.elixir,
 		hand = t.hand,
 		nextCard = t.queue[1],
+		-- CYCLE VISIBLE : les DEUX prochaines cartes, pas seulement la suivante. Compter son cycle
+		-- pour savoir quand la carte cle revient est le coeur du genre ; avec une seule carte
+		-- annoncee, le joueur ne pouvait pas le faire.
+		suivantes = Cycle.suivantes(t.queue),
+		-- ARENE atteinte : le nom du palier de trophees, affiche pendant la partie.
+		arene = Arenes.nom(Economie.tropheesDe(occupant[monCamp])),
 		timeLeft = timeLeft,
+		phase = Regles.phase(timeLeft, MATCH_TIME, prolongation),
 		monCamp = monCamp,
 		spectateur = false,
 		crownsYou = crowns(monCamp),
@@ -1484,6 +2239,31 @@ if SIM then
 	task.spawn(function()
 		task.wait(4)
 		for bloc in string.gmatch(SIM.Value, "[^;]+") do
+			-- « v:N » : N parties nouveau robot contre ancien, meme niveau, camps alternes.
+			local nombreVs = tonumber(string.match(bloc, "^v:(%d+)$"))
+			if nombreVs then
+				local gagnes = 0
+				for k = 1, nombreVs do
+					resetMatch()
+					local campNouveau = (k % 2 == 1) and 1 or 2
+					for camp = 1, 2 do
+						teams[camp].botVersion = (camp == campNouveau) and "nouveau" or "ancien"
+					end
+					majTours()
+					while not result do
+						task.wait(0.2)
+					end
+					local gagnant = vainqueur == 0 and "egalite" or (vainqueur == campNouveau and "nouveau" or "ancien")
+					if gagnant == "nouveau" then
+						gagnes += 1
+					end
+					print(string.format("[SIM] vs partie=%d gagnant=%s couronnes_nouveau=%d couronnes_ancien=%d pv_tours_nouveau=%d pv_tours_ancien=%d temps_restant=%d",
+						k, gagnant, crowns(campNouveau), crowns(3 - campNouveau), pvTours(campNouveau), pvTours(3 - campNouveau), math.floor(timeLeft)))
+					task.wait(0.5)
+				end
+				print(string.format("[SIM] vs BILAN nouveau=%d/%d", gagnes, nombreVs))
+				continue
+			end
 			local na, nb, nombre = string.match(bloc, "(%d+)-(%d+):(%d+)")
 			na, nb, nombre = tonumber(na), tonumber(nb), tonumber(nombre)
 			for k = 1, nombre do
@@ -1512,6 +2292,88 @@ if SIM then
 	end)
 end
 
+-- STATUTS, image par image : le poison ronge, les soigneurs remettent des PV, et tout ce qui est
+-- expire disparait NET (aucune vitesse residuelle, aucun demi-gel). La regle vit dans Statuts ;
+-- ici on ne fait que parcourir les entites vivantes.
+local function majStatuts(dt)
+	for _, e in ipairs(entities) do
+		if e.alive then
+			local perte = Statuts.tic(e, "poison", horloge)
+			if perte > 0 then
+				damage(e, math.floor(perte + 0.5))
+			end
+			-- SOIGNEUR (Dottore Pizza) : il rend des PV a ses allies dans son rayon, jamais au-dela
+			-- de leur maximum et jamais a un mort (Statuts.soigner).
+			local soin = e.carte and e.carte.soin
+			if soin and e.alive then
+				e.soinT = (e.soinT or 0) - dt
+				if e.soinT <= 0 then
+					e.soinT = soin.periode or 1
+					local montant = math.floor(soin.montant * multNiveau(e.team, e.carte.id))
+					for _, a in ipairs(entities) do
+						if a.alive and a.team == e.team and a ~= e and not a.isBuilding then
+							local d = a.part.Position - e.part.Position
+							if Vector3.new(d.X, 0, d.Z).Magnitude <= soin.rayon then
+								local gagne = Statuts.soigner(a, montant)
+								if gagne > 0 then
+									if a.fill then
+										a.fill.Size = UDim2.new(a.hp / a.maxHp, 0, 1, 0)
+									end
+									Effets.impact(arena, a.part.Position, Color3.fromRGB(120, 235, 160))
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- BATIMENTS POSES : ils s'usent tout seuls, produisent (elixir ou unites) et disparaissent a la
+-- fin de leur duree de vie. Sans cette usure, poser un batiment serait gratuit : il resterait la
+-- toute la partie. Les regles sont dans Batiments ; ici on applique.
+local function majBatiments(dt)
+	for _, e in ipairs(entities) do
+		if e.alive and e.estBatimentPose and e.carte then
+			local b = e.carte.batiment
+			if e.usure and e.usure > 0 then
+				e.hp = e.hp - e.usure * dt
+				if e.fill then
+					e.fill.Size = UDim2.new(math.max(0, e.hp / e.maxHp), 0, 1, 0)
+				end
+				if e.hp <= 0 then
+					damage(e, 1) -- passe par la mort normale : effet, etiquette, nettoyage
+				end
+			end
+			if e.alive then
+				local cycles = Batiments.produire(e.etatBatiment, e.carte, horloge)
+				for _ = 1, cycles do
+					if b.type == "collecteur" then
+						-- COLLECTEUR : il rend de l'elixir, sans jamais depasser le plafond du jeu.
+						local eq = teams[e.team]
+						if eq then
+							eq.elixir = math.min(MAX_ELIXIR, eq.elixir + (b.gain or 0))
+							Effets.impact(arena, e.part.Position + Vector3.new(0, 3, 0), Color3.fromRGB(190, 110, 245))
+						end
+					elseif b.type == "invocateur" and b.invoque then
+						-- INVOCATEUR : il pond ses unites DEVANT lui, du cote ennemi.
+						local carteFille = Cards.byId[b.invoque]
+						if carteFille then
+							local s = e.team == 1 and 1 or -1
+							local ou = e.part.Position + Vector3.new(0, 0, s * 3)
+							for k = 1, (b.nombre or 1) do
+								spawnUnit(carteFille, e.team, ou, offsetGroupe(k, b.nombre or 1, e.team), false)
+							end
+							Effets.pose(arena, ou, teamColor(e.team))
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 RunService.Heartbeat:Connect(function(dt)
 	if SIM then
 		dt = dt * SIM_ACCEL
@@ -1521,7 +2383,8 @@ RunService.Heartbeat:Connect(function(dt)
 		horloge = horloge + dt
 		for team = 1, 2 do
 			local t = teams[team]
-			t.elixir = math.min(MAX_ELIXIR, t.elixir + ELIXIR_PER_SEC * dt)
+			t.elixir = math.min(MAX_ELIXIR,
+				t.elixir + ELIXIR_PER_SEC * dt * Regles.multiplicateurElixir(timeLeft, MATCH_TIME, prolongation))
 		end
 		-- Le bot ne remplace que le camp SANS joueur : a deux joueurs, plus aucun bot.
 		for camp = 1, 2 do
@@ -1532,6 +2395,9 @@ RunService.Heartbeat:Connect(function(dt)
 			end
 		end
 		majGroupes()
+		majTirs()
+		majStatuts(dt)
+		majBatiments(dt)
 
 		for _, e in ipairs(entities) do
 			if e.alive and e.active then
@@ -1539,8 +2405,12 @@ RunService.Heartbeat:Connect(function(dt)
 				local target, d = findTarget(e)
 				if target then
 					if d <= e.range + target.part.Size.X / 2 then
-						if e.cooldown <= 0 then
-							e.cooldown = e.atkSpeed
+						-- Arrivee au contact sans frapper encore : elle garde son elan pour LE coup
+						-- qui vient, c'est tout l'interet. En revanche elle ne l'accumule plus.
+						if e.cooldown <= 0 and Statuts.peutAgir(e, horloge) then
+							-- meme rage que pour la marche : elle frappe aussi plus vite
+							e.cooldown = e.atkSpeed / Sorts.multiplicateurRage(e.rageSort,
+								e.rageT and (horloge - e.rageT) or nil)
 							attack(e, target)
 						end
 					elseif not e.isBuilding then
@@ -1550,6 +2420,34 @@ RunService.Heartbeat:Connect(function(dt)
 				if e.alive and not e.isBuilding then
 					animer(e, dt)
 				end
+			end
+		end
+
+		-- SEPARATION DE FOULE. Une fois tout le monde deplace, on repousse ce qui se chevauche :
+		-- deux unites ne peuvent plus occuper le meme point, et une tour ne se traverse pas.
+		-- Calcul fait APRES les deplacements (et non pendant), pour que l'ordre des unites dans
+		-- la liste ne change pas le resultat.
+		local vus = {}
+		for i, e in ipairs(entities) do
+			if e.alive and e.part then
+				local p = e.part.Position
+				table.insert(vus, { id = i, x = p.X, z = p.Z, rayon = e.rayonFoule or 1,
+					flying = e.flying == true, batiment = e.isBuilding == true, ref = e })
+			end
+		end
+		for _, v in ipairs(vus) do
+			local e = v.ref
+			if not e.isBuilding then
+				local dx, dz = Foule.poussee(v, vus, dt)
+				if dx ~= 0 or dz ~= 0 then
+					local p = e.part.Position
+					-- la poussee reste DANS l'arene : sinon une melee ejectait une unite dehors
+					local nx = math.clamp(p.X + dx, -HALF_W + 1, HALF_W - 1)
+					local nz = math.clamp(p.Z + dz, -HALF_L + 1, HALF_L - 1)
+					e.part.CFrame = CFrame.new(nx, p.Y, nz) * (e.part.CFrame - p)
+					e.bouge = true
+				end
+				e.freinFoule = Foule.freinage(Foule.chevauchement(v, vus), v.rayon)
 			end
 		end
 
@@ -1563,13 +2461,16 @@ RunService.Heartbeat:Connect(function(dt)
 
 		if timeLeft <= 0 and not result then
 			timeLeft = 0
-			local c1, c2 = crowns(1), crowns(2)
-			if c1 > c2 then
-				endMatch(1)
-			elseif c2 > c1 then
-				endMatch(2)
+			local gagnant = Regles.finDuTemps(crowns(1), crowns(2))
+			if gagnant then
+				endMatch(gagnant)
+			elseif not prolongation then
+				-- Egalite de couronnes : on ne rend plus un match nul, on joue la prolongation.
+				prolongation = true
+				timeLeft = Regles.dureeProlongation(MATCH_TIME)
 			else
-				endMatch(0)
+				-- Prolongation ecoulee sans tour prise : la tour la plus entamee perd.
+				endMatch(Regles.finProlongation(pvBasTour(1), pvBasTour(2)))
 			end
 		end
 	end

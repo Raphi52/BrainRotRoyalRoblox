@@ -22,13 +22,51 @@ local function partTemporaire(parent, position, duree)
 	return p
 end
 
+-- COURBES DE RENDU. Un emetteur « plat » (couleur unie, taille fixe, opacite constante, aucune
+-- retombee) donne l'aspect confetti d'un prototype : les particules apparaissent et disparaissent
+-- d'un bloc. Les trois courbes ci-dessous donnent le vocabulaire visuel du jeu :
+--   taille   : la gerbe s'ouvre vite (25 % du temps de vie) puis se referme jusqu'a zero ;
+--   opacite  : fondu d'entree tres court, fondu de sortie long -> aucune coupure seche ;
+--   couleur  : coeur blanc chaud a la naissance, teinte du camp ensuite -> lecture d'impact.
+local function courbeTaille(taille)
+	return NumberSequence.new({
+		NumberSequenceKeypoint.new(0, taille * 0.35),
+		NumberSequenceKeypoint.new(0.25, taille),
+		NumberSequenceKeypoint.new(1, 0),
+	})
+end
+
+local function courbeOpacite()
+	return NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.08, 0),
+		NumberSequenceKeypoint.new(0.6, 0.2),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+end
+
+local function degrade(couleur)
+	return ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(0.22, couleur),
+		ColorSequenceKeypoint.new(1, couleur),
+	})
+end
+
 local function particules(hote, couleur, taille, vitesse, nombre)
 	local e = Instance.new("ParticleEmitter")
-	e.Color = ColorSequence.new(couleur)
-	e.Size = NumberSequence.new(taille)
-	e.Speed = NumberRange.new(vitesse)
+	e.Color = degrade(couleur)
+	e.Size = courbeTaille(taille)
+	e.Transparency = courbeOpacite()
+	e.Speed = NumberRange.new(vitesse * 0.45, vitesse)
 	e.Lifetime = NumberRange.new(0.25, 0.55)
 	e.SpreadAngle = Vector2.new(180, 180)
+	e.Rotation = NumberRange.new(-180, 180)
+	e.RotSpeed = NumberRange.new(-240, 240)
+	e.Acceleration = Vector3.new(0, -34, 0)  -- les debris RETOMBENT au lieu de flotter
+	e.Drag = 1.8
+	e.LightEmission = 0.75                    -- braise : la particule eclaire au lieu de subir
+	e.LightInfluence = 0
 	e.Rate = 0
 	e.Parent = hote
 	e:Emit(nombre)
@@ -46,6 +84,29 @@ local function eclat(hote, couleur, portee, duree)
 	return l
 end
 
+-- ONDE DE CHOC : anneau plat qui s'etale et s'efface. C'est ce qui donne du POIDS a un
+-- evenement : sans lui, la chute d'une tour n'est qu'un tas de particules.
+local function onde(parent, position, couleur, rayon, duree)
+	local _, TweenService = services()
+	local Debris = services()
+	local a = Instance.new("Part")
+	a.Anchored = true
+	a.CanCollide = false
+	a.CanQuery = false
+	a.CastShadow = false
+	a.Material = Enum.Material.Neon
+	a.Color = couleur
+	a.Shape = Enum.PartType.Cylinder
+	a.Size = Vector3.new(0.2, 3, 3)
+	a.CFrame = CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90))
+	a.Transparency = 0.15
+	a.Parent = parent
+	TweenService:Create(a, TweenInfo.new(duree, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{ Size = Vector3.new(0.2, rayon, rayon), Transparency = 1 }):Play()
+	Debris:AddItem(a, duree + 0.1)
+	return a
+end
+
 -- Mort d'une unite : gerbe de particules + lueur breve.
 function Effets.mort(parent, position, couleur)
 	local hote = partTemporaire(parent, position, 0.9)
@@ -59,6 +120,7 @@ function Effets.tourDetruite(parent, position, couleur)
 	local hote = partTemporaire(parent, position, 1.8)
 	particules(hote, couleur, 3.5, 22, 90)
 	eclat(hote, couleur, 34, 0.9)
+	onde(parent, position, couleur, 46, 0.7)
 	return hote
 end
 
@@ -96,6 +158,7 @@ function Effets.victoire(parent, position, couleur)
 	local hote = partTemporaire(parent, position + Vector3.new(0, 12, 0), 2.5)
 	particules(hote, couleur, 4, 28, 140)
 	eclat(hote, couleur, 45, 1.6)
+	onde(parent, position, couleur, 60, 1.1)
 	return hote
 end
 
@@ -126,24 +189,202 @@ function Effets.coup(corps, duree)
 	return #touchees
 end
 
+-- ===== CHIFFRES DE DEGATS FLOTTANTS =====
+-- Pourquoi : rien ne disait COMBIEN un coup enlevait. Le joueur voyait une barre de vie descendre
+-- et devait deviner si son Tralalero faisait mal ou rien du tout — c'est le retour le plus direct
+-- qui manquait en combat, et il rend chaque echange lisible.
+Effets.DEGATS_DUREE = 0.75
+Effets.DEGATS_MONTEE = 4.5 -- studs parcourus vers le haut
+Effets.DEGATS_TAILLE_MIN = 16
+Effets.DEGATS_TAILLE_MAX = 42
+-- Au-dela de ce montant, le chiffre ne grossit plus : sinon un sort a 340 ecrasait tout l'ecran.
+Effets.DEGATS_PLAFOND = 250
+
+-- TAILLE du chiffre selon le montant (calcul pur, donc verifiable au banc). Un petit coup reste
+-- discret, un gros coup se voit de loin, et tout est borne.
+function Effets.tailleChiffre(montant)
+	local m = math.max(0, montant or 0)
+	local k = math.min(m / Effets.DEGATS_PLAFOND, 1)
+	return math.floor(Effets.DEGATS_TAILLE_MIN + (Effets.DEGATS_TAILLE_MAX - Effets.DEGATS_TAILLE_MIN) * k + 0.5)
+end
+
+-- LIMITEUR : dans une melee, chaque coup de chaque unite produirait un chiffre — des centaines par
+-- seconde, illisibles et couteux. On en autorise `parSeconde` au plus, et on compte les refuses.
+function Effets.limiteurChiffres(parSeconde)
+	local fenetre, jetons = -1, 0
+	return function(maintenant)
+		local seconde = math.floor(maintenant)
+		if seconde ~= fenetre then
+			fenetre, jetons = seconde, 0
+		end
+		if jetons >= parSeconde then
+			return false
+		end
+		jetons = jetons + 1
+		return true
+	end
+end
+
+-- LE CHIFFRE LUI-MEME : une etiquette qui monte et s'efface au-dessus de la cible touchee.
+-- `couleur` = couleur du camp qui ENCAISSE (on lit tout de suite qui prend cher).
+function Effets.chiffreDegats(parent, position, montant, couleur)
+	local Debris, TweenService = services()
+	local m = math.floor((montant or 0) + 0.5)
+	if m <= 0 then
+		return nil -- un coup a 0 n'apprend rien : on n'affiche rien
+	end
+	local hote = Instance.new("Part")
+	hote.Anchored = true
+	hote.CanCollide = false
+	hote.CanQuery = false
+	hote.CastShadow = false
+	hote.Transparency = 1
+	hote.Size = Vector3.new(0.2, 0.2, 0.2)
+	-- decalage lateral aleatoire : deux coups simultanes ne se superposent pas exactement
+	hote.Position = position + Vector3.new((math.random() - 0.5) * 2.5, 2, (math.random() - 0.5) * 2.5)
+	hote.Parent = parent
+	local gui = Instance.new("BillboardGui")
+	gui.Size = UDim2.new(0, 120, 0, 40)
+	gui.AlwaysOnTop = true
+	gui.Parent = hote
+	local texte = Instance.new("TextLabel")
+	texte.BackgroundTransparency = 1
+	texte.Size = UDim2.new(1, 0, 1, 0)
+	texte.Font = Enum.Font.GothamBlack
+	texte.Text = "-" .. m
+	texte.TextSize = Effets.tailleChiffre(m)
+	texte.TextColor3 = couleur or Color3.new(1, 1, 1)
+	texte.TextStrokeTransparency = 0
+	texte.TextStrokeColor3 = Color3.new(0, 0, 0)
+	texte.Parent = gui
+	local info = TweenInfo.new(Effets.DEGATS_DUREE, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(hote, info, { Position = hote.Position + Vector3.new(0, Effets.DEGATS_MONTEE, 0) }):Play()
+	TweenService:Create(texte, info, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	Debris:AddItem(hote, Effets.DEGATS_DUREE + 0.1)
+	return hote
+end
+
 -- POSE D'ANIMATION (calcul pur, sans instance : le serveur en fait un CFrame applique aux morceaux).
 -- marche : 0 (arret) a 1 (pleine marche) ; phase : angle du pas ; depuisAttaque / depuisCoup :
 -- secondes ecoulees depuis le dernier coup porte / recu. Rend : hauteur, roulis, avancee, tangage.
 Effets.ATTAQUE_DUREE = 0.25
 Effets.COUP_DUREE = 0.15
-function Effets.posture(marche, phase, depuisAttaque, depuisCoup)
-	local haut = math.abs(math.sin(phase)) * 0.35 * marche -- rebond a chaque pas
-	local roulis = math.sin(phase) * math.rad(7) * marche  -- dandinement gauche/droite
-	local avant, tangage = 0, 0
+Effets.APPARITION_DUREE = 0.45
+Effets.AGONIE_DUREE = 0.45
+
+-- STYLE DE DEMARCHE par carte, deduit de ses chiffres de jeu (aucun champ a maintenir a la main,
+-- donc aucune carte ne peut etre oubliee) :
+--   vol    : flotte et s'incline, aucun appui au sol (flying) ;
+--   bond   : petits groupes rapides, saut ample plutot que pas ;
+--   lourd  : gros PV lents, pas pesant, roulis large, peu de rebond ;
+--   tir    : longue portee, reste stable et recule a chaque tir ;
+--   marche : demarche par defaut.
+function Effets.style(card)
+	if card.flying then return "vol" end
+	if (card.count or 1) >= 2 and (card.speed or 0) >= 12 then return "bond" end
+	if (card.hp or 0) >= 1800 or (card.speed or 99) <= 6 then return "lourd" end
+	if (card.range or 0) >= 9 then return "tir" end
+	return "marche"
+end
+
+-- coefficients par style : rebond, roulis, tangage de marche, recul de tir, lacet (balancement
+-- gauche-droite du corps), et vitesse de cycle.
+local STYLES = {
+	marche = { rebond = 0.35, roulis = 7, tangage = 0, recul = 0, lacet = 0, cadence = 1 },
+	vol =    { rebond = 0.55, roulis = 12, tangage = 4, recul = 0.15, lacet = 6, cadence = 0.55 },
+	bond =   { rebond = 0.85, roulis = 4, tangage = 10, recul = 0, lacet = 0, cadence = 1.15 },
+	lourd =  { rebond = 0.18, roulis = 12, tangage = 3, recul = 0, lacet = 4, cadence = 0.7 },
+	tir =    { rebond = 0.22, roulis = 5, tangage = 0, recul = 0.45, lacet = 0, cadence = 0.9 },
+}
+Effets.STYLES = STYLES
+function Effets.cadence(style)
+	return (STYLES[style] or STYLES.marche).cadence
+end
+
+-- `style` (facultatif, 5e argument) : nom rendu par Effets.style. Sans lui, la demarche par defaut
+-- est rendue a l'identique — les appels a quatre arguments restent valides.
+-- Rend : hauteur, roulis, avancee, tangage, lacet.
+function Effets.posture(marche, phase, depuisAttaque, depuisCoup, style)
+	local s = STYLES[style] or STYLES.marche
+	local vol = style == "vol"
+	-- en vol, le flottement ne s'arrete jamais : un volant a l'arret plane encore.
+	local appui = vol and math.max(marche, 0.65) or marche
+	local haut = (vol and math.sin(phase) or math.abs(math.sin(phase))) * s.rebond * appui
+	local roulis = math.sin(phase) * math.rad(s.roulis) * appui
+	local lacet = math.sin(phase * 0.5) * math.rad(s.lacet) * appui
+	local avant, tangage = 0, math.sin(phase) * math.rad(s.tangage) * marche
 	if depuisAttaque >= 0 and depuisAttaque < Effets.ATTAQUE_DUREE then
 		local k = math.sin(math.pi * depuisAttaque / Effets.ATTAQUE_DUREE)
 		avant = avant + 0.7 * k             -- elan vers la cible
 		tangage = tangage - math.rad(12) * k -- penche en avant
 	end
+	if depuisAttaque >= 0 and depuisAttaque < Effets.ATTAQUE_DUREE and s.recul > 0 then
+		-- un tireur ne se jette pas sur sa cible : il encaisse le depart du coup.
+		local k = math.sin(math.pi * depuisAttaque / Effets.ATTAQUE_DUREE)
+		avant = avant - (0.7 + s.recul) * k
+		tangage = tangage + math.rad(6) * k
+	end
 	if depuisCoup >= 0 and depuisCoup < Effets.COUP_DUREE then
 		avant = avant - 0.3 * (1 - depuisCoup / Effets.COUP_DUREE) -- recul de 0,3 stud
 	end
-	return haut, roulis, avant, tangage
+	return haut, roulis, avant, tangage, lacet
+end
+
+-- APPARITION : l'unite tombe du ciel et s'ecrase au sol avec un rebond amorti. `t` = secondes
+-- depuis la pose. Rend une hauteur a ajouter et un tangage ; a t >= APPARITION_DUREE, rend 0, 0
+-- (l'unite est exactement a sa place, aucune derive possible).
+function Effets.apparition(t)
+	if t < 0 or t >= Effets.APPARITION_DUREE then
+		return 0, 0
+	end
+	local u = t / Effets.APPARITION_DUREE
+	if u < 0.55 then
+		-- chute : 9 studs plus haut, acceleration quadratique
+		local k = u / 0.55
+		return 9 * (1 - k) * (1 - k), math.rad(-14) * (1 - k)
+	end
+	-- rebond amorti apres le contact
+	local k = (u - 0.55) / 0.45
+	return math.abs(math.sin(k * math.pi * 1.5)) * 0.9 * (1 - k), 0
+end
+
+-- AGONIE : une unite abattue ne disparait plus d'un coup — elle bascule, s'enfonce et s'efface
+-- pendant AGONIE_DUREE, puis elle est detruite. Le jeu l'a deja retiree du combat : purement
+-- visuel, aucun effet sur l'equilibrage.
+function Effets.agonie(corps, duree)
+	local Debris = services()
+	local RunService = game:GetService("RunService")
+	duree = duree or Effets.AGONIE_DUREE
+	local pieces = { corps }
+	for _, d in ipairs(corps:GetDescendants()) do
+		if d:IsA("BasePart") then
+			table.insert(pieces, d)
+		end
+	end
+	local depart, bases = os.clock(), {}
+	for _, p in ipairs(pieces) do
+		bases[p] = { cf = p.CFrame, t = p.Transparency }
+	end
+	Debris:AddItem(corps, duree + 0.1)
+	task.spawn(function()
+		while corps.Parent do
+			local u = math.min((os.clock() - depart) / duree, 1)
+			for _, p in ipairs(pieces) do
+				local b = bases[p]
+				if b then
+					p.CFrame = b.cf * CFrame.new(0, -2.2 * u * u, 0) * CFrame.Angles(0, 0, math.rad(80) * u)
+					p.Transparency = b.t + (1 - b.t) * u
+				end
+			end
+			if u >= 1 then
+				break
+			end
+			RunService.Heartbeat:Wait()
+		end
+		if corps.Parent then
+			corps:Destroy()
+		end
+	end)
 end
 
 -- PROJECTILE : position a l'instant u (0..1) entre a et b ; `hauteur` > 0 donne une parabole.
