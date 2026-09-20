@@ -47,194 +47,6 @@
    }
   ]
  },
- "Ballerina": {
-  "id": 88721856095677,
-  "taille": [
-   12,
-   10.895039558410645,
-   6
-  ],
-  "pieces": [
-   {
-    "enfants": [],
-    "Reflectance": 0,
-    "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
-    ],
-    "CFrame": [
-     0,
-     -2.4475173950195312,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    "Transparency": 1,
-    "ClassName": "Part",
-    "Material": "Plastic",
-    "Shape": "Block",
-    "Size": [
-     6,
-     6,
-     3
-    ]
-   },
-   {
-    "enfants": [],
-    "Reflectance": 0,
-    "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
-    ],
-    "CFrame": [
-     0,
-     -2.4475173950195312,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    "Transparency": 1,
-    "ClassName": "Part",
-    "Material": "Plastic",
-    "Shape": "Block",
-    "Size": [
-     12,
-     3,
-     6
-    ]
-   },
-   {
-    "enfants": [],
-    "Reflectance": 0,
-    "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
-    ],
-    "MeshId": "rbxassetid://112514228472682",
-    "Transparency": 0,
-    "CFrame": [
-     0.905242919921875,
-     1.5069427490234375,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    "ClassName": "MeshPart",
-    "MeshSize": [
-     1.8962054252624512,
-     2.6270527839660645,
-     1.2927138805389404
-    ],
-    "Material": "SmoothPlastic",
-    "TextureID": "",
-    "Size": [
-     5.6886162757873535,
-     7.881158351898193,
-     3.8781416416168213
-    ]
-   },
-   {
-    "enfants": [],
-    "Reflectance": 0,
-    "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
-    ],
-    "MeshId": "rbxassetid://115602253030514",
-    "Transparency": 0,
-    "CFrame": [
-     0,
-     4.050514221191406,
-     -0.18480682373046875,
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    "ClassName": "MeshPart",
-    "MeshSize": [
-     1.1145689487457275,
-     0.8347992897033691,
-     1.2377772331237793
-    ],
-    "Material": "Plastic",
-    "TextureID": "",
-    "Size": [
-     3.3437068462371826,
-     2.5043978691101074,
-     3.713331699371338
-    ]
-   },
-   {
-    "enfants": [],
-    "Reflectance": 0,
-    "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
-    ],
-    "MeshId": "rbxassetid://120054216992808",
-    "Transparency": 0,
-    "CFrame": [
-     0,
-     1.8168106079101562,
-     -0.06512451171875,
-     1,
-     0,
-     0,
-     0,
-     1,
-     0,
-     0,
-     0,
-     1
-    ],
-    "ClassName": "MeshPart",
-    "MeshSize": [
-     2.680346965789795,
-     0.26819467544555664,
-     0.24641714990139008
-    ],
-    "Material": "Plastic",
-    "TextureID": "",
-    "Size": [
-     8.041040420532227,
-     0.8045840263366699,
-     0.739251434803009
-    ]
-   }
-  ]
- },
  "Lirili": {
   "id": 77231614368559,
   "taille": [
@@ -437,11 +249,123 @@
   ]
  },
  "Tralalero": {
-  "id": 129482668414941,
+  "id": 111854862176457,
   "taille": [
-   5.551272869110107,
-   6.267302989959717,
-   10.311795234680176
+   11.63805103302002,
+   11.984649658203125,
+   24.59893035888672
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://95334903016944",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -0.000244140625,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     11.63805103302002,
+     11.985137939453125,
+     24.59893035888672
+    ],
+    "Material": "Plastic",
+    "TextureID": "rbxassetid://113482070800284",
+    "Size": [
+     11.63805103302002,
+     11.985137939453125,
+     24.59893035888672
+    ]
+   }
+  ]
+ },
+ "Cappuccino": {
+  "id": 130589530520250,
+  "taille": [
+   1,
+   1,
+   1
+  ],
+  "pieces": [
+   {
+    "enfants": [
+     {
+      "Offset": [
+       0,
+       0,
+       0
+      ],
+      "VertexColor": [
+       1,
+       1,
+       1
+      ],
+      "MeshType": "FileMesh",
+      "ClassName": "SpecialMesh",
+      "Scale": [
+       1,
+       1,
+       1
+      ],
+      "MeshId": "rbxassetid://73932588216045",
+      "TextureId": "rbxassetid://90083361464560"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1,
+     1,
+     1
+    ]
+   }
+  ]
+ },
+ "Frigo": {
+  "id": 106092335355790,
+  "taille": [
+   4,
+   10.408041000366211,
+   7.470797538757324
   ],
   "pieces": [
    {
@@ -453,9 +377,9 @@
      0.6470588445663452
     ],
     "CFrame": [
-     -0.055873870849609375,
-     0.969451904296875,
-     -0.12484264373779297,
+     0,
+     -0.6174421310424805,
+     0.6459503173828125,
      1,
      0,
      0,
@@ -471,33 +395,274 @@
     "Material": "Plastic",
     "Shape": "Block",
     "Size": [
-     1.399999976158142,
-     1.0499999523162842,
-     2.799999952316284
+     4,
+     6.057085990905762,
+     6.178894519805908
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     -1.3072013854980469,
+     1.5199127197265625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1.5,
+     1.1250782012939453,
+     1.2501564025878906
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     -4.041274070739746,
+     2.1959075927734375,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     2.3254926204681396,
+     2.3254926204681396,
+     1.1627463102340698
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://93748741591725",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     1.5100665092468262,
+     2.131256103515625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.5726022720336914,
+     4.800619125366211,
+     2.2292332649230957
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.991283893585205,
+     5.581902027130127,
+     2.5920326709747314
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.32156863808631897,
+     0.18039216101169586,
+     0.11764705926179886
+    ],
+    "MeshId": "rbxassetid://90150988414770",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -3.384916305541992,
+     1.8413543701171875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.519155502319336,
+     1.1720049381256104,
+     2.0937106609344482
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.929138660430908,
+     1.3627444505691528,
+     2.4344544410705566
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.5215686559677124,
+     0.2980392277240753,
+     0.1921568661928177
+    ],
+    "MeshId": "rbxassetid://104524362991859",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -1.9308395385742188,
+     2.3830184936523438,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.9792449474334717,
+     1.3291031122207642,
+     0.6221020221710205
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.3013596534729004,
+     1.5454097986221313,
+     0.7233468294143677
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://105651000274991",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -3.1164112091064453,
+     1.364227294921875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.307939052581787,
+     0.014183998107910156,
+     0.6222364902496338
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.6835477352142334,
+     0.016492391005158424,
+     0.7235031723976135
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.4117647111415863,
+     0.40784314274787903,
+     0.4156862795352936
+    ],
+    "MeshId": "rbxassetid://132948019468718",
+    "Transparency": 0,
+    "CFrame": [
+     -0.9305419921875,
+     1.5697455406188965,
+     0.6804656982421875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.2559901475906372,
+     4.223273754119873,
+     0.3201948404312134
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     0.29765158891677856,
+     4.910595893859863,
+     0.37230536341667175
     ]
    },
    {
     "enfants": [
      {
-      "Offset": [
-       0,
-       0,
-       0
-      ],
-      "VertexColor": [
-       1,
-       1,
-       1
-      ],
-      "MeshType": "Brick",
-      "ClassName": "SpecialMesh",
-      "Scale": [
-       1,
-       1,
-       1
-      ],
-      "MeshId": "",
-      "TextureId": ""
+      "MetalnessMap": "",
+      "NormalMap": "",
+      "RoughnessMap": "",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://71988707848454"
      }
     ],
     "Reflectance": 0,
@@ -506,10 +671,12 @@
      0.6352941393852234,
      0.6470588445663452
     ],
+    "MeshId": "rbxassetid://134206897551583",
+    "Transparency": 0,
     "CFrame": [
-     -0.055873870849609375,
-     0.969451904296875,
-     -0.12484264373779297,
+     0,
+     2.6522254943847656,
+     -1.1060638427734375,
      1,
      0,
      0,
@@ -520,14 +687,66 @@
      0,
      1
     ],
-    "Transparency": 1,
-    "ClassName": "Part",
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.0203137397766113,
+     4.389253616333008,
+     4.52263069152832
+    ],
     "Material": "Plastic",
-    "Shape": "Block",
+    "TextureID": "",
     "Size": [
-     1.399999976158142,
-     1.0499999523162842,
-     2.799999952316284
+     2.3491122722625732,
+     5.103588581085205,
+     5.25867223739624
+    ]
+   }
+  ]
+ },
+ "Vacca": {
+  "id": 76127116347738,
+  "taille": [
+   65.51858520507812,
+   48.323760986328125,
+   65.51860046386719
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.501960813999176,
+     0.7333333492279053,
+     0.8588235378265381
+    ],
+    "MeshId": "rbxassetid://8092779302",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     5.05133056640625,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     4.167262077331543,
+     1.7999999523162842,
+     4.167261123657227
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     65.51861572265625,
+     31.164236068725586,
+     65.51860046386719
     ]
    },
    {
@@ -543,27 +762,220 @@
        1,
        1
       ],
-      "MeshType": "Brick",
+      "MeshType": "FileMesh",
       "ClassName": "SpecialMesh",
       "Scale": [
-       1,
-       1,
-       1
+       9.3416166305542,
+       11.222378730773926,
+       9.996625900268555
       ],
-      "MeshId": "",
-      "TextureId": ""
+      "MeshId": "http://www.roblox.com/asset/?id=14459949",
+      "TextureId": "http://www.roblox.com/asset/?id=14673164"
      }
     ],
     "Reflectance": 0,
     "Color": [
-     0.364705890417099,
-     0.30588236451148987,
-     0.24705882370471954
+     0.9725490212440491,
+     0.9725490212440491,
+     0.9725490212440491
     ],
     "CFrame": [
-     -0.5458745956420898,
-     -0.6055450439453125,
-     0.9251570701599121,
+     -1.15087890625,
+     18.550691604614258,
+     15.93359375,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     18.683231353759766,
+     11.222378730773926,
+     14.994938850402832
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.10588235408067703,
+     0.16470588743686676,
+     0.2078431397676468
+    ],
+    "CFrame": [
+     -11.6806640625,
+     -12.668495178222656,
+     0.9395751953125,
+     0.7071068286895752,
+     0.7071068286895752,
+     0,
+     -0.7071068286895752,
+     0.7071068286895752,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1.3152413368225098,
+     13.373571395874023,
+     1.3783092498779297
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.10588235408067703,
+     0.16470588743686676,
+     0.2078431397676468
+    ],
+    "CFrame": [
+     15.11328125,
+     -9.644563674926758,
+     0.9395751953125,
+     0.7071068286895752,
+     -0.7071068286895752,
+     0,
+     0.7071068286895752,
+     0.7071068286895752,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1.3152413368225098,
+     13.373571395874023,
+     1.3783092498779297
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     0.800000011920929,
+     0.6000000238418579
+    ],
+    "MeshId": "rbxassetid://1151814157",
+    "Transparency": 0,
+    "CFrame": [
+     -13.9658203125,
+     -18.31867218017578,
+     8.67822265625,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     49.99998474121094,
+     58.0241584777832,
+     134.64141845703125
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     13.95572280883789,
+     11.686417579650879,
+     24.053844451904297
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     0.800000011920929,
+     0.6000000238418579
+    ],
+    "MeshId": "rbxassetid://1151814157",
+    "Transparency": 0,
+    "CFrame": [
+     19.5029296875,
+     -18.31867218017578,
+     8.67822265625,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     49.99998474121094,
+     58.0241584777832,
+     134.64141845703125
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     13.95572280883789,
+     11.686417579650879,
+     24.053844451904297
+    ]
+   }
+  ]
+ },
+ "Burbaloni": {
+  "id": 86371208126006,
+  "taille": [
+   0.999821662902832,
+   0.7771507501602173,
+   0.6742386817932129
+  ],
+  "pieces": [
+   {
+    "enfants": [
+     {
+      "MetalnessMap": "rbxassetid://88137749395495",
+      "NormalMap": "rbxassetid://76216132753523",
+      "RoughnessMap": "rbxassetid://117704077732424",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://107985916569639"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://134715680410781",
+    "Transparency": 0,
+    "CFrame": [
+     0.10532309114933014,
+     -0.009552627801895142,
+     0.13056275248527527,
      1,
      0,
      0,
@@ -574,50 +986,43 @@
      0,
      1
     ],
-    "Transparency": 1,
-    "ClassName": "Part",
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.741809070110321,
+     0.7540168762207031,
+     0.41329628229141235
+    ],
     "Material": "Plastic",
-    "Shape": "Block",
+    "TextureID": "",
     "Size": [
-     0.699999988079071,
-     2.0999999046325684,
-     0.699999988079071
+     0.741809070110321,
+     0.7540168762207031,
+     0.41329628229141235
     ]
    },
    {
     "enfants": [
      {
-      "Offset": [
-       0,
-       0,
-       0
-      ],
-      "VertexColor": [
-       1,
-       1,
-       1
-      ],
-      "MeshType": "Brick",
-      "ClassName": "SpecialMesh",
-      "Scale": [
-       1,
-       1,
-       1
-      ],
-      "MeshId": "",
-      "TextureId": ""
+      "MetalnessMap": "rbxassetid://88137749395495",
+      "NormalMap": "rbxassetid://76216132753523",
+      "RoughnessMap": "rbxassetid://117704077732424",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://107985916569639"
      }
     ],
     "Reflectance": 0,
     "Color": [
-     0.364705890417099,
-     0.30588236451148987,
-     0.24705882370471954
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
     ],
+    "MeshId": "rbxassetid://127520568639702",
+    "Transparency": 0,
     "CFrame": [
-     0.4341268539428711,
-     -0.6055450439453125,
-     -1.174842357635498,
+     -3.0517578125e-05,
+     -0.010468214750289917,
+     0.10053147375583649,
      1,
      0,
      0,
@@ -628,50 +1033,43 @@
      0,
      1
     ],
-    "Transparency": 1,
-    "ClassName": "Part",
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.999821662902832,
+     0.7558480501174927,
+     0.303364634513855
+    ],
     "Material": "Plastic",
-    "Shape": "Block",
+    "TextureID": "",
     "Size": [
-     0.699999988079071,
-     2.0999999046325684,
-     0.699999988079071
+     0.999821662902832,
+     0.7558480501174927,
+     0.303364634513855
     ]
    },
    {
     "enfants": [
      {
-      "Offset": [
-       0,
-       0,
-       0
-      ],
-      "VertexColor": [
-       1,
-       1,
-       1
-      ],
-      "MeshType": "Brick",
-      "ClassName": "SpecialMesh",
-      "Scale": [
-       1,
-       1,
-       1
-      ],
-      "MeshId": "",
-      "TextureId": ""
+      "MetalnessMap": "rbxassetid://88137749395495",
+      "NormalMap": "rbxassetid://76216132753523",
+      "RoughnessMap": "rbxassetid://117704077732424",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://107985916569639"
      }
     ],
     "Reflectance": 0,
     "Color": [
-     0.364705890417099,
-     0.30588236451148987,
-     0.24705882370471954
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
     ],
+    "MeshId": "rbxassetid://72476139851188",
+    "Transparency": 0,
     "CFrame": [
-     0.4341239929199219,
-     -0.6055450439453125,
-     0.9251570701599121,
+     -0.0034182071685791016,
+     0.017976045608520508,
+     -0.08460035920143127,
      1,
      0,
      0,
@@ -682,50 +1080,43 @@
      0,
      1
     ],
-    "Transparency": 1,
-    "ClassName": "Part",
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.9923748970031738,
+     0.6954193115234375,
+     0.45107948780059814
+    ],
     "Material": "Plastic",
-    "Shape": "Block",
+    "TextureID": "",
     "Size": [
-     0.699999988079071,
-     2.0999999046325684,
-     0.699999988079071
+     0.9923748970031738,
+     0.6954193115234375,
+     0.45107948780059814
     ]
    },
    {
     "enfants": [
      {
-      "Offset": [
-       0,
-       0,
-       0
-      ],
-      "VertexColor": [
-       1,
-       1,
-       1
-      ],
-      "MeshType": "Brick",
-      "ClassName": "SpecialMesh",
-      "Scale": [
-       1,
-       1,
-       1
-      ],
-      "MeshId": "",
-      "TextureId": ""
+      "MetalnessMap": "rbxassetid://88137749395495",
+      "NormalMap": "rbxassetid://76216132753523",
+      "RoughnessMap": "rbxassetid://117704077732424",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://107985916569639"
      }
     ],
     "Reflectance": 0,
     "Color": [
-     0.364705890417099,
-     0.30588236451148987,
-     0.24705882370471954
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
     ],
+    "MeshId": "rbxassetid://117315810952973",
+    "Transparency": 0,
     "CFrame": [
-     -0.545872688293457,
-     -0.6055450439453125,
-     -1.174842357635498,
+     0.07794702053070068,
+     -0.011444836854934692,
+     -0.15879344940185547,
      1,
      0,
      0,
@@ -736,14 +1127,265 @@
      0,
      1
     ],
-    "Transparency": 1,
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.839410662651062,
+     0.7538948059082031,
+     0.3569570779800415
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     0.839410662651062,
+     0.7538948059082031,
+     0.3569570779800415
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "MetalnessMap": "rbxassetid://88137749395495",
+      "NormalMap": "rbxassetid://76216132753523",
+      "RoughnessMap": "rbxassetid://117704077732424",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://107985916569639"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://75602019465355",
+    "Transparency": 0,
+    "CFrame": [
+     -0.004181191325187683,
+     1.4901161193847656e-08,
+     0.047274794429540634,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.9847449660301208,
+     0.7771507501602173,
+     0.3428570032119751
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     0.9847449660301208,
+     0.7771507501602173,
+     0.3428570032119751
+    ]
+   }
+  ]
+ },
+ "Giraffa": {
+  "id": 95693950156315,
+  "taille": [
+   23.680858612060547,
+   32.56155776977539,
+   11.319278717041016
+  ],
+  "pieces": [
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     -8.195262908935547,
+     -10.04238510131836,
+     3.5218963623046875,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "Transparency": 0,
     "ClassName": "Part",
     "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     12.476786613464355,
+     2,
+     2
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     -8.177921295166016,
+     -10.04238510131836,
+     -2.6787376403808594,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     12.476786613464355,
+     2,
+     2
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -8.32223129272461,
+     -13.656377792358398,
+     -2.433063507080078,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
     "Shape": "Block",
     "Size": [
-     0.699999988079071,
-     2.0999999046325684,
-     0.699999988079071
+     3.1675608158111572,
+     3.844075918197632,
+     2.5580215454101562
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -8.32223129272461,
+     -13.656377792358398,
+     3.3065338134765625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     3.1675608158111572,
+     3.844075918197632,
+     2.5580215454101562
     ]
    },
    {
@@ -751,38 +1393,1148 @@
      {
       "Transparency": 0,
       "Face": "Front",
-      "Texture": "",
+      "Texture": "rbxassetid://18459238353",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://18459238353",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Left",
+      "Texture": "rbxassetid://18459238353",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://18459238353",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://18459238353",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://18459238353",
       "ClassName": "Decal"
      }
     ],
     "Reflectance": 0,
     "Color": [
-     0.6392157077789307,
-     0.6352941393852234,
-     0.6470588445663452
+     0,
+     1,
+     0
     ],
     "CFrame": [
-     -0.055873870849609375,
-     0.31945037841796875,
-     -2.4748425483703613,
-     1,
-     0,
-     -2.8850549191879416e-22,
+     -6.180789947509766,
+     -1.8790292739868164,
      0,
      1,
      0,
-     -2.8850549191879416e-22,
+     0,
+     0,
+     1,
+     0,
+     0,
      0,
      1
     ],
-    "Transparency": 0.9900000095367432,
+    "Transparency": 0,
     "ClassName": "Part",
     "Material": "Plastic",
+    "Shape": "Ball",
+    "Size": [
+     11.319278717041016,
+     11.319278717041016,
+     11.319278717041016
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -7.333301544189453,
+     -14.458016395568848,
+     -2.4316673278808594,
+     1.4261219803302083e-05,
+     0,
+     -1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1.4261219803302083e-05
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Wedge",
+    "Size": [
+     2.5818369388580322,
+     3.645498275756836,
+     5.441182613372803
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -7.333301544189453,
+     -14.458016395568848,
+     3.3079299926757812,
+     1.4261219803302083e-05,
+     0,
+     -1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1.4261219803302083e-05
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Wedge",
+    "Size": [
+     2.5818369388580322,
+     3.645498275756836,
+     5.441182613372803
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     0,
+     0
+    ],
+    "CFrame": [
+     -3.0442733764648438,
+     1.3115692138671875,
+     -0.8151779174804688,
+     0.7071068286895752,
+     0,
+     0.7071068286895752,
+     0.7071068286895752,
+     0,
+     -0.7071068286895752,
+     0,
+     1,
+     0
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     2.097445011138916,
+     6.883055210113525,
+     8.013093948364258
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     -3.508983612060547,
+     -10.04238510131836,
+     -2.6787376403808594,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     12.476786613464355,
+     2,
+     2
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     -3.508983612060547,
+     -10.04238510131836,
+     2.1251754760742188,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     12.476786613464355,
+     2,
+     2
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -3.523181915283203,
+     -13.656377792358398,
+     2.3580703735351562,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
     "Shape": "Block",
     "Size": [
-     1.0499999523162842,
-     1.0499999523162842,
-     1.399999976158142
+     3.1675608158111572,
+     3.844075918197632,
+     2.5580215454101562
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -3.523181915283203,
+     -13.656377792358398,
+     -2.433063507080078,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     3.1675608158111572,
+     3.844075918197632,
+     2.5580215454101562
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -2.534252166748047,
+     -14.458016395568848,
+     -2.4316673278808594,
+     1.4261219803302083e-05,
+     0,
+     -1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1.4261219803302083e-05
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Wedge",
+    "Size": [
+     2.5818369388580322,
+     3.645498275756836,
+     5.441182613372803
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8352941274642944,
+     0.45098039507865906,
+     0.239215686917305
+    ],
+    "CFrame": [
+     -2.534252166748047,
+     -14.458016395568848,
+     2.359466552734375,
+     1.4261219803302083e-05,
+     0,
+     -1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1.4261219803302083e-05
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Wedge",
+    "Size": [
+     2.5818369388580322,
+     3.645498275756836,
+     5.441182613372803
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     2.473590850830078,
+     6.871574401855469,
+     -1.2590007781982422,
+     0.7071066498756409,
+     0,
+     0.7071066498756409,
+     0.7071066498756409,
+     0,
+     -0.7071066498756409,
+     0,
+     1.000000238418579,
+     0
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Cylinder",
+    "Size": [
+     13.015631675720215,
+     2,
+     2
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     6.507251739501953,
+     12.391271591186523,
+     -0.7204227447509766,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     3.555455446243286,
+     0.9939544200897217,
+     0.5311446189880371
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     6.507251739501953,
+     12.391271591186523,
+     -1.8528099060058594,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     3.555455446243286,
+     0.9939544200897217,
+     0.5311446189880371
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.03529411926865578,
+     0.5372549295425415,
+     0.8117647171020508
+    ],
+    "CFrame": [
+     8.544265747070312,
+     12.984615325927734,
+     -1.0730552673339844,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "ForceField",
+    "Shape": "Ball",
+    "Size": [
+     6.59232759475708,
+     6.59232759475708,
+     6.59232759475708
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.06666667014360428,
+     0.06666667014360428,
+     0.06666667014360428
+    ],
+    "CFrame": [
+     7.7449798583984375,
+     11.929290771484375,
+     -1.3915672302246094,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     1.0799999237060547,
+     1,
+     2.4741318225860596
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     7.7449798583984375,
+     13.1070556640625,
+     -0.7204227447509766,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     1.0799999237060547,
+     3.3555281162261963,
+     0.5311446189880371
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     7.7449798583984375,
+     13.125133514404297,
+     -1.9180221557617188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     1.0799999237060547,
+     3.3555281162261963,
+     0.5311446189880371
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "Transparency": 0,
+      "Face": "Front",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Left",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Back",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Right",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Bottom",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     },
+     {
+      "Transparency": 0,
+      "Face": "Top",
+      "Texture": "rbxassetid://162793370",
+      "ClassName": "Decal"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     0
+    ],
+    "CFrame": [
+     8.937923431396484,
+     11.905677795410156,
+     -1.3685760498046875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Asphalt",
+    "Shape": "Block",
+    "Size": [
+     4.291268348693848,
+     2.0334181785583496,
+     2
+    ]
+   }
+  ]
+ },
+ "Tigrullini": {
+  "id": 126121421330893,
+  "taille": [
+   4.4253435134887695,
+   11.00286865234375,
+   8.448525428771973
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.15294118225574493,
+     0.27450981736183167,
+     0.1764705926179886
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -4.583690166473389,
+     -1.6880640983581543,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "MeshSize": [
+     2.0199995040893555,
+     1.25,
+     1.0199966430664062
+    ],
+    "Material": "SmoothPlastic",
+    "ClassName": "UnionOperation",
+    "Size": [
+     2.9661478996276855,
+     1.8354880809783936,
+     1.497753381729126
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.15294118225574493,
+     0.27450981736183167,
+     0.1764705926179886
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -4.583690166473389,
+     1.2487168312072754,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "MeshSize": [
+     2.0199995040893555,
+     1.25,
+     1.0199966430664062
+    ],
+    "Material": "SmoothPlastic",
+    "ClassName": "UnionOperation",
+    "Size": [
+     2.9661478996276855,
+     1.8354880809783936,
+     1.497753381729126
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.15294118225574493,
+     0.27450981736183167,
+     0.1764705926179886
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     2.574713706970215,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "MeshSize": [
+     2.000001907348633,
+     2,
+     2.0000076293945312
+    ],
+    "Material": "SmoothPlastic",
+    "ClassName": "UnionOperation",
+    "Size": [
+     2.936783790588379,
+     2.9367809295654297,
+     2.9367921352386475
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.29411765933036804,
+     0.5921568870544434,
+     0.29411765933036804
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -1.2798118591308594,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     2.9367809295654297,
+     4.772269248962402,
+     1.4683904647827148
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -3.491321325302124,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -2.7849771976470947,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -2.146096706390381,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -1.5347199440002441,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -0.9379177093505859,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     -0.29718589782714844,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     0.3032112121582031,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6431372761726379,
+     0.7411764860153198,
+     0.27843138575553894
+    ],
+    "CFrame": [
+     0.16537857055664062,
+     0.9315576553344727,
+     -0.20499801635742188,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "SmoothPlastic",
+    "Shape": "Block",
+    "Size": [
+     3.0836198329925537,
+     0.3494769334793091,
+     1.6152294874191284
     ]
    },
    {
@@ -793,12 +2545,10 @@
      0.6352941393852234,
      0.6470588445663452
     ],
-    "MeshId": "rbxassetid://123724059950086",
-    "Transparency": 0,
     "CFrame": [
-     5.340576171875e-05,
-     0,
-     -3.147125244140625e-05,
+     -0.02476978302001953,
+     -0.3134751319885254,
+     -0.16910219192504883,
      1,
      0,
      0,
@@ -809,53 +2559,62 @@
      0,
      1
     ],
-    "ClassName": "MeshPart",
-    "MeshSize": [
-     103.8756103515625,
-     117.26727294921875,
-     192.94479370117188
-    ],
+    "Transparency": 1,
+    "ClassName": "Part",
     "Material": "Plastic",
-    "TextureID": "rbxassetid://106812992075443",
+    "Shape": "Block",
     "Size": [
-     5.551590919494629,
-     6.267302989959717,
-     10.311858177185059
+     4.375803470611572,
+     7.841204643249512,
+     8.110321044921875
     ]
-   }
-  ]
- },
- "Cappuccino": {
-  "id": 128293806084974,
-  "taille": [
-   1.7558581829071045,
-   1.1344655752182007,
-   0.9787187576293945
-  ],
-  "pieces": [
+   },
    {
-    "enfants": [
-     {
-      "MetalnessMap": "rbxassetid://101968079720915",
-      "NormalMap": "",
-      "RoughnessMap": "rbxassetid://104828854490183",
-      "ClassName": "SurfaceAppearance",
-      "AlphaMode": "Overlay",
-      "ColorMap": "rbxassetid://136630204328103"
-     }
-    ],
+    "enfants": [],
     "Reflectance": 0,
     "Color": [
      0.6392157077789307,
      0.6352941393852234,
      0.6470588445663452
     ],
-    "MeshId": "rbxassetid://111922011308347",
+    "CFrame": [
+     0.12608909606933594,
+     -5.063442230224609,
+     0.9893984794616699,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     4.173165798187256,
+     0.18795400857925415,
+     6.469728469848633
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://14032056405",
     "Transparency": 0,
     "CFrame": [
-     0,
-     -7.62939453125e-06,
-     0.07830810546875,
+     0.10551929473876953,
+     4.772256851196289,
+     -0.11728572845458984,
      1,
      0,
      0,
@@ -868,27 +2627,341 @@
     ],
     "ClassName": "MeshPart",
     "MeshSize": [
-     3.7666378021240234,
-     4.5379180908203125,
-     3.288296699523926
+     1.734050989151001,
+     0.9116699695587158,
+     1.7391020059585571
+    ],
+    "Material": "Plastic",
+    "TextureID": "rbxassetid://14032056678",
+    "Size": [
+     2.773876667022705,
+     1.458353877067566,
+     2.781956434249878
+    ]
+   }
+  ]
+ },
+ "Trippi": {
+  "id": 132790929973448,
+  "taille": [
+   6.582003593444824,
+   11.06257438659668,
+   9.121657371520996
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.43921568989753723,
+     0.658823549747467,
+     0.14509804546833038
+    ],
+    "MeshId": "rbxassetid://110516481045551",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.2841720581054688,
+     -0.029998779296875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.2282321453094482,
+     2.1361403465270996,
+     3.2400174140930176
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.4564642906188965,
+     4.272280693054199,
+     6.480034828186035
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.5254902243614197,
+     0.29019609093666077,
+     0.12156862765550613
+    ],
+    "MeshId": "rbxassetid://119658121045638",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.5904159545898438,
+     2.509246826171875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.8254389762878418,
+     0.2958502769470215,
+     0.67896568775177
     ],
     "Material": "Plastic",
     "TextureID": "",
     "Size": [
-     0.9416594505310059,
-     1.1344795227050781,
-     0.8220741748809814
+     1.650877833366394,
+     0.591700553894043,
+     1.3579312562942505
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8784313797950745,
+     0.572549045085907,
+     0.27450981736183167
+    ],
+    "MeshId": "rbxassetid://134831614936280",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.5904159545898438,
+     2.590545654296875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.0970408916473389,
+     0.2958502769470215,
+     0.760258674621582
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.1940817832946777,
+     0.591700553894043,
+     1.520517349243164
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.501960813999176,
+     0.7529411911964417,
+     0.16862745583057404
+    ],
+    "MeshId": "rbxassetid://137018020194939",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     2.907299041748047,
+     -0.922119140625,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.7959413528442383,
+     1.993100881576538,
+     2.199446678161621
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     1.591882586479187,
+     3.986201524734497,
+     4.398893356323242
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6000000238418579,
+     0.3019607961177826,
+     0.13725490868091583
+    ],
+    "MeshId": "rbxassetid://88060477794804",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -0.05291748046875,
+     1.654327392578125,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     3.291001796722412,
+     3.378701686859131,
+     1.3623188734054565
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     6.582003593444824,
+     6.757403373718262,
+     2.724637508392334
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8156862854957581,
+     0.6509804129600525,
+     0.3921568691730499
+    ],
+    "MeshId": "rbxassetid://113021251058194",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     1.1192398071289062,
+     2.1448516845703125,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.029301643371582,
+     2.029301643371582,
+     0.26469171047210693
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     4.058603286743164,
+     4.058603286743164,
+     0.5293833613395691
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.9411764740943909,
+     0.8156862854957581,
+     0.501960813999176
+    ],
+    "MeshId": "rbxassetid://113686226736653",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     1.1192398071289062,
+     2.6847991943359375,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.029301643371582,
+     2.029301643371582,
+     0.45171022415161133
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     4.058603286743164,
+     4.058603286743164,
+     0.9034203886985779
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.3490196168422699,
+     0.5686274766921997,
+     0.10196078568696976
+    ],
+    "MeshId": "rbxassetid://103113371264371",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.1344985961914062,
+     -0.0627593994140625,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.027184247970581,
+     2.332658052444458,
+     3.3196187019348145
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.054368495941162,
+     4.665315628051758,
+     6.639237403869629
     ]
    },
    {
     "enfants": [
      {
-      "MetalnessMap": "rbxassetid://97507844471978",
+      "MetalnessMap": "",
       "NormalMap": "",
-      "RoughnessMap": "rbxassetid://117572375731245",
+      "RoughnessMap": "",
       "ClassName": "SurfaceAppearance",
       "AlphaMode": "Overlay",
-      "ColorMap": "rbxassetid://100825893881927"
+      "ColorMap": "rbxassetid://103968342528927"
      }
     ],
     "Reflectance": 0,
@@ -897,12 +2970,398 @@
      0.6352941393852234,
      0.6470588445663452
     ],
-    "MeshId": "rbxassetid://129090024505620",
+    "MeshId": "rbxassetid://113600252356897",
     "Transparency": 0,
     "CFrame": [
      0,
-     -0.09552383422851562,
-     -0.196533203125,
+     2.8641510009765625,
+     -1.210693359375,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.1571608781814575,
+     2.6671347618103027,
+     3.350132465362549
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.314321756362915,
+     5.334269046783447,
+     6.7002644538879395
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.1411764770746231,
+     0.1411764770746231,
+     0.16470588743686676
+    ],
+    "MeshId": "rbxassetid://84795301379607",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -1.5988426208496094,
+     2.6080474853515625,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.8345727920532227,
+     1.5531063079833984,
+     0.5404489040374756
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     5.669145107269287,
+     3.1062123775482178,
+     1.0808978080749512
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.9607843160629272,
+     0.9607843160629272,
+     0.5372549295425415
+    ],
+    "MeshId": "rbxassetid://120800728687253",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.6024742126464844,
+     2.509246826171875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.1852326393127441,
+     0.7332789897918701,
+     0.860120415687561
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.370465040206909,
+     1.4665578603744507,
+     1.7202407121658325
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.8588235378265381,
+     0.8627451062202454,
+     0.7254902124404907
+    ],
+    "MeshId": "rbxassetid://130760821132219",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     3.5537948608398438,
+     2.89520263671875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.026749610900879,
+     0.2338705062866211,
+     0.424259752035141
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.0534989833831787,
+     0.4677410125732422,
+     0.8485194444656372
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     -3.3960189819335938,
+     1.6420135498046875,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     3.999999761581421,
+     3.999999761581421,
+     1.9999998807907104
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     -0.09246826171875,
+     1.3345375061035156,
+     0.5863189697265625,
+     1,
+     0,
+     0,
+     0,
+     0.42259299755096436,
+     -0.9063196182250977,
+     0,
+     0.9063196182250977,
+     0.42259299755096436
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     2.3722317218780518,
+     5.965000152587891,
+     2.0260000228881836
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     -0.0404052734375,
+     -1.1589775085449219,
+     0.4445343017578125,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     2.231687545776367,
+     8.293610572814941,
+     5.472014427185059
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     -0.23095703125,
+     -5.474788665771484,
+     2.3479156494140625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     4.444666385650635,
+     0.11299997568130493,
+     4.425833225250244
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     -0.03302001953125,
+     -0.4937286376953125,
+     1.59307861328125,
+     -1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     -1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1.3759533166885376,
+     1.3306818008422852,
+     1.2660073041915894
+    ]
+   }
+  ]
+ },
+ "Bananita": {
+  "id": 127564277646706,
+  "taille": [
+   6.987671852111816,
+   7.075527191162109,
+   5.553112983703613
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0.5942649841308594,
+     -0.7897567749023438,
+     -0.2028961181640625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     3.5999999046325684,
+     3.5999999046325684,
+     1.7999999523162842
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0.5946159362792969,
+     -0.789764404296875,
+     -0.2028045654296875,
+     0,
+     0,
+     1,
+     0,
+     1,
+     0,
+     -1,
+     0,
+     0
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     4,
+     1,
+     2
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://103876806472475",
+    "Transparency": 0,
+    "CFrame": [
+     0.510833740234375,
+     -1.8077316284179688,
+     0,
      1,
      0,
      0,
@@ -915,16 +3374,699 @@
     ],
     "ClassName": "MeshPart",
     "MeshSize": [
-     7.023777008056641,
-     2.7598748207092285,
-     2.342803478240967
+     3.3144450187683105,
+     1.922254204750061,
+     3.0850629806518555
     ],
     "Material": "Plastic",
     "TextureID": "",
     "Size": [
-     1.7559442520141602,
-     0.6899687051773071,
-     0.5857008695602417
+     5.966001033782959,
+     3.460057497024536,
+     5.553112983703613
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://114919395589310",
+    "Transparency": 0,
+    "CFrame": [
+     0.61712646484375,
+     -0.8103561401367188,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     3.196340560913086,
+     0.8140577077865601,
+     3.0850629806518555
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     5.75341272354126,
+     1.4653037786483765,
+     5.553112983703613
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://94247272689685",
+    "Transparency": 0,
+    "CFrame": [
+     -0.9491424560546875,
+     1.1459274291992188,
+     -0.2028961181640625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.827439308166504,
+     1.5494962930679321,
+     1.112541913986206
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     5.089390754699707,
+     2.789093255996704,
+     2.002575397491455
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://133927977940052",
+    "Transparency": 0,
+    "CFrame": [
+     -0.3236045837402344,
+     2.9191360473632812,
+     -0.2028961181640625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.1811890602111816,
+     0.6873677968978882,
+     0.1495233178138733
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.1261403560638428,
+     1.2372620105743408,
+     0.2691419720649719
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://77335765414527",
+    "Transparency": 0,
+    "CFrame": [
+     -2.920818328857422,
+     0.7755661010742188,
+     -0.2028961181640625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.5113909244537354,
+     0.31963592767715454,
+     0.3631565272808075
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     0.9205036163330078,
+     0.5753446817398071,
+     0.653681755065918
+    ]
+   }
+  ]
+ },
+ "Tralaleritos": {
+  "id": 122979917244614,
+  "taille": [
+   1,
+   1,
+   1
+  ],
+  "pieces": [
+   {
+    "enfants": [
+     {
+      "Offset": [
+       0,
+       0,
+       0
+      ],
+      "VertexColor": [
+       1,
+       1,
+       1
+      ],
+      "MeshType": "FileMesh",
+      "ClassName": "SpecialMesh",
+      "Scale": [
+       1,
+       1,
+       1
+      ],
+      "MeshId": "rbxassetid://124315505486320",
+      "TextureId": "rbxassetid://103777052038499"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 0,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1,
+     1,
+     1
+    ]
+   }
+  ]
+ },
+ "Bobritto": {
+  "id": 80678096746724,
+  "taille": [
+   5.599999904632568,
+   8.17296028137207,
+   4.330451965332031
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.03921568766236305,
+     0.03921568766236305,
+     0.11372549086809158
+    ],
+    "MeshId": "rbxassetid://110287311862294",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     0.6241378784179688,
+     -0.5884666442871094,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     0.3964320421218872,
+     2.1483893394470215,
+     0.141676127910614
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     0.3964320421218872,
+     2.1483893394470215,
+     0.141676127910614
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     1,
+     1,
+     1
+    ],
+    "MeshId": "rbxassetid://93206701997085",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     1.18658447265625,
+     -0.23056793212890625,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.2645034790039062,
+     0.9064998626708984,
+     0.6309031248092651
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     1.2645034790039062,
+     0.9064998626708984,
+     0.6309031248092651
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.05098039284348488,
+     0.05882352963089943,
+     0.12156862765550613
+    ],
+    "MeshId": "rbxassetid://78605127088901",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -0.4174041748046875,
+     -0.10365676879882812,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     4.017828464508057,
+     4.711394309997559,
+     1.8051578998565674
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     4.017828464508057,
+     4.711394309997559,
+     1.8051578998565674
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.9372549057006836,
+     0.9803921580314636,
+     1
+    ],
+    "MeshId": "rbxassetid://117514939288216",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -0.4174041748046875,
+     -0.103790283203125,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     4.017828464508057,
+     4.711394309997559,
+     1.805424451828003
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     4.017828464508057,
+     4.711394309997559,
+     1.805424451828003
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.7019608020782471,
+     0.40392157435417175,
+     0.21176470816135406
+    ],
+    "MeshId": "rbxassetid://81182227414950",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -0.6297454833984375,
+     -0.0264892578125,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     4.115499496459961,
+     0.6598749160766602,
+     0.8751062154769897
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     4.115499496459961,
+     0.6598749160766602,
+     0.8751062154769897
+    ]
+   },
+   {
+    "enfants": [
+     {
+      "MetalnessMap": "",
+      "NormalMap": "",
+      "RoughnessMap": "",
+      "ClassName": "SurfaceAppearance",
+      "AlphaMode": "Overlay",
+      "ColorMap": "rbxassetid://112413158494393"
+     }
+    ],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://126682440386778",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     2.8581390380859375,
+     1.9073486328125e-05,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.608698606491089,
+     2.4566850662231445,
+     2.5764102935791016
+    ],
+    "Material": "SmoothPlastic",
+    "TextureID": "",
+    "Size": [
+     2.608698606491089,
+     2.4566850662231445,
+     2.5764102935791016
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.41960784792900085,
+     0.20392157137393951,
+     0.07450980693101883
+    ],
+    "MeshId": "rbxassetid://131756873546452",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     -2.7907180786132812,
+     -0.33440399169921875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.035991907119751,
+     0.24428297579288483,
+     1.7418434619903564
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.035991907119751,
+     0.24428297579288483,
+     1.7418434619903564
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.16078431904315948,
+     0.0784313753247261,
+     0.027450980618596077
+    ],
+    "MeshId": "rbxassetid://130660487963976",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     0.9359512329101562,
+     -0.33440399169921875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     2.035991907119751,
+     0.16969603300094604,
+     1.7418434619903564
+    ],
+    "Material": "Plastic",
+    "TextureID": "",
+    "Size": [
+     2.035991907119751,
+     0.16969603300094604,
+     1.7418434619903564
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     -3.0864791870117188,
+     0.09009933471679688,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     2,
+     2,
+     1
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0,
+     -1.1334991455078125,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     5.599999904632568,
+     5.859919548034668,
+     4.330451965332031
+    ]
+   },
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "CFrame": [
+     0.00384521484375,
+     -0.8169097900390625,
+     0.144744873046875,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "Transparency": 1,
+    "ClassName": "Part",
+    "Material": "Plastic",
+    "Shape": "Block",
+    "Size": [
+     1.169560432434082,
+     1.1310795545578003,
+     1.076106309890747
+    ]
+   }
+  ]
+ },
+ "Boneca": {
+  "id": 125906339004688,
+  "taille": [
+   1.9041540622711182,
+   2.00260591506958,
+   0.9702540040016174
+  ],
+  "pieces": [
+   {
+    "enfants": [],
+    "Reflectance": 0,
+    "Color": [
+     0.6392157077789307,
+     0.6352941393852234,
+     0.6470588445663452
+    ],
+    "MeshId": "rbxassetid://114358109355325",
+    "Transparency": 0,
+    "CFrame": [
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     1
+    ],
+    "ClassName": "MeshPart",
+    "MeshSize": [
+     1.9041540622711182,
+     2.00260591506958,
+     0.9702540040016174
+    ],
+    "Material": "Plastic",
+    "TextureID": "rbxassetid://77781476220025",
+    "Size": [
+     1.9041540622711182,
+     2.00260591506958,
+     0.9702540040016174
     ]
    }
   ]
