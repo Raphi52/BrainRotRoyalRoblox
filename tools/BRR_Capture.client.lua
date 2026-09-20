@@ -6,7 +6,21 @@
 -- l'utilisateur : tout le reste passe par le bureau reel. Recuperee par tools/studio-capture-moteur.ps1.
 local rs = game:GetService("ReplicatedStorage")
 if not rs:FindFirstChild("BRR_AUTOTEST") then return end
-task.delay(25, function()
+-- Test multijoueur : chaque client envoie « GG » juste avant la capture, pour que la bulle d'emote
+-- soit sur l'image (le serveur refuse celle du spectateur : c'est aussi ce qu'on verifie).
+task.delay(22, function()
+	local e = rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("Emote")
+	if e then
+		e:FireServer("gg")
+	end
+end)
+-- DELAI AVANT LA PHOTO. 25 s pour une PARTIE : il faut laisser la bataille s'installer et
+-- l'emote « GG » monter a 22 s. Mais pour une capture de MENU (BRR_ONGLET present), il n'y a
+-- rien a attendre : le hub est pret ~2 s apres Play. Et attendre coute la capture — mesure du
+-- 2026-09-20 : trois sessions d'affilee arretees a 23 s par le nettoyage d'un run voisin, donc
+-- toujours AVANT la 25e seconde. A 12 s, la photo est prise avant la coupure.
+local attente = rs:FindFirstChild("BRR_ONGLET") and 12 or 25
+task.delay(attente, function()
 	local ok, err = pcall(function()
 		local cs = game:GetService("CaptureService")
 		print("[BRRCAP] service trouve, methodes = " .. tostring(typeof(cs.CaptureScreenshot)))

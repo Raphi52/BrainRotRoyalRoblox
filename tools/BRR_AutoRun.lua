@@ -4,6 +4,16 @@ local RunService = game:GetService("RunService")
 local rs = game:GetService("ReplicatedStorage")
 if RunService:IsEdit() and rs:FindFirstChild("BRR_AUTOTEST") then
 	task.delay(5, function()
+		-- GARDE ANTI-DOUBLE LANCEMENT : depuis que chaque run depose SA copie du plugin (nom unique
+		-- par bureau cache), plusieurs copies peuvent etre chargees par le meme Studio. Sans ce
+		-- marqueur, chacune appellerait Play et la session serait relancee en cours de capture.
+		-- Le test et la pose du marqueur ne rendent jamais la main entre eux : pas de course.
+		if rs:FindFirstChild("BRR_AUTORUN_LANCE") then
+			return
+		end
+		local marqueur = Instance.new("BoolValue")
+		marqueur.Name = "BRR_AUTORUN_LANCE"
+		marqueur.Parent = rs
 		local ok, err = pcall(function()
 			local sts = game:GetService("StudioTestService")
 			local joueurs = tonumber((rs:FindFirstChild("BRR_JOUEURS") or {}).Value or 1) or 1

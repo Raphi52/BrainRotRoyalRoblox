@@ -19,6 +19,7 @@ SRC = ROOT / "src" / "shared" / "Effets.lua"
 
 PRELUDE = r"""
 CREES = {}      -- ClassName -> nombre d'instances creees
+TOUS = {}       -- ClassName -> liste des objets crees (pour relire leurs proprietes)
 EMIS = 0        -- total de particules emises
 TWEENS = 0      -- animations lancees
 DEBRIS = 0      -- nettoyages programmes
@@ -28,6 +29,8 @@ local function noter(cls) CREES[cls] = (CREES[cls] or 0) + 1 end
 Instance = { new = function(cls)
   noter(cls)
   local o = { ClassName = cls }
+  TOUS[cls] = TOUS[cls] or {}
+  table.insert(TOUS[cls], o)
   o.Emit = function(_, n) EMIS = EMIS + n end
   return o
 end }
@@ -40,8 +43,14 @@ local services = { Debris = Debris, TweenService = TweenService }
 game = { GetService = function(_, n) return services[n] end }
 
 Enum = setmetatable({}, { __index = function() return setmetatable({}, { __index = function(_, k) return k end }) end })
-ColorSequence = { new = function(c) return c end }
-NumberSequence = { new = function(n) return n end }
+local function sequence(v)
+  if type(v) == "table" then return { points = #v } end
+  return { points = 1, plat = v }
+end
+ColorSequence = { new = function(c) return sequence(c) end }
+NumberSequence = { new = function(n) return sequence(n) end }
+ColorSequenceKeypoint = { new = function(t, c) return { t, c } end }
+NumberSequenceKeypoint = { new = function(t, n) return { t, n } end }
 NumberRange = { new = function(a, b) return { a, b } end }
 TweenInfo = { new = function(...) return { ... } end }
 local V = {}
@@ -120,6 +129,34 @@ def main():
         echecs.append("aucune animation TweenService (pose de carte)")
     if debris < len(attendus):
         echecs.append("nettoyage Debris incomplet (%d)" % debris)
+    # --- QUALITE DE RENDU : un emetteur plat (couleur unie, taille fixe, aucune retombee)
+    # donne l'aspect « bloc de confettis » d'un prototype. Chaque emetteur doit porter une
+    # courbe de taille, un fondu d'opacite, un degrade de couleur, de l'emission lumineuse,
+    # une rotation et une acceleration (les debris retombent).
+    emetteurs = list(g.TOUS["ParticleEmitter"].values()) if g.TOUS["ParticleEmitter"] else []
+    for i, e in enumerate(emetteurs):
+        taille = e.Size
+        if taille is None or int(taille.points) < 3:
+            echecs.append("emetteur %d : taille plate, pas de courbe d'expansion" % i)
+        opac = e.Transparency
+        if opac is None or int(opac.points) < 3:
+            echecs.append("emetteur %d : aucun fondu d'opacite (apparition/disparition seche)" % i)
+        coul = e.Color
+        if coul is None or int(coul.points) < 2:
+            echecs.append("emetteur %d : couleur unie, pas de degrade (coeur chaud)" % i)
+        if (e.LightEmission or 0) <= 0:
+            echecs.append("emetteur %d : aucune emission lumineuse" % i)
+        if e.RotSpeed is None:
+            echecs.append("emetteur %d : particules sans rotation" % i)
+        acc = e.Acceleration
+        if acc is None or acc.Y >= 0:
+            echecs.append("emetteur %d : aucune retombee (Acceleration)" % i)
+
+    # --- ONDE DE CHOC : la chute d'une tour et la victoire poussent un anneau qui s'etale.
+    # 1 animation = seulement la pose de carte ; il en faut une par onde.
+    if tweens < 3:
+        echecs.append("pas d'onde de choc animee sur tour detruite / victoire (%d animation(s))" % tweens)
+
     # Branchement reel : le serveur doit APPELER chaque effet, sinon le module est mort-ne.
     serveur = (ROOT / "src" / "server" / "GameServer.server.lua").read_text(encoding="utf-8")
     if 'require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Effets"))' not in serveur:

@@ -20,14 +20,23 @@ def luau(c):
 rec = re.search(r"^local RECOMPENSE = \{.*?^\}\n", ECO, re.S | re.M)
 bonus = re.search(r"^local BONUS_HUMAIN = \d+.*$", ECO, re.M)
 fn = re.search(r"^function Economie\.recompenser\(.*?^end\n", ECO, re.S | re.M)
-if not (rec and bonus and fn):
-    e.append("economie : RECOMPENSE, BONUS_HUMAIN ou recompenser introuvable")
+# recompenser appelle Economie.bonusSerie : on injecte la VRAIE fonction et ses constantes
+# (un bouchon rendant 0 masquerait une regression du bonus de serie). Voir Economie.lua:41-50.
+serie = re.search(r"^local BONUS_SERIE = \d+.*?^end$", ECO, re.S | re.M)
+if not (rec and bonus and fn and serie):
+    e.append("economie : RECOMPENSE, BONUS_HUMAIN, bonusSerie ou recompenser introuvable")
 else:
     lua = LuaRuntime()
+    # ARENES : recompenser passe desormais par Arenes.apres (protection du bas de tableau) et
+    # Arenes.recompensePalier. On injecte le VRAI module, pas un bouchon : un bouchon rendrait
+    # le banc aveugle a une regression des trophees.
+    ARENES = (ROOT / "src/shared/Arenes.lua").read_text(encoding="utf-8")
     run = lua.execute(luau(
+        "math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end\n"
+        "local Arenes = (function() " + ARENES + " end)()\n"
         "local Economie = { gagnerCoffre = function() return nil end, marquerSale = function() end }\n"
         "local profils = {}\nlocal vip = false\nlocal function aVip() return vip end\n"
-        "local function leaderstats() end\n" + rec.group(0) + bonus.group(0) + "\n" + fn.group(0) +
+        "local function leaderstats() end\n" + serie.group(0) + "\n" + rec.group(0) + bonus.group(0) + "\n" + fn.group(0) +
         "return function(issue, humain, v) vip = v; local pl = { Name = 'A' }\n"
         "profils[pl] = { pieces = 0, trophees = 0, parties = 0, victoires = 0 }\n"
         "return Economie.recompenser(pl, issue, humain).pieces end"))

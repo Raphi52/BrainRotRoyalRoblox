@@ -41,8 +41,32 @@ class Unite:
         self.c = carte
         self.x = x + i * 0.6
         self.camp = camp
-        self.hp = carte["hp"]
+        # BOUCLIER : il encaisse AVANT les points de vie (Statuts.encaisser). Dans un duel en
+        # ligne il revient exactement a des PV supplementaires, donc on les additionne.
+        self.hp = carte["hp"] + carte.get("bouclier", 0)
+        self.hp_max = carte["hp"]
         self.cd = 0.0
+        self.lent = 0.0     # secondes de ralentissement restantes
+        self.lent_part = 0.0
+        self.poison = 0.0   # secondes de poison restantes
+        self.poison_dps = 0.0
+        self.a_explose = False
+
+    @property
+    def vitesse(self):
+        if self.lent > 0:
+            return self.c["speed"] * (1 - self.lent_part)
+        return self.c["speed"]
+
+    def subir_effet(self, att):
+        """Statuts appliques par le coup de `att` (Statuts.appliquer)."""
+        e = att.c.get("effet") or {}
+        if e.get("lent"):
+            self.lent = max(self.lent, e["lent"]["duree"])
+            self.lent_part = max(self.lent_part, e["lent"]["part"])
+        if e.get("poison"):
+            self.poison = max(self.poison, e["poison"]["duree"])
+            self.poison_dps = max(self.poison_dps, e["poison"]["degats"] / e["poison"]["tic"])
 
     @property
     def vivante(self):
@@ -86,18 +110,43 @@ def duel(a, na, b, nb, defenseur=None):
             cible = min(adverses, key=lambda o: abs(o.x - u.x))
             d = abs(cible.x - u.x)
             if d > u.c["range"] and u.camp != defenseur:
-                pas = min(d - u.c["range"], u.c["speed"] * DT)
+                pas = min(d - u.c["range"], u.vitesse * DT)
                 u.x += pas if cible.x > u.x else -pas
                 d = abs(cible.x - u.x)
             u.cd -= DT
-            if d <= u.c["range"] and u.cd <= 0:
+            # SOIN : un soigneur ne tape pas, il remet des PV a ses allies (Statuts.soigner).
+            if u.c.get("soin"):
+                u.soin_cd = getattr(u, "soin_cd", 0.0) - DT
+                if u.soin_cd <= 0:
+                    u.soin_cd = u.c["soin"]["periode"]
+                    for a in (ga if u.camp == 0 else gb):
+                        if a.vivante and abs(a.x - u.x) <= u.c["soin"]["rayon"]:
+                            a.hp = min(a.hp + u.c["soin"]["montant"], a.hp_max + a.c.get("bouclier", 0))
+            if d <= u.c["range"] and u.cd <= 0 and u.c["dmg"] > 0:
                 u.cd = u.c["atkSpeed"]
                 if u.c.get("splash"):
                     for o in adverses:
                         if abs(o.x - cible.x) <= u.c["splash"]:
                             o.hp -= u.c["dmg"]
+                            o.subir_effet(u)
                 else:
                     cible.hp -= u.c["dmg"]
+                    cible.subir_effet(u)
+        # STATUTS : poison qui ronge, ralentissement qui s'epuise, explosion a la mort.
+        for u in vivants:
+            if u.poison > 0:
+                u.hp -= u.poison_dps * DT
+                u.poison -= DT
+            if u.lent > 0:
+                u.lent -= DT
+                if u.lent <= 0:
+                    u.lent_part = 0.0
+        for u in ga + gb:
+            if not u.vivante and not u.a_explose and u.c.get("mort"):
+                u.a_explose = True
+                for o in (gb if u.camp == 0 else ga):
+                    if o.vivante and abs(o.x - u.x) <= u.c["mort"]["rayon"]:
+                        o.hp -= u.c["mort"]["degats"]
         t += DT
     reste_a = sum(max(0, u.hp) for u in ga) / total_a
     reste_b = sum(max(0, u.hp) for u in gb) / total_b
@@ -143,23 +192,62 @@ def charger_cartes():
     lua.execute("Vector3 = { new = function(x, y, z) return { x, y, z } end }")
     brut = lua.execute(CARDS.read_text(encoding="utf-8"))["list"]
     cartes = []
+    sorts = []
     for c in brut.values():
-        cartes.append(dict(id=c["id"], name=c["name"], cost=int(c["cost"]), hp=float(c["hp"]),
+        # Les SORTS ne se battent pas : les faire duel a duel ne mesurerait rien. Ils sont juges
+        # a part, sur les degats par elixir et sur le rayon couvert.
+        if c["sort"] is not None:
+            sorts.append(dict(id=c["id"], name=c["name"], cost=int(c["cost"]),
+                              effet=c["sort"]["effet"], rayon=float(c["sort"]["rayon"]),
+                              degats=float(c["sort"]["degats"] or 0),
+                              prix=int(c["prix"]) if c["prix"] else None))
+            continue
+        effet = None
+        if c["effet"] is not None:
+            effet = {}
+            if c["effet"]["lent"] is not None:
+                effet["lent"] = dict(part=float(c["effet"]["lent"]["part"]),
+                                     duree=float(c["effet"]["lent"]["duree"]))
+            if c["effet"]["poison"] is not None:
+                effet["poison"] = dict(degats=float(c["effet"]["poison"]["degats"]),
+                                       duree=float(c["effet"]["poison"]["duree"]),
+                                       tic=float(c["effet"]["poison"]["tic"]))
+        mort = None
+        if c["mort"] is not None:
+            mort = dict(degats=float(c["mort"]["degats"]), rayon=float(c["mort"]["rayon"]))
+        soin = None
+        if c["soin"] is not None:
+            soin = dict(montant=float(c["soin"]["montant"]), rayon=float(c["soin"]["rayon"]),
+                        periode=float(c["soin"]["periode"]))
+        bat = None
+        if c["batiment"] is not None:
+            bat = dict(type=c["batiment"]["type"], duree=float(c["batiment"]["duree"]),
+                       periode=float(c["batiment"]["periode"] or 0),
+                       gain=float(c["batiment"]["gain"] or 0))
+        cartes.append(dict(bouclier=float(c["bouclier"] or 0), effet=effet, mort=mort, soin=soin,
+                           batiment_infos=bat,
+                           id=c["id"], name=c["name"], cost=int(c["cost"]), hp=float(c["hp"]),
                            dmg=float(c["dmg"]), range=float(c["range"]), speed=float(c["speed"]),
                            atkSpeed=float(c["atkSpeed"]), count=int(c["count"]),
                            targets=c["targets"], flying=bool(c["flying"]),
                            splash=float(c["splash"]) if c["splash"] else None,
-                           prix=int(c["prix"]) if c["prix"] else None, batiment=False))
-    return cartes
+                           prix=int(c["prix"]) if c["prix"] else None, batiment=bat is not None))
+    return cartes, sorts
 
 
 def main():
-    cartes = charger_cartes()
+    cartes, sorts = charger_cartes()
     # Deux roles, deux mesures. Une carte `targets = "buildings"` ne peut viser aucune unite
     # (canHit) : la classer sur des duels ne mesurerait que cette regle, pas son equilibre.
-    combattantes = [c for c in cartes if c["targets"] != "buildings"]
-    antitours = [c for c in cartes if c["targets"] == "buildings"]
-    print("%d cartes : %d polyvalentes, %d anti-tours" % (len(cartes), len(combattantes), len(antitours)))
+    # Un BATIMENT ne marche pas et meurt tout seul : le faire duel a duel ne mesurerait que son
+    # immobilite (et un collecteur, qui ne frappe pas, sortirait toujours a 0 %). Il est juge sur
+    # ce qu'il APPORTE par elixir pendant sa duree de vie, comme les anti-tours le sont sur les
+    # PV de tour arraches.
+    batiments = [c for c in cartes if c["batiment"]]
+    combattantes = [c for c in cartes if c["targets"] != "buildings" and not c["batiment"]]
+    antitours = [c for c in cartes if c["targets"] == "buildings" and not c["batiment"]]
+    print("%d cartes : %d polyvalentes, %d anti-tours, %d batiments"
+          % (len(cartes), len(combattantes), len(antitours), len(batiments)))
 
     scores = {c["id"]: 0.0 for c in combattantes}
     duels = {c["id"]: 0 for c in combattantes}
@@ -202,6 +290,24 @@ def main():
         print("%-28s %5d %10.0f  %s"
               % (c["name"], c["cost"], d, ("%d pieces" % c["prix"]) if c["prix"] else ""))
 
+    print("\n" + "BATIMENTS " + chr(45)*2 + " juges sur ce qu'ils apportent par elixir pendant leur vie")
+    print("%-28s %5s %7s %10s %10s  %s" % ("CARTE", "COUT", "VIE(s)", "PV/ELIX", "DEG/ELIX", "ROLE"))
+    faibles_batiments = []
+    for c in sorted(batiments, key=lambda c: -c["hp"] / c["cost"]):
+        b = c["batiment_infos"]
+        pv_elix = c["hp"] / c["cost"]
+        deg = (c["dmg"] / c["atkSpeed"] * b["duree"] / c["cost"]) if c["atkSpeed"] else 0.0
+        rendu = (b["gain"] * b["duree"] / b["periode"]) if b["periode"] else 0.0
+        role = b["type"] + (" (rend %.1f elixir)" % rendu if rendu else "")
+        print("%-28s %5d %7.0f %10.0f %10.0f  %s" % (c["name"], c["cost"], b["duree"], pv_elix, deg, role))
+        # Un batiment doit valoir AU MOINS ce que vaut le mur le moins cher par elixir, sinon il
+        # ne merite aucune place de deck. Un collecteur, lui, se juge sur son rendement NET.
+        if b["type"] == "collecteur":
+            if rendu <= c["cost"]:
+                faibles_batiments.append("%s ne rend pas son elixir" % c["name"])
+        elif pv_elix < 150:
+            faibles_batiments.append("%s : %.0f PV par elixir" % (c["name"], pv_elix))
+
     dominantes = [c["name"] for c, t in lignes if t >= 0.70]
     inutiles = [c["name"] for c, t in lignes if t <= 0.30]
     print("\nDOMINENT (>= 70 %% des duels) : %s" % (", ".join(dominantes) or "aucune"))
@@ -228,6 +334,8 @@ def main():
         echecs.append("%d carte(s) dominent" % len(dominantes))
     if inutiles:
         echecs.append("%d carte(s) inutiles" % len(inutiles))
+    if faibles_batiments:
+        echecs.append("batiment(s) sans interet : " + ", ".join(faibles_batiments))
     if rapport > 2:
         echecs.append("les anti-tours ne se valent pas (x%.1f)" % rapport)
     if len(anti_air_offertes) < 3:

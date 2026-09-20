@@ -71,7 +71,8 @@ end
 JOUEURS = {}  -- UserId -> player
 MarketplaceService = { PromptProductPurchase = function() end }
 
-local Shared = { WaitForChild = function(_, _n) return "CARDS" end }
+-- WaitForChild rend le NOM demande : le faux require sait alors quel module rendre.
+local Shared = { WaitForChild = function(_, n) return n end }
 local services = {
   Players = { GetPlayerByUserId = function(_, uid) return JOUEURS[uid] end },
   DataStoreService = { GetDataStore = function(_, n)
@@ -96,13 +97,14 @@ Instance = { new = function(cls)
   end })
   return o
 end }
+-- ARENES : le VRAI module partage, charge plus bas par le banc (voir charger_arenes).
 CARDS = { list = {}, byId = {} }
 for i = 1, 10 do
   local c = { id = "c" .. i, name = "c" .. i }
   table.insert(CARDS.list, c)
   CARDS.byId[c.id] = c
 end
-require = function(_m) return CARDS end
+require = function(m) if m == "Arenes" then return ARENES end return CARDS end
 """
 
 ECHECS = []
@@ -131,6 +133,9 @@ def recu(lua, purchase_id, product_id, user_id):
 
 def main():
     lua = LuaRuntime(unpack_returned_tuples=True)
+    # ARENES : le VRAI module partage, charge AVANT Economie — recompenser passe par lui.
+    lua.execute("math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end")
+    lua.execute("ARENES = (function() " + (ROOT / "src/shared/Arenes.lua").read_text(encoding="utf-8") + " end)()")
     lua.execute(PRELUDE)
     code = luau_vers_lua(SRC.read_text(encoding="utf-8"))
     Economie = lua.execute("return (function() " + code + " end)()")
@@ -194,6 +199,43 @@ def main():
     avant = int(g.COMPTEUR.profil)
     Economie.liberer(alice)
     cas("liberer ecrit sans attendre", avant + 1, int(g.COMPTEUR.profil))
+
+    print("\n-- 8. gemmes : un produit de gemmes passe par le meme traitement des paiements")
+    idx_gemmes = None
+    for i in range(1, len(Economie.PRODUITS) + 1):
+        if Economie.PRODUITS[i].gemmes:
+            idx_gemmes = i
+    cas("un produit de gemmes existe au catalogue", True, idx_gemmes is not None)
+    if idx_gemmes is not None:
+        cas("... desactive tant que son id vaut 0", 0, Economie.PRODUITS[idx_gemmes].id)
+        dora = joueur(lua, "Dora", 4)
+        Economie.charger(dora)
+        offres = Economie.vue(dora).offresRobux
+        cas("... absent des offres tant que son id vaut 0", False,
+            any(offres[k].index == idx_gemmes for k in offres))
+        Economie.PRODUITS[idx_gemmes].id = 67890
+        cas("profil neuf : 0 gemme", 0, Economie.profil(dora).gemmes)
+        pieces_avant = Economie.profil(dora).pieces
+        n = Economie.PRODUITS[idx_gemmes].gemmes
+        cas("achat de gemmes confirme", "GRANTED", process(recu(lua, "achat-G", 67890, 4)))
+        cas("... gemmes creditees", n, Economie.profil(dora).gemmes)
+        cas("... pieces inchangees", pieces_avant, Economie.profil(dora).pieces)
+        cas("rappel du meme recu : confirme", "GRANTED", process(recu(lua, "achat-G", 67890, 4)))
+        cas("... pas de double credit", n, Economie.profil(dora).gemmes)
+        cas("gemmes visibles dans la vue", n, Economie.vue(dora).gemmes)
+        g.PANNE.ecrireProfil = True
+        cas("sauvegarde impossible : vente repoussee", "PAS_ENCORE",
+            process(recu(lua, "achat-H", 67890, 4)))
+        cas("... gemmes reprises", n, Economie.profil(dora).gemmes)
+        g.PANNE.ecrireProfil = False
+
+    print("\n-- 9. profil ancien sans champ gemmes : charge sans erreur")
+    g.DONNEES["u5"] = lua.eval("{ pieces = 42, trophees = 7, victoires = 0, parties = 0,"
+                               " cartes = {}, dernierBonus = 0 }")
+    eve = joueur(lua, "Eve", 5)
+    Economie.charger(eve)
+    cas("pieces conservees", 42, Economie.profil(eve).pieces)
+    cas("gemmes a 0", 0, Economie.profil(eve).gemmes)
 
     if ECHECS:
         print("\nROUGE : %d cas en echec -> %s" % (len(ECHECS), ", ".join(ECHECS)))

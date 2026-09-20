@@ -16,7 +16,18 @@
   Usage : powershell -NoProfile -File tools/studio-capture-moteur.ps1 [-Secondes 60] [-Output capture-moteur.png]
   Sortie JSON ; code 3 si aucune capture n'a ete produite.
 #>
-param([int]$Secondes = 60, [string]$Output = (Join-Path $PSScriptRoot '..\capture-moteur.png'))
+# -Place : place a ouvrir. Par defaut BrainRotRoyale.autotest.rbxlx — MAIS ce fichier est
+# reconstruit par tout `python build.py --autotest ...` qui tourne en parallele : mesure du
+# 2026-09-20, la place a ete regeneree SANS BRR_HUB pendant la capture, et Studio a ouvert un
+# match au lieu du menu (journal Studio : « [HUB] copie de test : hub ferme »). Passer une
+# COPIE privee via -Place met la capture a l'abri de cet ecrasement.
+# fix-ok: place partagee ecrasee par un build concurrent pendant le chargement de Studio
+# -Id : bureau cache a utiliser. Defaut 'brrcap'. fix-ok: l'identifiant etait EN DUR, donc deux
+# captures en parallele se disputaient le meme bureau ; mesure le 2026-09-20 : le lanceur a rendu
+# « identifiant 'brrcap' occupe (pid 13972) », pid nul, et le script a recupere l'image de l'AUTRE
+# Studio (un match au lieu de la boutique). On isole le bureau ET on n'accepte que l'image de
+# NOTRE processus (le moteur nomme le fichier wob-<pid>...).
+param([int]$Secondes = 60, [string]$Output = (Join-Path $PSScriptRoot '..\capture-moteur.png'), [string]$Place = '', [string]$Id = 'brrcap')
 $ErrorActionPreference = 'Stop'
 # FORMAT DE L'IMAGE : C'EST LA SESSION D'AFFICHAGE QUI DECIDE (corrige le 2026-09-14).
 # Premiere explication, FAUSSE : « le bureau cache impose le portrait ». En realite le bureau cache
@@ -28,28 +39,69 @@ $ErrorActionPreference = 'Stop'
 # (ChangeDisplaySettingsEx rend -1). A savoir si on y revient : SetThreadDesktop exige un FIL NEUF,
 # sinon erreur 170 (ERROR_BUSY).
 $studio = (Get-ChildItem 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe' | Select-Object -First 1).FullName
-$place = (Resolve-Path (Join-Path $PSScriptRoot '..\BrainRotRoyale.autotest.rbxlx')).Path
+$place = (Resolve-Path ($(if ($Place) { $Place } else { Join-Path $PSScriptRoot '..\BrainRotRoyale.autotest.rbxlx' }))).Path
 $stock = Join-Path $env:LOCALAPPDATA 'Roblox\tmp-capture-storage'
 $plugDir = Join-Path $env:LOCALAPPDATA 'Roblox\Plugins'
 New-Item -ItemType Directory -Force $plugDir | Out-Null
-$plug = Join-Path $plugDir 'BRR_AutoRun.lua'
+# fix-ok: cause mesuree du « aucune image produite par le moteur » du 2026-09-20 14:47 — le nom du
+# plugin etait FIXE ('BRR_AutoRun.lua'), partage par tous les runs ; le bloc finally d'une capture
+# concurrente (Studio pid 18968, demarre a 14:52:30) supprimait le plugin AVANT que notre Studio ne
+# le charge, donc aucun Play, donc aucune capture. Un nom par bureau cache supprime la collision.
+$plug = Join-Path $plugDir ('BRR_AutoRun-' + ($Id -replace '[^A-Za-z0-9_-]', '_') + '.lua')
 Copy-Item (Join-Path $PSScriptRoot 'BRR_AutoRun.lua') $plug -Force
 $depart = Get-Date
 $pidStudio = $null
 try {
   $json = & powershell -NoProfile -ExecutionPolicy Bypass -File 'D:\AutoWinOS\scripts\hdesk-lancer.ps1' `
-    -Id 'brrcap' -Executable $studio -Arguments ('"' + $place + '"') `
+    -Id $Id -Executable $studio -Arguments ('"' + $place + '"') `
     -Travail 'capture 3D par le moteur' -Conversation 'conv-531' | Select-Object -Last 1
   $lance = $json | ConvertFrom-Json
   $pidStudio = $lance.pid
+  if (-not $pidStudio) {
+    [pscustomobject]@{ pid = $null; capture = $null; motif = "le bureau cache '$Id' n'a pas rendu de processus : $($lance.erreur)" } | ConvertTo-Json -Compress
+    exit 4
+  }
   # La fenetre existe des le lancement, mais Studio la remanie pendant le chargement : on repasse
   # plusieurs fois, jusqu'a ce que la capture soit prise (le script client attend 25 s).
   Start-Sleep -Seconds $Secondes
-  $img = Get-ChildItem -LiteralPath $stock -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.LastWriteTime -gt $depart -and $_.Length -gt 20000 } |
+  # fix-ok: cause mesuree le 2026-09-20 — trois captures d'affilee ont rendu « aucune image »
+  # alors que le rendu marchait. Le nom du fichier n'etait PAS en cause (le moteur ecrit bien
+  # wob-<pid>000000) : notre Studio etait ARRETE avant la capture (journal 12:53:42, derniere
+  # ligne a 12:54:07, soit 25 s de session) par le bloc finally d'un run voisin lance avec l'-Id
+  # par defaut, qui arrete tous les Studio demarres apres lui. On ne peut pas empecher le voisin,
+  # mais on peut le DIRE : on relit le journal de NOTRE session (reconnaissable a notre chemin de
+  # place, unique par run), et sans la ligne « [BRRCAP] capture prete » le motif nomme la vraie
+  # cause au lieu de « aucune image ». L'heure de cette ligne sert aussi a choisir le bon fichier.
+  $motPlace = [IO.Path]::GetFileName($place)
+  $journal = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Roblox\logs') -Filter '*.log' -EA SilentlyContinue |
+    Where-Object { $_.LastWriteTime -gt $depart } |
+    Where-Object { Select-String -Path $_.FullName -Pattern ([regex]::Escape($motPlace)) -Quiet } |
     Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  $hCap = $null
+  if ($journal) {
+    $ligne = Select-String -Path $journal.FullName -Pattern 'BRRCAP. capture prete' | Select-Object -Last 1
+    if ($ligne -and $ligne.Line -match '^([0-9T:\.\-]+Z)') { $hCap = [datetime]::Parse($matches[1]).ToLocalTime() }
+  }
+  if (-not $hCap) {
+    $motif = if ($journal) { "notre session Studio n'a pas atteint la capture (journal $($journal.Name), place $motPlace) : arretee trop tot ?" }
+             else { "aucun journal Studio pour la place $motPlace" }
+    [pscustomobject]@{ pid = $pidStudio; capture = $null; motif = $motif } | ConvertTo-Json -Compress
+    exit 3
+  }
+  # Le moteur nomme sa capture « wob-<pid>000000 » : c'est le lien SUR avec notre processus, et il
+  # passe avant l'heure. fix-ok: la selection par heure seule a ramene wob-8988000000 alors que
+  # notre Studio etait le pid 15500 (mesure 15:17) — l'image d'un run voisin, prise a la meme
+  # seconde. On ne garde l'heure que comme repli, et on le DIT dans la sortie (champ `correlation`).
+  $tous = Get-ChildItem -LiteralPath $stock -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.LastWriteTime -gt $depart -and $_.Length -gt 20000 }
+  $img = $tous | Where-Object { $_.Name -like "wob-$pidStudio*" } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+  $correlation = 'pid'
   if (-not $img) {
-    [pscustomobject]@{ pid = $pidStudio; capture = $null; motif = 'aucune image produite par le moteur' } | ConvertTo-Json -Compress
+    $correlation = 'heure (incertain : aucune image au nom de notre pid)'
+    $img = $tous | Sort-Object { [math]::Abs(($_.LastWriteTime - $hCap).TotalSeconds) } | Select-Object -First 1
+  }
+  if (-not $img) {
+    [pscustomobject]@{ pid = $pidStudio; capture = $null; motif = 'capture annoncee par le moteur mais aucun fichier dans le stock' } | ConvertTo-Json -Compress
     exit 3
   }
   Copy-Item $img.FullName $Output -Force
@@ -61,15 +113,19 @@ try {
     $null = $set.Add($bmp.GetPixel([int](($bmp.Width - 1) * $i / 31), [int](($bmp.Height - 1) * $j / 31)).ToArgb())
   } }
   $t = "$($bmp.Width)x$($bmp.Height)"; $bmp.Dispose()
-  [pscustomobject]@{ pid = $pidStudio; output = $Output; taille = $t; couleurs = $set.Count; source = $img.FullName } | ConvertTo-Json -Compress
+  [pscustomobject]@{ pid = $pidStudio; output = $Output; taille = $t; couleurs = $set.Count; correlation = $correlation; source = $img.FullName } | ConvertTo-Json -Compress
   if ($set.Count -le 1) { exit 3 }
 } finally {
   # Le test MULTIJOUEUR lance un serveur et un processus par client : arreter le seul processus
   # lance laissait 6 Studio ouverts (mesure 2026-09-14). On arrete ceux DEMARRES APRES notre
   # lancement — jamais un Studio que l'utilisateur avait deja ouvert.
   if ($pidStudio) { Stop-Process -Id $pidStudio -Force -ErrorAction SilentlyContinue }
-  Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue |
-    Where-Object { $_.StartTime -ge $depart } |
-    Stop-Process -Force -ErrorAction SilentlyContinue
+  # On n'arrete les autres Studio recents QUE sur le bureau par defaut : avec un -Id propre a un
+  # run, tuer ceux des autres runs saboterait leur capture (constate le 2026-09-20).
+  if ($Id -eq 'brrcap') {
+    Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue |
+      Where-Object { $_.StartTime -ge $depart } |
+      Stop-Process -Force -ErrorAction SilentlyContinue
+  }
   Remove-Item $plug -ErrorAction SilentlyContinue
 }

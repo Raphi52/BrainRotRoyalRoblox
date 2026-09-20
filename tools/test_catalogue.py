@@ -71,8 +71,16 @@ def main():
     manquants = sorted({"%s.%s" % (c["id"], ch) for c in cartes for ch in CHAMPS if c[ch] is None})
     cas("chaque carte porte ses champs de jeu", [], manquants)
 
-    sans_silhouette = sorted(c["id"] for c in cartes if c["morceaux"] is None or len(list(c["morceaux"].values())) == 0)
-    cas("chaque carte a une silhouette", [], sans_silhouette)
+    # Un SORT n'a pas de corps : il frappe une zone et disparait. On exige donc une silhouette des
+    # seules cartes qui posent des UNITES, et on verifie a part que chaque sort porte son effet.
+    unites = [c for c in cartes if c["sort"] is None]
+    sorts = [c for c in cartes if c["sort"] is not None]
+    sans_silhouette = sorted(c["id"] for c in unites if c["morceaux"] is None or len(list(c["morceaux"].values())) == 0)
+    cas("chaque unite a une silhouette", [], sans_silhouette)
+    cas("le jeu propose des sorts", True, len(sorts) > 0)
+    sorts_casses = sorted(c["id"] for c in sorts
+                          if c["sort"]["effet"] is None or not float(c["sort"]["rayon"] or 0) > 0)
+    cas("chaque sort porte un effet et un rayon", [], sorts_casses)
 
     if ECHECS:
         print("ROUGE : " + str(len(ECHECS)) + " cas en echec")
