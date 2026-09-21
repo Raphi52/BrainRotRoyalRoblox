@@ -12,6 +12,31 @@ local Debris = game:GetService("Debris")
 
 local B = "rbxasset://sounds/"
 
+-- REGLAGES SONORES. Defaut mesure le 2026-09-20 : le jeu jouait musique et bruitages sans qu'AUCUN
+-- ecran ne permette de les couper. Un joueur qui ecoute autre chose, ou qui joue a cote de
+-- quelqu'un, n'avait qu'une solution : couper le son de tout l'appareil. Les deux se reglent
+-- separement — on veut souvent garder les bruitages (ils PORTENT de l'information : une tour qui
+-- tombe, une carte refusee) en coupant la musique.
+Sons.reglages = { musique = true, bruitages = true }
+
+-- Etat lisible par un ecran : « MUSIQUE : OUI ». Ecrit ICI pour que le banc puisse le verifier,
+-- et pour que les deux ecrans (menu et partie) ne l'ecrivent pas chacun a leur facon.
+function Sons.libelle(quoi)
+	-- PIEGE DE LUA, vu a l'ecran (cap-son-partie.png du 2026-09-20) : ecrit « (quoi == 'musique')
+	-- and Sons.reglages.musique or Sons.reglages.bruitages », le test retombe sur les BRUITAGES des
+	-- que la musique vaut false. Le bouton affichait alors « MUSIQUE : OUI » alors qu'elle etait
+	-- coupee. Un `if` ne peut pas mentir.
+	local musique = quoi == "musique"
+	local actif
+	if musique then
+		actif = Sons.reglages.musique
+	else
+		actif = Sons.reglages.bruitages
+	end
+	local nom = musique and "MUSIQUE" or "BRUITAGES"
+	return nom .. " : " .. (actif and "OUI" or "NON")
+end
+
 -- nom d'evenement -> { asset, volume, vitesse de lecture }
 Sons.banque = {
 	selection    = { B .. "volume_slider.ogg",          0.35, 1.60 }, -- carte choisie dans la main
@@ -41,16 +66,23 @@ Sons.boucles = {
 -- Joue un evenement. Retourne le Sound cree (ou nil si le nom est inconnu : un nom fautif ne doit
 -- jamais casser la partie). Les sons sont crees dans SoundService puis nettoyes par Debris :
 -- aucune fuite d'instance, meme si le joueur clique cent fois.
-function Sons.jouer(nom, volumeRelatif)
+-- `vitesseRelative` (facultatif) : multiplie la hauteur du son. C'est par la que le duel distingue
+-- CE QUI M'ARRIVE de ce qui arrive en face — meme banque de sons, deux lectures differentes.
+function Sons.jouer(nom, volumeRelatif, vitesseRelative)
 	local e = Sons.banque[nom]
 	if not e then
+		return nil
+	end
+	-- Bruitages coupes : on ne cree meme pas l'objet son (un son a volume 0 reste charge et
+	-- compte dans le mixage).
+	if not Sons.reglages.bruitages then
 		return nil
 	end
 	local s = Instance.new("Sound")
 	s.Name = "BRR_" .. nom
 	s.SoundId = e[1]
 	s.Volume = e[2] * (volumeRelatif or 1)
-	s.PlaybackSpeed = e[3]
+	s.PlaybackSpeed = e[3] * (vitesseRelative or 1)
 	s.Parent = SoundService
 	s:Play()
 	Debris:AddItem(s, 6)
@@ -86,6 +118,21 @@ local function groupeAmbiance()
 	return groupe
 end
 
+-- REGLER : `musique` et `bruitages` valent true, false, ou nil pour « ne change pas celui-la ».
+-- La musique passe par le GROUPE de volume : une seule ligne coupe tout ce qui boucle, y compris
+-- la boucle deja en cours. Rend l'etat obtenu, pour que l'ecran affiche ce qui s'est VRAIMENT
+-- applique plutot que ce qu'il a demande.
+function Sons.regler(musique, bruitages)
+	if musique ~= nil then
+		Sons.reglages.musique = musique == true
+	end
+	if bruitages ~= nil then
+		Sons.reglages.bruitages = bruitages == true
+	end
+	groupeAmbiance().Volume = Sons.reglages.musique and 1 or 0
+	return Sons.reglages
+end
+
 -- Lance l'ambiance `nom` (une seule a la fois : la precedente s'arrete). Nom inconnu -> nil.
 local courante, courantNom = nil, nil
 function Sons.boucle(nom)
@@ -106,7 +153,10 @@ function Sons.boucle(nom)
 	s.Volume = e[2]
 	s.PlaybackSpeed = e[3]
 	s.Looped = true
-	s.SoundGroup = groupeAmbiance()
+	local g = groupeAmbiance()
+	-- Le groupe porte le reglage : une ambiance lancee APRES la coupure reste muette.
+	g.Volume = Sons.reglages.musique and 1 or 0
+	s.SoundGroup = g
 	s.Parent = SoundService
 	s:Play()
 	courante, courantNom = s, nom

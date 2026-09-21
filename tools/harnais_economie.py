@@ -72,6 +72,11 @@ CARDS = { list = { { id = "a" }, { id = "b" }, { id = "c" }, { id = "d" } } }
 -- mesures sur le code livre, pas sur une copie.
 require = function(m)
   if m == "Arenes" then return ARENES end
+  if m == "Ligues" then return LIGUES end
+  if m == "PassSaison" then return PASSSAISON end
+  if m == "Saison" then return SAISON end
+  if m == "Journal" then return JOURNAL end
+  if m == "Quetes" then return QUETES end
   return CARDS
 end
 """
@@ -87,6 +92,20 @@ def charger_arenes(lua):
     src = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Arenes.lua").read_text(encoding="utf-8")
     lua.execute("math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end")
     lua.execute("ARENES = (function() " + src + " end)()")
+    ligues = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Ligues.lua").read_text(encoding="utf-8")
+    lua.execute("LIGUES = (function() " + ligues + " end)()")
+    ps = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "PassSaison.lua").read_text(encoding="utf-8")
+    lua.execute("PASSSAISON = (function() " + ps + " end)()")
+    # SAISON : meme traitement. Un module ajoute a Economie doit etre declare ici,
+    # sinon `require` rend le catalogue bidon et ses fonctions sont nil.
+    saison = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Saison.lua").read_text(encoding="utf-8")
+    lua.execute("SAISON = (function() " + saison + " end)()")
+    # JOURNAL : les dernieres parties. Meme regle — un module ajoute a Economie se declare ICI.
+    journal = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Journal.lua").read_text(encoding="utf-8")
+    lua.execute("JOURNAL = (function() " + journal + " end)()")
+    # QUETES : l'annonce d'une quete terminee. Meme regle.
+    quetes = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Quetes.lua").read_text(encoding="utf-8")
+    lua.execute("QUETES = (function() " + quetes + " end)()")
 
 
 def charger(lua):

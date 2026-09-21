@@ -20,7 +20,7 @@ function Tutoriel.obligatoire(profil)
 end
 
 -- Budget de temps : 60 s de contenu. Le plafond laisse de la marge au joueur qui traine, mais
--- une etape qui expire passe a la suivante — le tutoriel ne bloque jamais personne.
+-- une etape qui expire passe a la suivante -- le tutoriel ne bloque jamais personne.
 Tutoriel.DUREE_CIBLE = 60
 Tutoriel.DUREE_MAX = 75
 -- Le robot reste immobile tant que le joueur n'a pas compris la pose et l'elixir.
@@ -98,6 +98,31 @@ function Tutoriel.dureeTotale()
 	return Tutoriel.debutEtape(#Tutoriel.ETAPES + 1)
 end
 
+-- COMBIEN DE TEMPS CA PREND, dit au joueur AVANT qu'il s'engage.
+--
+-- Defaut mesure le 2026-09-21 : le bouton « REVOIR LE TUTORIEL » n'annoncait aucune duree. Un
+-- joueur qui a dix minutes devant lui ne sait pas s'il s'engage pour une minute ou pour dix, et
+-- dans le doute il ne clique pas. La duree existait dans le code (Tutoriel.dureeTotale) et
+-- n'etait affichee nulle part : personne ne l'appelait.
+--
+-- C'est un PLAFOND, pas une moyenne : chaque etape s'arrete des que le joueur a fait le geste
+-- demande. On dit donc « au plus », jamais « environ » — ce serait faux dans l'autre sens.
+function Tutoriel.texteDuree(long)
+	local s = math.floor(Tutoriel.dureeTotale() + 0.5)
+	local court
+	if s >= 60 then
+		local m = math.floor(s / 60)
+		local reste = s % 60
+		court = reste == 0 and (m .. " min") or string.format("%d min %02d", m, reste)
+	else
+		court = s .. " s"
+	end
+	if long then
+		return court .. " au plus"
+	end
+	return court
+end
+
 -- Etape suivante : par la CONDITION remplie, ou par expiration du plafond. Rend nil a la fin.
 function Tutoriel.suivante(index, conditionRemplie, tempsDansEtape)
 	local e = Tutoriel.ETAPES[index]
@@ -109,6 +134,28 @@ function Tutoriel.suivante(index, conditionRemplie, tempsDansEtape)
 		return Tutoriel.ETAPES[n] and n or nil
 	end
 	return index
+end
+
+-- FIN DU TUTORIEL : LA PARTIE SE TERMINE AVEC LUI.
+-- Defaut mesure le 2026-09-20 (partie de tutoriel jouee en entier, en moteur) : les cinq etapes
+-- finies, le tutoriel « rendait la main au jeu normal » et le debutant restait seul dans une
+-- bataille de 3 minutes qu'il n'avait pas demandee, face a un robot lache d'un coup. Pour revenir
+-- au menu, il fallait trouver le bouton MENU en haut a gauche, puis confirmer un ABANDON -- donc
+-- prendre une defaite pour avoir fini son apprentissage.
+-- Regle : la derniere etape termine la partie, au credit du joueur, et le menu revient tout seul.
+Tutoriel.DELAI_RETOUR_MENU = 6 -- s d'ecran de fin avant le retour automatique (le temps de lire le gain)
+
+-- Qui gagne la partie de tutoriel : le joueur. Il vient de faire ce qu'on lui demandait.
+function Tutoriel.campVainqueur(campDuJoueur)
+	return campDuJoueur
+end
+
+-- Le menu doit-il se rouvrir tout seul ? Vrai une seule fois, et seulement apres le delai.
+function Tutoriel.retourMenu(tutoTermine, dejaRevenu, secondesDepuisFin)
+	if tutoTermine ~= true or dejaRevenu == true then
+		return false
+	end
+	return (tonumber(secondesDepuisFin) or 0) >= Tutoriel.DELAI_RETOUR_MENU
 end
 
 return Tutoriel

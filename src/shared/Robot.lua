@@ -13,8 +13,10 @@ local Robot = {}
 
 -- Paliers, du plus tendre au plus dur. `reflexe` = secondes entre deux decisions (plus c'est
 -- grand, plus il est lent a reagir) ; `erreur` = probabilite de jouer une carte au hasard plutot
--- que la meilleure ; `gardeElixir` = elixir qu'il attend avant d'attaquer (plus bas = plus
--- agressif) ; `anticipe` = repond-il aux volants et defend-il la bonne voie.
+-- que la meilleure ; `gardeElixir` = elixir qu'il attend avant d'attaquer. ATTENTION au sens :
+-- plus bas = plus agressif, mais l'agressivite est une FAIBLESSE mesuree (r = +0,98 entre ce
+-- seuil et les victoires) — un robot qui engage tot descend a sec et subit la riposte. Ce seuil
+-- MONTE donc avec le niveau ; `anticipe` = repond-il aux volants et defend-il la bonne voie.
 -- `contre` : punit-il une attaque repoussee en relançant aussitot dans la voie defendue ?
 -- C'est le geste qui separe un robot qui SUBIT d'un robot qui JOUE : il attaque au moment ou
 -- l'adversaire vient de depenser son elixir et n'a plus rien pour repondre.
@@ -23,11 +25,52 @@ local Robot = {}
 -- posait au stud pres a tous les niveaux : seul son CHOIX de carte pouvait etre mauvais. Or la
 -- faute la plus courante d'un debutant n'est pas de choisir la mauvaise carte, c'est de la poser
 -- au mauvais endroit — trop loin du pont, du mauvais cote, hors de portee de la defense.
+-- GARDE-ELIXIR : ATTENTION, ce reglage etait INVERSE, et il dominait tous les autres.
+-- Mesure du 2026-09-21, 120 parties, les six duels de paliers deux a deux :
+--     debutant 35 victoires | normal 33 | aguerri 27 | expert 25   (sur 60 chacun)
+-- soit l'INVERSE EXACT de l'ordre voulu, et le palier « superieur » ne gagnait que 43 % de ses
+-- parties. La cause tient en une correlation : entre le seuil d'attaque et les victoires,
+-- r = +0,98. Plus un robot attaque TOT, plus il PERD — il descend a sec et subit la riposte
+-- (voir Reserve.lua). L'ancienne progression donnait 9 au debutant et 6 a l'expert : on croyait
+-- rendre l'expert « plus agressif », on le rendait imprudent, et cette imprudence annulait son
+-- meilleur temps de reflexion et son absence d'erreurs.
+-- Depuis : le seuil MONTE avec le niveau. L'imprudence appartient au debutant (6), la patience
+-- a l'expert (9) — ce qui decrit aussi bien mieux ce que fait un joueur qui progresse.
+-- LECTURE DE L'ELIXIR ADVERSE (`lecture`, de 0 a 1). Ajoutee le 2026-09-21 apres mesure : une
+-- fois le seuil d'attaque remis a l'endroit, les trois paliers hauts se valaient TOUJOURS
+-- (aguerri 32 victoires, normal 31, expert 30 sur 60 parties chacun). Normal, ce sont les memes
+-- capacites : `anticipe`, `contre` et `economise` sont a `true` pour les trois, et le temps de
+-- reflexion ne change rien — les trois posent le meme nombre de cartes par seconde, parce que le
+-- jeu est limite par l'ELIXIR, pas par la vitesse de decision.
+-- Il fallait donc une COMPETENCE que les faibles n'ont pas : lire l'elixir adverse et pousser
+-- quand il est a sec (Fenetre.lua). Le jeu offre deja cette lecture au JOUEUR ; le robot ne la
+-- regardait pas. 0 = ne regarde pas · 0,6 = se trompe de deux elixir · 1 = lit juste.
+-- LA VITESSE NE SEPARE PLUS LES PALIERS — c'est elle qui faisait perdre l'expert.
+-- Experience decisive du 2026-09-21, duel normal contre expert, 60 parties par reglage, alternance
+-- des cotes verifiee :
+--     expert PATIENT   (seuil 9), reflexion 1,1 s  -> 35 % de victoires
+--     expert AGRESSIF  (seuil 5), reflexion 1,1 s  -> 42 %   (ecart avec le precedent : p = 0,57)
+--     expert           (seuil 9), reflexion 2,4 s  -> **67 %**, p = 0,013
+-- Le seuil d'attaque ne decidait donc RIEN : patient ou agressif, l'expert perdait. La seule chose
+-- constante dans ses defaites etait sa vitesse — et la ramener a celle du normal suffit a le rendre
+-- nettement superieur. Un robot qui reflechit trop vite reagit a tout, se disperse, et perd.
+-- Attention, une conclusion anterieure etait FAUSSE : « la patience gagne, r = +0,98 ». Elle
+-- reposait sur des duels mesures AVANT la reparation de l'alternance des cotes, donc biaises.
+-- Les paliers hauts partagent desormais la meme reflexion (2,4 s) et se separent par ce qui
+-- rapporte vraiment : moins d'erreurs, un placement plus juste, et la lecture de l'adversaire.
+-- ECONOMISER EN OUVERTURE : GARDE pour les paliers hauts, apres un essai de retrait MESURE.
+-- La sonde a une variable disait : un debutant qui n'economise pas bat le normal 41-19. Mais
+-- retirer ce trait aux TROIS paliers hauts (2026-09-21, 60 parties par duel) a donne :
+--     debutant vs normal : le normal passe de 45 % a 53 %   (p = 0,70, gain non etabli)
+--     normal vs expert   : l'expert CHUTE de 67 % a 37 %     (p = 0,052)
+-- Le retrait profite surtout au palier dont le seuil est bas (le normal) ; l'expert, lui, reste
+-- borne par sa lecture de l'adversaire et le plafond d'elixir. Effet d'une variable sur UN palier
+-- ne predit pas l'effet de la meme variable retiree a tous. Reglage d'origine restaure.
 Robot.PALIERS = {
-	{ seuil = 0,    nom = "debutant", reflexe = 3.2, erreur = 0.40, gardeElixir = 9, anticipe = false, contre = false, economise = false, ecart = 6 },
-	{ seuil = 200,  nom = "normal",   reflexe = 2.4, erreur = 0.22, gardeElixir = 8, anticipe = true,  contre = true,  economise = true,  ecart = 3 },
-	{ seuil = 600,  nom = "aguerri",  reflexe = 1.7, erreur = 0.10, gardeElixir = 7, anticipe = true,  contre = true,  economise = true,  ecart = 1.5 },
-	{ seuil = 1200, nom = "expert",   reflexe = 1.1, erreur = 0.00, gardeElixir = 6, anticipe = true,  contre = true,  economise = true,  ecart = 0 },
+	{ seuil = 0,    nom = "debutant", reflexe = 3.2, erreur = 0.40, gardeElixir = 6, anticipe = false, contre = false, economise = false, ecart = 6,   lecture = 0 },
+	{ seuil = 200,  nom = "normal",   reflexe = 2.4, erreur = 0.22, gardeElixir = 7, anticipe = true,  contre = true,  economise = true,  ecart = 3,   lecture = 0 },
+	{ seuil = 600,  nom = "aguerri",  reflexe = 2.4, erreur = 0.10, gardeElixir = 8, anticipe = true,  contre = true,  economise = true,  ecart = 1.5, lecture = 0.6 },
+	{ seuil = 1200, nom = "expert",   reflexe = 2.4, erreur = 0.00, gardeElixir = 9, anticipe = true,  contre = true,  economise = true,  ecart = 0,   lecture = 1 },
 }
 
 -- Bornes : aucune valeur calculee ne sort de la, quoi qu'il arrive aux trophees.
@@ -55,6 +98,7 @@ function Robot.profil(trophees)
 		reflexe = math.clamp(choisi.reflexe, Robot.REFLEXE_MIN, Robot.REFLEXE_MAX),
 		erreur = math.clamp(choisi.erreur, 0, Robot.ERREUR_MAX),
 		gardeElixir = choisi.gardeElixir,
+		lecture = choisi.lecture or 0,
 		anticipe = choisi.anticipe,
 		trophees = t,
 	}
@@ -69,6 +113,35 @@ function Robot.profilNomme(nom)
 		end
 	end
 	return nil
+end
+
+-- ===== DUEL DE PALIERS (banc de mesure) =====
+-- Pour verifier que les quatre paliers sont bien CLASSES PAR FORCE, il faut les faire s'affronter
+-- deux a deux : un palier par camp. `BRR_ROBOT` acceptait un seul nom, donc les deux camps
+-- jouaient toujours au meme niveau et le classement n'avait jamais ete verifie.
+--
+-- Forme acceptee : "normal:expert" — le premier nom pour un camp, le second pour l'autre.
+-- Un nom seul ("expert") garde l'ancien comportement : les deux camps au meme palier.
+--
+-- ALTERNANCE. Le camp qui porte le premier palier CHANGE a chaque partie, exactement comme le
+-- camp « fort » de la simulation de niveaux. Sans cela on mesurerait la force du palier ET
+-- l'avantage du cote dans le meme chiffre, sans pouvoir les separer — c'est precisement l'erreur
+-- que la serie du 2026-09-20 a failli faire dire au jeu.
+-- Rend : nom du palier pour ce camp (ou nil si la valeur ne decrit pas un duel).
+function Robot.paliersDuel(valeur, camp, partie)
+	if type(valeur) ~= "string" then
+		return nil
+	end
+	local a, b = string.match(valeur, "^(%w+):(%w+)$")
+	if not a or not b then
+		return nil
+	end
+	-- partie impaire : le palier `a` tient le camp 1 ; partie paire : il passe au camp 2.
+	local premierCamp = ((tonumber(partie) or 1) % 2 == 1) and 1 or 2
+	if camp == premierCamp then
+		return a
+	end
+	return b
 end
 
 -- Le robot se TROMPE-t-il sur ce coup-ci ? `tirage` est un nombre entre 0 et 1 fourni par

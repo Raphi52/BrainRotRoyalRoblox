@@ -133,6 +133,39 @@ def main():
     cas("une seule image d'arret efface tout", 0.0, parcouru)
     cas("et elle n'est plus lancee", False, C.lancee(parcouru, p))
 
+    # 9. COHERENCE AVEC LA DESCRIPTION DE LA CARTE. Les charges avaient ete attribuees sans lire
+    # les descriptions : la carte qui PROMETTAIT une charge n'en avait pas, et un « tireur longue
+    # portee » en avait une. Ce controle interdit les deux, dans les deux sens.
+    import re as _re
+    fiches = {}
+    for bloc in cartes.split(chr(9) + "{")[1:]:
+        mi = _re.search(r'id = "(\w+)"', bloc)
+        md = _re.search(r'desc = "([^"]+)"', bloc)
+        if mi:
+            fiches[mi.group(1)] = (md.group(1) if md else "").lower()
+
+    # (a) toute carte qui ANNONCE une charge doit en avoir une
+    annoncent = [i for i, d in fiches.items() if "charge" in d]
+    print("  cartes dont la description annonce une charge : " + (", ".join(annoncent) or "aucune"))
+    for ident in annoncent:
+        cas("%s annonce une charge, elle doit en avoir une" % ident, True, C.aUneCharge(ident))
+
+    # (b) aucune carte a charge ne doit se decrire comme un TIREUR : elle s'arreterait a portee
+    # pour tirer, donc ne courrait jamais assez longtemps — la regle serait un mensonge.
+    for ident in noms:
+        d = fiches.get(ident, "")
+        cas("%s n'est pas decrit comme un tireur" % ident, False,
+            ("tireur" in d) or ("tire loin" in d) or ("longue portee" in d))
+
+    # (c) une carte a charge doit pouvoir COURIR : une portee trop longue l'arrete trop tot pour
+    # qu'elle accumule sa distance d'elan.
+    for ident in noms:
+        i = cartes.find('id = "%s"' % ident)
+        portee = _re.search(r"range = ([\d.]+)", cartes[i:i + 900])
+        p = float(portee.group(1)) if portee else 0
+        cas("%s a une portee compatible avec une charge (%.1f)" % (ident, p), True,
+            p <= float(C.profil(ident).distance) / 2)
+
     # 8. branchement reel
     serveur = SERVEUR.read_text(encoding="utf-8")
     cas("le serveur charge le module", True, 'WaitForChild("Charge")' in serveur)
@@ -142,6 +175,24 @@ def main():
     cas("le serveur majore le coup", True, "Charge.degats(e.dmg" in serveur)
     cas("le serveur remet l'elan a zero apres le coup", True, "e.chargeParcouru, e.chargeLancee = 0, false" in serveur)
     cas("le module est livre dans la place", True, 'shared/Charge.lua' in BUILD.read_text(encoding="utf-8"))
+
+    # 9. L'ELAN SE VOIT. Defaut mesure le 2026-09-20 : la regle etait codee, testee et appliquee,
+    # mais RIEN ne la montrait. Celui qui lance l'unite ne savait pas si sa charge etait prete ;
+    # celui d'en face ne voyait pas la menace arriver, alors que la parade existe (la bloquer lui
+    # vole sa charge). Une mecanique decisive, invisible des deux cotes.
+    cas("un disque d'elan est cree pour les cartes a charge", True,
+        'd.Name = "DisqueElan"' in serveur)
+    # Uniquement pour elles : quarante disques au sol seraient du bruit.
+    cas("et pour elles seulement", True, "if Charge.aUneCharge(card.id) then" in serveur)
+    # C'est la fonction d'avancement, jusque-la inutilisee, qui pilote la taille.
+    cas("il grandit avec l'avancement REEL de la course", True,
+        "Charge.avancement(e.chargeParcouru, e.chargeProfil)" in serveur)
+    cas("il s'allume quand la charge est lancee", True,
+        "e.disqueElan.Transparency = e.chargeLancee and 0.25" in serveur)
+    # Deux etats, deux couleurs : « elle prend de l'elan » et « elle est lancee » ne se lisent pas
+    # pareil, sinon le signal n'apprend rien a l'adversaire.
+    cas("lancee, il change de couleur", True,
+        "e.chargeLancee and Color3.fromRGB(255, 90, 70)" in serveur)
 
     if ECHECS:
         print("ROUGE : " + ", ".join(ECHECS))

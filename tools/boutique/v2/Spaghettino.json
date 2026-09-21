@@ -1,0 +1,722 @@
+[
+ {
+  "id": 1595118177,
+  "nom": "not a spaghetti duck",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 55920461,
+  "nom": "Model 27",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 15866351439,
+  "nom": "барьер ",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 107210630079340,
+  "nom": "Giant Plate Of Spaghetti",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8385700,
+  "nom": "random thing of bullets",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12182488825,
+  "nom": "ball",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 99036792907737,
+  "nom": "EggNodle",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 10868117280,
+  "nom": "get spaghetti when chatted",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 125663305645419,
+  "nom": "Mini Plate Of Spaghetti Character",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9399971440,
+  "nom": "empty unscripted coil",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 73321303595247,
+  "nom": "Lamp Post",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 10590672,
+  "nom": "exploding thing",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2565409281,
+  "nom": "Edible noodles",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5554820893,
+  "nom": "God Coil v2",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5554818123,
+  "nom": "God Coil",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 3019988043,
+  "nom": "Spaghetti - MESH",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4877887818,
+  "nom": "Teleport Coil",
+  "cat": "modele",
+  "scripts": true,
+  "up": 8,
+  "down": 2,
+  "type": 10
+ },
+ {
+  "id": 5191623014,
+  "nom": "Spell",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8148873858,
+  "nom": "Coil mesh",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 6670993728,
+  "nom": "Model",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4576518172,
+  "nom": "merham48's Anti Coil",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8087642964,
+  "nom": "TEST",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4855844019,
+  "nom": "Spaghetti",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12543809927,
+  "nom": "wave",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 77925071934029,
+  "nom": "lasso tool",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 146783522,
+  "nom": "Super Coil [100 Takes!!!]",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12787237201,
+  "nom": "busher",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 6353772808,
+  "nom": "Op Gun Spawner",
+  "cat": "modele",
+  "scripts": true,
+  "up": 49,
+  "down": 1,
+  "type": 10
+ },
+ {
+  "id": 18829376,
+  "nom": "The Vortex of Fire By: REDMARS12",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 59516233,
+  "nom": "UFO Space Base",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 7034170578,
+  "nom": "Torus VFX V3",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 91226599229307,
+  "nom": "Sereal",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 79324723772174,
+  "nom": "String2",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 137666996015784,
+  "nom": "String1",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 97571296731469,
+  "nom": "angel arm 2",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 7545294412,
+  "nom": "Meshes/thunder dash (1)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 830174494,
+  "nom": "Meshes/Spaghetti",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 10397342709,
+  "nom": "SCP610 tentacles",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 106899075582127,
+  "nom": "cut off",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12465257145,
+  "nom": "Meshes/sea foliage_YellowC",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 104686582502746,
+  "nom": "ThrowWind",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 3159631292,
+  "nom": "Meshes/lj",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462386222,
+  "nom": "Meshes/String8",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462318583,
+  "nom": "Meshes/String2 (1)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 98713875830379,
+  "nom": "Mustang Glove 2.0",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 11228915281,
+  "nom": "sad scar man",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462384030,
+  "nom": "Meshes/String6 (1)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462381295,
+  "nom": "Meshes/String6",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 10300538832,
+  "nom": "Meshes/track",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 119891081676877,
+  "nom": "Meshes/af (1)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462384927,
+  "nom": "Meshes/String7",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 13267695578,
+  "nom": "Cables",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 13049164799,
+  "nom": "nachos",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 6227939360,
+  "nom": "Palm Tree (Trunk)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 7034168828,
+  "nom": "Torus VFX",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 7866711854,
+  "nom": "Chinesee lantern multiple rods",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 11277726524,
+  "nom": "Hat made of straw",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12462328199,
+  "nom": "Meshes/String3",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 958846707,
+  "nom": "nachos",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5136366159,
+  "nom": "Taco Bell Boss Nachos",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 393417153,
+  "nom": "Bowl of Spaghetti",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1348041799,
+  "nom": "Old Me",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9727850042,
+  "nom": "Mommy long legs ( v3) ",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 132456478025776,
+  "nom": "Brainulus",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 85294301812017,
+  "nom": "Spaghetti",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 286240658,
+  "nom": "thelegoboy8732489 - NPC ",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 15644128014,
+  "nom": "Pizzaface Morph",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 168636396,
+  "nom": "Breakfast Machine",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4773636521,
+  "nom": "Bruno",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4782040970,
+  "nom": "scraptrap",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12994463375,
+  "nom": "Mommy Long Legs (Provoked)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2230977630,
+  "nom": "Ghost Spongebob!",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8561358354,
+  "nom": "The Angel",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2933463773,
+  "nom": "Molten Freddy Mask.",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12769287754,
+  "nom": "sam pet",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 340116804,
+  "nom": "noodle pajamas",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8913823408,
+  "nom": "bacon pet",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9767700376,
+  "nom": "posed mommy long legs  ( poppy playtime)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 7,
+  "down": 3,
+  "type": 10
+ },
+ {
+  "id": 5144989307,
+  "nom": "cheese man",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 99471697628139,
+  "nom": "Mommy Long Legs AI TEST",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ }
+]

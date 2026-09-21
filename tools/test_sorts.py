@@ -101,6 +101,13 @@ def main():
     client = CLIENT.read_text(encoding="utf-8")
     cas("le serveur lance les sorts", True, "Sorts.cibles(" in serveur)
     cas("le serveur applique les degats de sort", True, "Sorts.degats(" in serveur)
+    # NIVEAU : les degats d'un sort suivent le niveau de la carte, comme ceux d'une unite.
+    base = lua.eval("(function() return { degats = 340, degatsTour = 0.35 } end)")()
+    cas("sans niveau, les degats du catalogue", 340, S.degats(base, False))
+    cas("au niveau 3 (+20 %), 408", 408, S.degats(base, False, 1.2))
+    # Sur une tour, la reduction s'applique APRES le niveau : 340 x 1,2 x 0,35 = 142,8 -> 143.
+    cas("sur une tour, le niveau puis la reduction", 143, S.degats(base, True, 1.2))
+    cas("un multiplicateur absent vaut 1", S.degats(base, False), S.degats(base, False, None))
     cas("le serveur applique la rage", True, "Sorts.multiplicateurRage(" in serveur)
     cas("le serveur verifie la zone visee", True, "Sorts.cibleValide(" in serveur)
     cas("le client laisse viser toute l'arene", True, "card.sort" in client)

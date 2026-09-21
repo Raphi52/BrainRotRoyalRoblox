@@ -21,19 +21,27 @@ if not m:
     echecs.append("serveur : fonction nomAdversaire absente")
 else:
     lua = LuaRuntime()
-    f = lua.execute("local occupant = {}\n" + m.group(0) +
+    # nomAdversaire s'appuie desormais sur le module Adversaire (nom du robot AVEC son niveau) et
+    # sur `teams` (pour lire le palier). On injecte le VRAI module : le banc mesure le code livre.
+    adv = (ROOT / "src" / "shared" / "Adversaire.lua").read_text(encoding="utf-8")
+    lua.execute("Adversaire = (function() " + adv + " end)()")
+    lua.execute("TEAMS = { {}, { profilRobot = { nom = 'aguerri' } } }")
+    f = lua.execute("local occupant = {}\nlocal teams = TEAMS\n" + m.group(0) +
                     "\nreturn function(o1, o2, camp) occupant[1] = o1; occupant[2] = o2; return nomAdversaire(camp) end")
     alice = lua.eval("{ DisplayName = 'Alice' }")
     bob = lua.eval("{ DisplayName = 'Bob' }")
     for o1, o2, camp, attendu in [(alice, bob, 1, "Bob"), (alice, bob, 2, "Alice"),
-                                  (alice, None, 1, "Bot"), (None, bob, 2, "Bot")]:
+                                  (alice, None, 1, "Robot"), (None, bob, 2, "Robot")]:
         r = f(o1, o2, camp)
-        if r != attendu:
+        if not (r == attendu or r.startswith(attendu + " (")):
             echecs.append(f"serveur : camp {camp} -> {r!r}, attendu {attendu!r}")
 if not re.search(r"nomAdversaire\s*=\s*nomAdversaire\(monCamp\)", SERVEUR):
     echecs.append("serveur : sendState n'envoie pas nomAdversaire")
 
-score = [l for l in CLIENT.splitlines() if "crownsLabel.Text" in l and "crownsEnemy" in l]
+# La ligne du score tient desormais sur deux lignes (jauge de couronnes « ●●○ ») : on cherche le
+# BLOC qui suit crownsLabel.Text, pas une ligne unique.
+_bloc = CLIENT.split("crownsLabel.Text")
+score = [x[:220] for x in _bloc[1:] if "crownsEnemy" in x[:220]]
 if not score:
     echecs.append("client : ligne du score introuvable")
 for l in score:

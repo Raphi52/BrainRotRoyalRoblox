@@ -19,8 +19,8 @@ def bande(motif, nom):
         return None
     h, y = float(m.group(1)), float(m.group(2))
     return (y, y + h)
-nomC = bande(r'texte\(tuile, card\.name, UDim2\.new\(0\.9, 0, ([\d.]+), 0\), UDim2\.new\(0\.05, 0, ([\d.]+), 0\)\)', "le nom de carte")
-rarC = bande(r'texte\(tuile, rar\.nom, UDim2\.new\(0\.9, 0, ([\d.]+), 0\), UDim2\.new\(0\.05, 0, ([\d.]+), 0\)', "la rarete")
+nomC = bande(r'texte\(tuile, card\.name, UDim2\.new\([\d.]+, 0, ([\d.]+), 0\), UDim2\.new\([\d.]+, 0, ([\d.]+), 0\)\)', "le nom de carte")
+rarC = bande(r'texte\(tuile, rar\.nom, UDim2\.new\([\d.]+, 0, ([\d.]+), 0\), UDim2\.new\([\d.]+, 0, ([\d.]+), 0\)', "la rarete")
 if nomC and rarC and nomC[1] > rarC[0]:
     e.append("boutique : le nom descend a %.2f et la rarete commence a %.2f -> ils se chevauchent" % (nomC[1], rarC[0]))
 

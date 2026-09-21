@@ -1,0 +1,722 @@
+[
+ {
+  "id": 84155128,
+  "nom": "dinolab walks",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 205142384,
+  "nom": "the best bowser",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1439505406,
+  "nom": "Sci-fi wolf, or just myself as a wolf. ",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 146919775,
+  "nom": "is this good",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1032794676,
+  "nom": "Chronos",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 158977608,
+  "nom": "Little Ankylosaur",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 609721510,
+  "nom": "Shiny Mega Bufferno",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1611412636,
+  "nom": "Dominus Power",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 506916597,
+  "nom": "MudSkipper",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8369869680,
+  "nom": "Godzilla Ultima",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 586329062,
+  "nom": "Shiny Turtannon-12",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 106672199,
+  "nom": "ASSASSINS OF LIGHTING MECH",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 586113123,
+  "nom": "2nd evo of Tursla (Shiny)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12592723218,
+  "nom": "GigaCar",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 65935135,
+  "nom": "Giratina",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 494078798,
+  "nom": "dfgesgsg",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 933911800,
+  "nom": "Godzilla",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 962841329,
+  "nom": "Mayhem Rexx Toy",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 77700158361281,
+  "nom": "drakkobloxxer",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 974410579,
+  "nom": "robot",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9747326060,
+  "nom": "World Of Olmega; Hybrid alien Clocoran Rapter",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1012020230,
+  "nom": "Styrahemoth",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8909822042,
+  "nom": "stegosaurus mega neon",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9737035262,
+  "nom": "the alien",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5255078013,
+  "nom": "Beby with Dominus",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 425835807,
+  "nom": "~~~[BETA}~~~ Dragonaruim Mine",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2578667492,
+  "nom": "Sip0fCoffee",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 111157062,
+  "nom": "Claw Zombie",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 201159482,
+  "nom": "Giratina ( Wingless )",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 665182958,
+  "nom": "Grass Ram Evolution Line",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 101358193712232,
+  "nom": "Dinox",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5751352476,
+  "nom": "Upchuck Galactic",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5443261863,
+  "nom": "Patrickasaurus",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 3189200468,
+  "nom": "Gurtzilla",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 85810127084012,
+  "nom": "Mesh_0",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5751351531,
+  "nom": "Upchuck",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5789420656,
+  "nom": "Rex",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 76087041356100,
+  "nom": "balance_head",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 15866175048,
+  "nom": "RoboDog",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 18783857291,
+  "nom": "DINOGOODFBX",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 70775059664129,
+  "nom": "Glister blaster",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12402733227,
+  "nom": "sarkany sapi",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5751353359,
+  "nom": "Upchuck Gwen",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 879656945,
+  "nom": "Digimon ",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 980899356,
+  "nom": "Tyrannosaurus rex baby",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 430888989,
+  "nom": "Triceratops",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5689123129,
+  "nom": "Meshes/AgumonX-Remastered",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12943460975,
+  "nom": "SCP",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 9777805925,
+  "nom": "PixelDino",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 7146872157,
+  "nom": "old dino",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 430892088,
+  "nom": "MeshPart",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 120055411965343,
+  "nom": "T-Rex Skull",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 430892169,
+  "nom": "MeshPart",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 4965352045,
+  "nom": "### mon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 5497523928,
+  "nom": "Agumon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 18467617186,
+  "nom": "Roka_1",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 430331589,
+  "nom": "fire turtle from funny video game (Original)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 894932455,
+  "nom": "sandslash pokemon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 894923297,
+  "nom": "bulbasaur pokemon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 85778279151359,
+  "nom": "Steven Universe Lion",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12796504814,
+  "nom": "OVERLY NUCLEAR ORE",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 40644753,
+  "nom": "Model 235",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 6138717,
+  "nom": "the nukeing platform",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12604855449,
+  "nom": "Pesticide Planter",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 37132687,
+  "nom": "Model 515",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8513427335,
+  "nom": "Low Poly Toxic Waster",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 37131946,
+  "nom": "Model 514",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 14913535513,
+  "nom": "Universe Bar",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4539001315,
+  "nom": "Overnuke",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 10296337923,
+  "nom": "Radioactive Barrel",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 27788395,
+  "nom": "crash test dummy",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 138885793,
+  "nom": "figure physics all parts shown",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 32571162,
+  "nom": "bomb",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12744223491,
+  "nom": "dummy spawner gibs",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 211765451,
+  "nom": "Nukes",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 14363879100,
+  "nom": "Dummy (not mine)",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 37530535,
+  "nom": "qaur bomb",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5751108129,
+  "nom": "Nuke Button",
+  "cat": "modele",
+  "scripts": true,
+  "up": 6,
+  "down": 4,
+  "type": 10
+ },
+ {
+  "id": 10914791,
+  "nom": "New atom mesh",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 3096503113,
+  "nom": "Custom Test Dummy",
+  "cat": "modele",
+  "scripts": true,
+  "up": 97,
+  "down": 3,
+  "type": 10
+ }
+]

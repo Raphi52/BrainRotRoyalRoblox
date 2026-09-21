@@ -17,9 +17,17 @@ local Charge = {}
 -- distance      : studs a courir SANS s'arreter avant que la charge soit lancee
 -- multiplicateur: degats du coup charge, par rapport au coup normal
 -- vitesse       : acceleration pendant la course (1 = vitesse normale)
+-- Choix des cartes, corrige apres un audit des DESCRIPTIONS (2026-09-20). Les charges avaient
+-- ete attribuees sans les lire, et le resultat se contredisait :
+--   * Zibra Zubra Zibralini se decrit « deux zebres, CHARGE rapide » — et n'avait aucune charge.
+--     C'est la carte la plus rapide du jeu (13 studs/s) : elle la porte desormais ;
+--   * Tigrullini Watermelini se decrit « tireur longue portee » — un tireur s'arrete a 13 studs
+--     pour tirer, une charge recompense la course : les deux se contredisent. Charge retiree.
+-- Bobritto (« encaisse et frappe ») et Cocofanto (« mur vivant ») gardent la leur : leur
+-- description ne la promet pas, mais ne la contredit pas non plus.
 Charge.PROFILS = {
+	Zibra      = { distance = 9,  multiplicateur = 1.8, vitesse = 1.5 },
 	Bobritto   = { distance = 10, multiplicateur = 2.0, vitesse = 1.5 },
-	Tigrullini = { distance = 12, multiplicateur = 2.2, vitesse = 1.6 },
 	Cocofanto  = { distance = 14, multiplicateur = 2.5, vitesse = 1.4 },
 }
 

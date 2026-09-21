@@ -82,6 +82,24 @@ def main():
     cas("ce qui depasse passe aux points de vie", (50, 0, True), (sur_pv, reste, casse))
     sur_pv, reste, casse = S.encaisser(u, 40)
     cas("bouclier casse : tout passe", (40, 0, False), (sur_pv, reste, casse))
+    # ETAT VISIBLE : la coque doit maigrir et s'effacer AVEC le bouclier. Bornee des deux cotes —
+    # opaque elle cacherait le personnage, transparente elle ne se verrait pas.
+    u = porteur()
+    S.poserBouclier(u, 400)
+    cas("bouclier plein : part = 1", 1, S.partBouclier(u))
+    cas("coque pleine : la plus franche", float(S.BOUCLIER_OPACITE_PLEIN), round(S.opaciteBouclier(u), 4))
+    cas("coque pleine : la plus epaisse", float(S.BOUCLIER_MARGE_PLEIN), round(S.epaisseurBouclier(u), 4))
+    S.encaisser(u, 200)
+    cas("a moitie encaisse : part = 0,5", 0.5, round(S.partBouclier(u), 4))
+    milieu = (float(S.BOUCLIER_OPACITE_PLEIN) + float(S.BOUCLIER_OPACITE_VIDE)) / 2
+    cas("a moitie : opacite a mi-chemin", round(milieu, 4), round(S.opaciteBouclier(u), 4))
+    cas("la coque a MAIGRI", True, S.epaisseurBouclier(u) < float(S.BOUCLIER_MARGE_PLEIN))
+    S.encaisser(u, 199)
+    cas("presque vide : coque au plus mince", True,
+        S.epaisseurBouclier(u) < (float(S.BOUCLIER_MARGE_PLEIN) + float(S.BOUCLIER_MARGE_VIDE)) / 2)
+    cas("jamais plus transparent que la borne", True, S.opaciteBouclier(u) <= float(S.BOUCLIER_OPACITE_VIDE))
+    sans = porteur()
+    cas("sans bouclier : aucune part", 0, S.partBouclier(sans))
 
     # 5. SOIN
     u = porteur()
@@ -120,6 +138,40 @@ def main():
     cas("les soigneurs soignent", True, "Statuts.soigner(" in serveur)
     cas("la grace de pose protege", True, "Statuts.invulnerable(" in serveur)
     cas("l'explosion a la mort est appliquee", True, "Statuts.explosionMort(" in serveur)
+    # LE GEL SE VOIT : une unite gelee etait a l'ecran identique a une unite libre (capture du
+    # 2026-09-20). La gangue de glace est posee au gel et retiree a la SECONDE ou il expire.
+    effets = (ROOT / "src" / "shared" / "Effets.lua").read_text(encoding="utf-8")
+    cas("le rendu de givre existe", True, "function Effets.givrer(" in effets)
+    cas("il se retire", True, "function Effets.degivrer(" in effets)
+    cas("le serveur givre au gel", True, "Effets.givrer(" in serveur)
+    cas("et degivre quand le gel expire", True,
+        "Effets.degivrer(" in serveur and 'Statuts.actif(e, "gel"' in serveur)
+    # LE POISON ET LE RALENTISSEMENT AUSSI : sans marque, l'unite empoisonnee perdait des PV
+    # sans cause visible, et l'unite ralentie avait l'air de ramer a cause du reseau.
+    for nom, pose, retire, teste in (("poison", "empoisonner", "depoisonner", "estEmpoisonne"),
+                                     ("ralentissement", "engourdir", "degourdir", "estEngourdi")):
+        cas("le rendu de %s existe" % nom, True, ("function Effets.%s(" % pose) in effets)
+        cas("il se retire (%s)" % nom, True, ("function Effets.%s(" % retire) in effets)
+        cas("le serveur le pose (%s)" % nom, True, ("Effets.%s(" % pose) in serveur)
+        cas("et le retire a l'expiration (%s)" % nom, True,
+            ("Effets.%s(" % retire) in serveur and ("Effets.%s(" % teste) in serveur)
+    # Les trois marques doivent etre DISTINCTES a l'oeil : trois noms d'enfant differents, sinon
+    # l'une effacerait l'autre et deux statuts ne pourraient pas coexister sur la meme unite.
+    noms = [l.split("=")[1].strip() for l in effets.splitlines()
+            if l.startswith(("Effets.GIVRE_NOM", "Effets.POISON_NOM", "Effets.LENT_NOM"))]
+    cas("trois marques, trois noms distincts", 3, len(set(noms)))
+    # LE BOUCLIER AUSSI : dernier statut muet. La coque est posee avec lui, MISE A JOUR a chaque
+    # coup encaisse, et retiree quand elle cede.
+    cas("le rendu de coque existe", True, "function Effets.blinder(" in effets)
+    cas("elle se met a jour", True, "function Effets.majBouclier(" in effets)
+    cas("elle se retire", True, "function Effets.debloquer(" in effets)
+    cas("le serveur pose la coque avec le bouclier", True, "Effets.blinder(" in serveur)
+    cas("il la fait maigrir a chaque coup", True,
+        "Effets.majBouclier(" in serveur and "Statuts.epaisseurBouclier(" in serveur)
+    cas("et la retire quand elle cede", True, "Effets.debloquer(" in serveur)
+    # L'aspect NE SE CALCULE PAS dans le serveur : il vient du module pur, sinon regle de jeu et
+    # rendu pourraient diverger sans que rien ne le signale.
+    cas("l'aspect vient du module pur", True, "Statuts.opaciteBouclier(" in serveur)
 
     if ECHECS:
         print("ROUGE : %d cas en echec" % len(ECHECS))

@@ -110,6 +110,24 @@ function Cycle.retour(main, file, id)
 	return nil
 end
 
+-- TEXTE DU RETOUR, affiche sous les cartes a venir. Defaut mesure le 2026-09-20 :
+-- `Cycle.retour` etait ecrit et teste, mais appele par PERSONNE. Compter son cycle — savoir dans
+-- combien de cartes celle qu'on vient de jouer revient — est pourtant le coeur de ce genre de
+-- jeu : c'est ce qui dit si l'on peut depenser sa carte de defense maintenant ou s'il faut la
+-- garder. Le joueur devait tenir le compte de tete, sur huit cartes.
+-- `rang` vient de Cycle.retour : 0 = deja revenue, n = n cartes a jouer avant, nil = pas au paquet.
+function Cycle.texteRetour(nom, rang)
+	if not nom or rang == nil then
+		return ""
+	end
+	if rang <= 0 then
+		return nom .. "\nde retour en main"
+	elseif rang == 1 then
+		return nom .. "\nrevient dans 1 carte"
+	end
+	return nom .. "\nrevient dans " .. rang .. " cartes"
+end
+
 -- COUT MOYEN du paquet, en elixir : la mesure qui dit si un deck est lourd ou rapide.
 -- `coutDe(id)` est fourni par l'appelant, donc ce module ne depend pas du catalogue.
 function Cycle.coutMoyen(ids, coutDe)
@@ -125,6 +143,65 @@ function Cycle.coutMoyen(ids, coutDe)
 		return 0
 	end
 	return total / n
+end
+
+-- DIAGNOSTIC DU DECK. Defaut mesure le 2026-09-20 : `Cycle.coutMoyen` existait, etait teste au
+-- banc... et n'etait appele NULLE PART. L'ecran DECK montrait donc 8 vignettes et un compteur
+-- « 8 / 8 », sans le chiffre que tout joueur de ce genre regarde en premier — le cout moyen — ni
+-- le defaut qui fait perdre le plus de parties : un deck SANS REPONSE AUX VOLANTS. Le joueur
+-- assemblait ses cartes a l'aveugle et apprenait le trou en partie, une fois qu'il est trop tard.
+--
+-- Seuils : sous 3,4 le deck est leger (on cycle vite, on repond a tout, mais on casse peu) ;
+-- au-dessus de 4,2 il est lourd (chaque erreur coute cher, et l'on subit les petites poussees).
+Cycle.COUT_LEGER = 3.4
+Cycle.COUT_LOURD = 4.2
+
+function Cycle.jugementCout(moyenne)
+	local m = tonumber(moyenne) or 0
+	if m <= 0 then
+		return "VIDE"
+	elseif m < Cycle.COUT_LEGER then
+		return "LEGER"
+	elseif m > Cycle.COUT_LOURD then
+		return "LOURD"
+	end
+	return "EQUILIBRE"
+end
+
+-- Resume complet d'un deck. `coutDe(id)` et `viseVolant(id)` sont fournis par l'appelant : ce
+-- module ne connait ni le catalogue ni les regles de ciblage.
+-- Rend { moyenne, jugement, antiAir, alerte } ; `alerte` est le defaut a corriger, ou nil.
+function Cycle.resumeDeck(ids, coutDe, viseVolant)
+	local moyenne = Cycle.coutMoyen(ids, coutDe)
+	local antiAir = 0
+	for _, id in ipairs(ids or {}) do
+		if viseVolant and viseVolant(id) then
+			antiAir = antiAir + 1
+		end
+	end
+	local alerte = nil
+	if #(ids or {}) > 0 and antiAir == 0 then
+		-- Le trou le plus couteux : une attaque aerienne sans reponse prend une tour entiere.
+		alerte = "AUCUNE REPONSE AUX VOLANTS"
+	end
+	return {
+		moyenne = moyenne,
+		jugement = Cycle.jugementCout(moyenne),
+		antiAir = antiAir,
+		alerte = alerte,
+	}
+end
+
+-- Ligne affichee sous le deck : « Cout moyen 3,6 - EQUILIBRE - 3 cartes anti-air ». Virgule
+-- decimale francaise, comme partout ailleurs dans le jeu.
+function Cycle.texteResume(r)
+	if not r then
+		return ""
+	end
+	local moyenne = string.gsub(string.format("%.1f", r.moyenne or 0), "%.", ",")
+	local mot = (r.antiAir == 1) and " carte anti-air" or " cartes anti-air"
+	return "Cout moyen " .. moyenne .. "  -  " .. (r.jugement or "") .. "  -  "
+		.. tostring(r.antiAir or 0) .. mot
 end
 
 return Cycle

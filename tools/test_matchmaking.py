@@ -38,7 +38,9 @@ for mot in ("MemoryStoreService", "ReserveServer", "ReservedServerAccessCode", "
     if mot not in MM: e.append("Matchmaking : " + mot + " absent")
 if 'require(script.Parent:WaitForChild("Matchmaking"))' not in GS: e.append("GameServer ne charge pas Matchmaking")
 j = re.search(r'action == "jouer" then(.*?)elseif', GS, re.S)
-if not j or "Matchmaking.entrer(player, rejoindre)" not in j.group(1): e.append("JOUER ne passe pas par la file")
+# JOUER doit entrer dans la file. L'appel porte desormais un 3e argument (le profil de niveau de
+# jeu, pour l'appariement par trophees) : on verifie le FAIT, pas la forme exacte de l'appel.
+if not j or "Matchmaking.entrer(player, rejoindre" not in j.group(1): e.append("JOUER ne passe pas par la file")
 if not re.search(r"estServeurDeMatch\(game\) then\s+rejoindre\(player\)", GS): e.append("serveur reserve : joueur non place d'office")
 if not re.search(r"estServeurDeMatch\(game\) then\s+task\.delay\(\d+, Matchmaking\.retourHub\)", GS): e.append("fin de match : pas de retour au hub")
 if "Matchmaking.sortir(player)" not in GS: e.append("un joueur qui part reste dans la file")

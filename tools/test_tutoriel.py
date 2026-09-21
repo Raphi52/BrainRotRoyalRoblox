@@ -77,6 +77,24 @@ total = T.dureeTotale()
 cas("duree totale sous DUREE_MAX (joueur qui traine partout)", True, total <= T.DUREE_MAX)
 cas("duree totale proche de la cible (pas un tutoriel de 10 s)", True, total >= T.DUREE_CIBLE * 0.8)
 
+print("5 bis. la duree est ANNONCEE au joueur")
+# Defaut mesure le 2026-09-21 : le bouton « REVOIR LE TUTORIEL » n'annoncait aucune duree. Un
+# joueur ne sait pas s'il s'engage pour une minute ou pour dix, et dans le doute il ne clique pas.
+# Le chiffre existait (Tutoriel.dureeTotale) et n'etait affiche nulle part.
+court = T.texteDuree()
+cas("le libelle court donne un temps", True, ("min" in court) or (" s" in court))
+# C'est un PLAFOND (chaque etape s'arrete des que le geste est fait) : « au plus », pas « environ ».
+cas("la forme longue dit que c'est un maximum", True, T.texteDuree(True).endswith("au plus"))
+cas("et garde le meme chiffre", True, T.texteDuree(True).startswith(court))
+minutes = int(total // 60)
+cas("le texte colle a la duree reelle", True,
+    ((str(minutes) + " min") in court) if total >= 60 else ((str(int(total)) + " s") in court))
+hub_txt = (ROOT / "src" / "client" / "Hub.client.lua").read_text(encoding="utf-8")
+cas("le bouton porte la duree, calculee et non recopiee", True,
+    '"REVOIR LE TUTORIEL - " .. Tutoriel.texteDuree()' in hub_txt)
+cas("et la confirmation la redit en toutes lettres", True,
+    "Tutoriel.texteDuree(true)" in hub_txt)
+
 print("\n6. impose seulement a la premiere partie")
 cas("joueur neuf", True, T.obligatoire(lua.table(parties=0)))
 cas("joueur qui a deja joue", False, T.obligatoire(lua.table(parties=1)))

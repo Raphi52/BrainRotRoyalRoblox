@@ -46,7 +46,10 @@ local function faux_store()
   }
 end
 
-local Shared = { WaitForChild = function(_, _n) return "CARDS" end }
+-- Le vrai Economie require plusieurs modules partages. On rend le NOM demande, et `require`
+-- (plus bas) sert le module REEL quand il est pur (Arenes, Saison) : le banc teste alors les
+-- vraies regles au lieu d'un mannequin.
+local Shared = { WaitForChild = function(_, n) return n end }
 local services = {
   Players = {},
   DataStoreService = { GetDataStore = function(_, _n) return faux_store() end },
@@ -69,12 +72,17 @@ Instance = { new = function(cls)
   return o
 end }
 CARDS = { list = { { id = "a" }, { id = "b" }, { id = "c" }, { id = "d" } } }
-require = function(_m) return CARDS end
+require = function(nom) return MODULES[nom] or CARDS end
 """
 
 
 def charger(lua):
     lua.execute(PRELUDE)
+    # modules partages PURS charges pour de vrai (ils ne touchent pas a Roblox)
+    lua.execute("MODULES = {}")
+    for nom in ("Arenes", "Saison"):
+        source = (SRC.parent.parent / "shared" / (nom + ".lua")).read_text(encoding="utf-8")
+        lua.execute(f"MODULES['{nom}'] = (function() {luau_vers_lua(source)} end)()")
     code = luau_vers_lua(SRC.read_text(encoding="utf-8"))
     return lua.execute("return (function() " + code + " end)()")
 

@@ -27,7 +27,10 @@
 # « identifiant 'brrcap' occupe (pid 13972) », pid nul, et le script a recupere l'image de l'AUTRE
 # Studio (un match au lieu de la boutique). On isole le bureau ET on n'accepte que l'image de
 # NOTRE processus (le moteur nomme le fichier wob-<pid>...).
-param([int]$Secondes = 60, [string]$Output = (Join-Path $PSScriptRoot '..\capture-moteur.png'), [string]$Place = '', [string]$Id = 'brrcap')
+param([int]$Secondes = 60, [string]$Output = (Join-Path $PSScriptRoot '..\captures\capture-moteur.png'), [string]$Place = '', [string]$Id = 'brrcap')
+# Les photos vont dans captures/ (ignore par git) et non plus a la racine (2026-09-21) : on cree
+# le dossier de la sortie s'il manque, quel que soit -Output.
+New-Item -ItemType Directory -Force (Split-Path -Parent ([System.IO.Path]::GetFullPath($Output))) | Out-Null
 $ErrorActionPreference = 'Stop'
 # FORMAT DE L'IMAGE : C'EST LA SESSION D'AFFICHAGE QUI DECIDE (corrige le 2026-09-14).
 # Premiere explication, FAUSSE : « le bureau cache impose le portrait ». En realite le bureau cache

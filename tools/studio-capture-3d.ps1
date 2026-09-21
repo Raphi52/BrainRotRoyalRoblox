@@ -1,6 +1,9 @@
-﻿# Capture 3D d'une partie de test, hors de la zone visible (voir D:\AutoWinOS\scripts\hors-ecran-capture.ps1).
+# Capture 3D d'une partie de test, hors de la zone visible (voir D:\AutoWinOS\scripts\hors-ecran-capture.ps1).
 # Le plugin temporaire tools/BRR_AutoRun.lua lance Play dans la copie de test, puis il est retire.
-param([int]$Secondes = 35, [string]$Output = (Join-Path $PSScriptRoot '..\capture-3d.png'), [int]$Rafale = 1, [int]$IntervalleSecondes = 3, [string]$Demarrage = 'Minimized', [ValidateSet('Normal','Suspendu')][string]$Lancement = 'Suspendu')
+param([int]$Secondes = 35, [string]$Output = (Join-Path $PSScriptRoot '..\captures\capture-3d.png'), [int]$Rafale = 1, [int]$IntervalleSecondes = 3, [string]$Demarrage = 'Minimized', [ValidateSet('Normal','Suspendu')][string]$Lancement = 'Suspendu')
+# Les photos vont dans captures/ (ignore par git) et non plus a la racine (2026-09-21) : on cree
+# le dossier de la sortie s'il manque, quel que soit -Output.
+New-Item -ItemType Directory -Force (Split-Path -Parent ([System.IO.Path]::GetFullPath($Output))) | Out-Null
 $ErrorActionPreference = 'Stop'
 $studio = (Get-ChildItem 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe' | Select-Object -First 1).FullName
 $place = (Resolve-Path (Join-Path $PSScriptRoot '..\BrainRotRoyale.autotest.rbxlx')).Path

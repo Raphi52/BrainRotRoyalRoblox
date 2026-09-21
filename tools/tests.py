@@ -19,6 +19,12 @@ import time
 DOSSIER = pathlib.Path(__file__).resolve().parent
 
 
+def sortie_sure(texte):
+    """Rend `texte` imprimable quelle que soit la page de codes de la console."""
+    page = getattr(sys.stdout, "encoding", None) or "utf-8"
+    return texte.encode(page, "replace").decode(page, "replace")
+
+
 def main(argv):
     filtre = argv[0] if argv else ""
     fichiers = sorted(f for f in DOSSIER.glob("test_*.py") if filtre in f.name)
@@ -34,14 +40,17 @@ def main(argv):
         derniere = [l for l in (p.stdout or "").splitlines() if l.strip()]
         resume = derniere[-1][:90] if derniere else (p.stderr or "").strip().splitlines()[-1][:90]
         etat = "OK  " if p.returncode == 0 else "ROUGE"
-        print("%s %-28s %5.1fs  %s" % (etat, f.name, time.time() - t, resume))
+        # La console Windows est en cp1252 : un banc qui sort un caractere hors de cette page
+        # faisait PLANTER le lanceur en pleine serie (mesure du 2026-09-20), et le verdict
+        # global etait perdu alors que tous les tests avaient tourne.
+        print(sortie_sure("%s %-28s %5.1fs  %s" % (etat, f.name, time.time() - t, resume)))
         if p.returncode != 0:
             rouges.append((f.name, p.stdout, p.stderr))
     print("\n%d tests en %.0fs : %d rouge(s)" % (len(fichiers), time.time() - debut, len(rouges)))
     for nom, out, err in rouges:
         print("\n===== %s =====" % nom)
-        print((out or "").strip()[-1500:])
-        print((err or "").strip()[-1500:])
+        print(sortie_sure((out or "").strip()[-1500:]))
+        print(sortie_sure((err or "").strip()[-1500:]))
     return len(rouges)
 
 

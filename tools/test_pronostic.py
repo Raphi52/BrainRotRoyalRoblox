@@ -2,7 +2,7 @@
 """Pronostic des spectateurs : boutons Rouge / Bleu, valide cote serveur, pieces si juste.
 
 1. pronosticAccepte (extraite, lupa) : camp 1 ou 2 seulement, spectateur seulement, un seul par
-   partie, refuse une fois la partie finie.
+   partie, refuse une fois la partie finie, et refuse une fois la partie ENGAGEE (paris fermes).
 2. Economie.gainPronostic (extraite, lupa) : +GAIN_PRONOSTIC pieces, profil marque a sauver.
 3. Cablage serveur : RemoteEvent « Pronostic » ; endMatch paie les pronostics justes ; resetMatch les vide.
 4. Client : boutons qui envoient PronosticEvent:FireServer(1|2), visibles seulement au spectateur.
@@ -22,10 +22,17 @@ if not fn:
     e.append("serveur : pronosticAccepte absente")
 else:
     f = LuaRuntime().execute(fn.group(0) + "return pronosticAccepte")
-    for args, att in [((1, False, False, False), True), ((2, False, False, False), True),
-                      ((3, False, False, False), False), (("1", False, False, False), False),
-                      ((1, True, False, False), False), ((1, False, True, False), False),
-                      ((1, False, False, True), False)]:
+    # 5e argument : les paris sont-ils encore OUVERTS. Ajoute le 2026-09-21 — rien n'empechait
+    # jusque-la de parier a la derniere seconde sur une issue deja evidente, donc d'encaisser des
+    # pieces sans rien risquer.
+    for args, att in [((1, False, False, False, True), True), ((2, False, False, False, True), True),
+                      ((3, False, False, False, True), False), (("1", False, False, False, True), False),
+                      ((1, True, False, False, True), False), ((1, False, True, False, True), False),
+                      ((1, False, False, True, True), False),
+                      # partie engagee : refus, meme pour un pari par ailleurs valide
+                      ((1, False, False, False, False), False), ((2, False, False, False, False), False),
+                      # un client qui n'envoie rien ne doit pas ouvrir les paris par defaut
+                      ((1, False, False, False, None), False)]:
         if f(*args) != att:
             e.append(f"serveur : pronosticAccepte{args} -> {f(*args)}, attendu {att}")
 

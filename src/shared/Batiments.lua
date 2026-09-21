@@ -71,6 +71,49 @@ function Batiments.gainNet(carte)
 	return Batiments.rendement(carte) - (tonumber(carte and carte.cost) or 0)
 end
 
+-- AU BOUT DE COMBIEN DE SECONDES LE COLLECTEUR EST-IL REMBOURSE ?
+--
+-- Defaut mesure le 2026-09-21 : la fiche disait « rend 1 elixir toutes les 8 s » et « Duree de
+-- vie : 60 s », et laissait le joueur faire le calcul en pleine partie. Or c'est LA question qui
+-- decide de poser une pompe ou non : si l'adversaire la casse avant ce delai, elle a coute de
+-- l'elixir au lieu d'en rapporter. Le chiffre existait a moitie dans le code (Batiments.rendement,
+-- Batiments.gainNet) et n'etait affiche NULLE PART — gainNet n'etait meme appele par personne.
+--
+-- Le collecteur rend son elixir par PALIERS (un gain toutes les `periode` secondes), donc on
+-- compte les paliers entiers necessaires a couvrir le cout, pas une regle de trois.
+function Batiments.secondesRentable(carte)
+	local b = carte and carte.batiment
+	if not b or b.type ~= "collecteur" then
+		return nil
+	end
+	local gain = tonumber(b.gain) or 0
+	local cout = tonumber(carte.cost) or 0
+	if gain <= 0 then
+		return nil
+	end
+	local paliers = math.ceil(cout / gain)
+	local secondes = paliers * (tonumber(b.periode) or 0)
+	-- Au-dela de sa duree de vie, le collecteur ne se rembourse JAMAIS : le dire est plus utile
+	-- qu'un chiffre que la carte ne peut pas atteindre.
+	if secondes > Batiments.duree(carte) then
+		return nil
+	end
+	return secondes
+end
+
+-- LA LIGNE AFFICHEE dans la fiche. Rend nil quand la carte n'est pas un collecteur : l'ecran ne
+-- decide de rien, il pose la ligne quand elle existe.
+function Batiments.texteRentabilite(carte)
+	local s = Batiments.secondesRentable(carte)
+	if not s then
+		return nil
+	end
+	local net = Batiments.gainNet(carte)
+	local arrondi = math.floor(net * 10 + 0.5) / 10
+	return string.format("REMBOURSEE EN %d s, puis +%s elixir net si elle vit",
+		math.floor(s + 0.5), tostring(arrondi))
+end
+
 -- ===== PRODUCTION PERIODIQUE (collecteur ET invocateur) =====
 -- Combien de fois le batiment a-t-il produit entre deux appels ? Rend le nombre de cycles echus et
 -- met a jour l'etat. Compte par PALIERS (et non par regle de trois) pour qu'une image longue ne
@@ -103,6 +146,32 @@ end
 
 function Batiments.expire(carte, ecoule)
 	return (tonumber(ecoule) or 0) >= Batiments.duree(carte)
+end
+
+-- TEMPS QU'IL RESTE A VIVRE, en secondes. Defaut mesure le 2026-09-20 : un batiment pose tombe
+-- TOUT SEUL, et rien ne disait quand. Le joueur voyait une barre de vie qui descend sans savoir si
+-- elle descend parce qu'on le frappe ou parce que le temps passe — donc sans pouvoir decider s'il
+-- vaut la peine de le defendre. Le calcul est l'inverse de l'usure : PV restants / PV par seconde.
+-- Les DEGATS recus comptent : un batiment a moitie detruit tombera deux fois plus tot.
+function Batiments.tempsRestant(carte, pv, pvMax)
+	local u = Batiments.usure(carte, pvMax)
+	if u <= 0 then
+		return 0
+	end
+	return math.max(0, (tonumber(pv) or 0) / u)
+end
+
+-- Texte affiche au-dessus du batiment : « 12 s ». Arrondi au SUPERIEUR — tant qu'il reste une
+-- fraction de seconde, le batiment est encore la.
+function Batiments.texteRestant(carte, pv, pvMax)
+	return tostring(math.ceil(Batiments.tempsRestant(carte, pv, pvMax))) .. " s"
+end
+
+-- Sous ce reste, le batiment est sur le point de tomber : le chiffre passe en alerte. Choisi a
+-- 5 s, le temps de poser une carte pour prendre le relais.
+Batiments.RESTE_ALERTE = 5
+function Batiments.presqueFini(carte, pv, pvMax)
+	return Batiments.tempsRestant(carte, pv, pvMax) <= Batiments.RESTE_ALERTE
 end
 
 -- Un batiment pose ne donne JAMAIS de couronne a l'adversaire : seules les tours du depart

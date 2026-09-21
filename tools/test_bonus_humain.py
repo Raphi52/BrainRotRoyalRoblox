@@ -34,11 +34,15 @@ else:
     run = lua.execute(luau(
         "math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end\n"
         "local Arenes = (function() " + ARENES + " end)()\n"
-        "local Economie = { gagnerCoffre = function() return nil end, marquerSale = function() end }\n"
+        "local Ligues = (function() " + (ROOT / "src/shared/Ligues.lua").read_text(encoding="utf-8") + " end)()\n"
+        "local PassSaison = (function() " + (ROOT / "src/shared/PassSaison.lua").read_text(encoding="utf-8") + " end)()\n"
+        # JOURNAL : recompenser range la partie finie. Vrai module, pas un bouchon.
+        "local Journal = (function() " + (ROOT / "src/shared/Journal.lua").read_text(encoding="utf-8") + " end)()\n"
+        "local Economie = { gagnerCoffre = function() return nil end, marquerSale = function() end, suivreSommet = function() end, avancerPass = function() return 0 end }\n"
         "local profils = {}\nlocal vip = false\nlocal function aVip() return vip end\n"
         "local function leaderstats() end\n" + serie.group(0) + "\n" + rec.group(0) + bonus.group(0) + "\n" + fn.group(0) +
         "return function(issue, humain, v) vip = v; local pl = { Name = 'A' }\n"
-        "profils[pl] = { pieces = 0, trophees = 0, parties = 0, victoires = 0 }\n"
+        "profils[pl] = { pieces = 0, trophees = 0, parties = 0, victoires = 0, journal = {} }\n"
         "return Economie.recompenser(pl, issue, humain).pieces end"))
     base = lua.execute(rec.group(0) + "return RECOMPENSE")
     b = int(re.search(r"\d+", bonus.group(0)).group(0))
@@ -48,7 +52,11 @@ else:
         r = run(issue, h, vip)
         if r != att:
             e.append(f"economie : {issue} humain={h} vip={vip} -> {r}, attendu {att}")
-if not re.search(r"Economie\.recompenser,\s*joueur,\s*issue,\s*occupant\[3 - camp\] ~= nil", SRV):
+# endMatch doit passer « adversaire humain » a Economie.recompenser. La forme de l'appel a change
+# (le gain est desormais garde pour l'ecran de fin), le FAIT teste est le meme.
+if not (re.search(r"Economie\.recompenser,\s*joueur,\s*issue,\s*occupant\[3 - camp\] ~= nil", SRV)
+        or (re.search(r"local contreHumain = occupant\[3 - camp\] ~= nil", SRV)
+            and re.search(r"Economie\.recompenser\(joueur, issue, contreHumain", SRV))):
     e.append("serveur : endMatch ne dit pas si l'adversaire est humain")
 for x in e: print("ROUGE", x)
 print("OK" if not e else f"{len(e)} echec(s)")

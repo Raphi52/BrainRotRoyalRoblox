@@ -156,6 +156,42 @@ function Statuts.encaisser(porteur, degats)
 	return d - b, 0, true
 end
 
+-- ETAT VISIBLE DU BOUCLIER : quelle PART en reste-t-il (0 a 1) ? Le rendu s'y accroche, si bien
+-- qu'une coque epaisse dit « il tiendra encore » et une coque presque effacee « le prochain coup
+-- passe ». Sans cette part, le bouclier n'etait visible qu'a l'instant ou il CASSAIT — trop tard
+-- pour decider quoi que ce soit.
+function Statuts.partBouclier(porteur)
+	local max = tonumber(porteur and porteur.bouclierMax) or 0
+	if max <= 0 then
+		return 0
+	end
+	local reste = math.max(0, tonumber(porteur.bouclier) or 0)
+	return math.min(1, reste / max)
+end
+
+-- OPACITE de la coque, deduite de cette part. Bornee des DEUX cotes : une coque totalement opaque
+-- cacherait le personnage (on ne saurait plus quelle carte on affronte), une coque totalement
+-- transparente ne se verrait pas du tout.
+Statuts.BOUCLIER_OPACITE_PLEIN = 0.35
+Statuts.BOUCLIER_OPACITE_VIDE = 0.9
+
+function Statuts.opaciteBouclier(porteur)
+	local part = Statuts.partBouclier(porteur)
+	return Statuts.BOUCLIER_OPACITE_VIDE
+		+ (Statuts.BOUCLIER_OPACITE_PLEIN - Statuts.BOUCLIER_OPACITE_VIDE) * part
+end
+
+-- EPAISSEUR de la coque, en part de la taille du corps : elle MAIGRIT en encaissant, jusqu'a
+-- coller au personnage juste avant de ceder.
+Statuts.BOUCLIER_MARGE_PLEIN = 1.45
+Statuts.BOUCLIER_MARGE_VIDE = 1.05
+
+function Statuts.epaisseurBouclier(porteur)
+	local part = Statuts.partBouclier(porteur)
+	return Statuts.BOUCLIER_MARGE_VIDE
+		+ (Statuts.BOUCLIER_MARGE_PLEIN - Statuts.BOUCLIER_MARGE_VIDE) * part
+end
+
 -- ===== SOIN =====
 -- Un soin ne depasse JAMAIS les PV maximaux et ne ressuscite pas : un soigneur derriere un tank
 -- prolonge une poussee, il ne la rend pas eternelle.

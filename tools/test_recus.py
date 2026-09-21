@@ -104,7 +104,7 @@ for i = 1, 10 do
   table.insert(CARDS.list, c)
   CARDS.byId[c.id] = c
 end
-require = function(m) if m == "Arenes" then return ARENES end return CARDS end
+require = function(m) if m == "Arenes" then return ARENES end if m == "Ligues" then return LIGUES end if m == "PassSaison" then return PASSSAISON end if m == "Saison" then return SAISON end if m == "Journal" then return JOURNAL end return CARDS end
 """
 
 ECHECS = []
@@ -136,6 +136,11 @@ def main():
     # ARENES : le VRAI module partage, charge AVANT Economie — recompenser passe par lui.
     lua.execute("math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end")
     lua.execute("ARENES = (function() " + (ROOT / "src/shared/Arenes.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("LIGUES = (function() " + (ROOT / "src/shared/Ligues.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("PASSSAISON = (function() " + (ROOT / "src/shared/PassSaison.lua").read_text(encoding="utf-8") + " end)()")
+    # SAISON : module pur requis par Economie depuis les saisons de classement.
+    lua.execute("SAISON = (function() " + (ROOT / "src/shared/Saison.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("JOURNAL = (function() " + (ROOT / "src/shared/Journal.lua").read_text(encoding="utf-8") + " end)()")
     lua.execute(PRELUDE)
     code = luau_vers_lua(SRC.read_text(encoding="utf-8"))
     Economie = lua.execute("return (function() " + code + " end)()")

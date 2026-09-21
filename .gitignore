@@ -16,10 +16,20 @@ __pycache__/
 place-*.rbxlx
 priv-*.rbxlx
 
+# Places construites a la main pour une capture ponctuelle (nommees d'apres la conversation ou le
+# sujet). Comme place-*.rbxlx : regenerables par build.py, plusieurs centaines de Ko chacune.
+/*.conv*.rbxlx
+/*.recap.rbxlx
+
 # Captures d'ecran de verification (Studio) prises a la racine. Les icones de la boutique,
 # elles, sont de VRAIS assets du jeu et restent suivies (tools/boutique/*.png).
 /capture-*.png
+# photos de test, rangees ici par defaut depuis le 2026-09-21 (outils studio-capture-*.ps1)
+/captures/
 /cap-*.png
+/decor-*.png
+/recap-*.png
+/crop-*.png
 /captures-ratees/
 /captures-perimees/
 
@@ -31,3 +41,10 @@ priv-*.rbxlx
 
 # Base de connaissances locale : ce n'est pas le jeu.
 /brain/
+# anciennes sauvegardes .bak rangees hors de la racine (2026-09-21), jamais supprimees
+/archives/
+
+# captures d ecran ponctuelles posees a la racine (les vrais assets vivent dans tools/boutique/)
+/*.png
+# ancienne copie de travail d une refonte du menu
+/.remake-menu/

@@ -82,6 +82,35 @@ def main():
         cas("%s : la fille ne pond pas elle-meme" % m, False, D.laisseQuelqueChose(fille))
 
     m0 = meres[0]
+    # 1 bis. COHERENCE avec l'identite de la carte : la descendance est le privilege d'un
+    # colosse SEUL, et elle ne doit jamais rendre plus de la moitie de ce qu'on vient d'abattre.
+    import re as _re
+
+    def fiche(ident):
+        j = cartes.find('id = "%s"' % ident)
+        bloc = cartes[j:j + 900]
+        g = lambda cle, defaut: int((_re.search(cle + r" = (\d+)", bloc) or [0, defaut])[1])
+        return lua.table_from(dict(count=g("count", 1), hp=g("hp", 0)))
+
+    for m in meres:
+        pr = D.profil(m)
+        ok, raison = D.coherente(m, fiche(m), fiche(pr.fille))
+        part = int(fiche(pr.fille).hp * int(pr.nombre) * 100 / max(1, fiche(m).hp))
+        print("    %-10s rend %d%% de sa mere" % (m, part))
+        cas("%s est un colosse seul, et rend peu" % m, True, bool(ok) or raison)
+    # le garde-fou mord : groupe, poids plume, descendance trop genereuse
+    grosse = lua.table_from(dict(count=1, hp=2000))
+    cas("un groupe ne pond pas a sa mort", False,
+        bool(D.coherente(m0, lua.table_from(dict(count=3, hp=2000)), None)[0]))
+    cas("une unite legere non plus", False,
+        bool(D.coherente(m0, lua.table_from(dict(count=1, hp=300)), None)[0]))
+    cas("ni une descendance qui rend plus que la moitie", False,
+        bool(D.coherente(m0, grosse, lua.table_from(dict(hp=900)))[0]))
+    cas("mais une descendance modeste, oui", True,
+        bool(D.coherente(m0, grosse, lua.table_from(dict(hp=200)))[0]))
+    cas("et la regle ne dit rien des cartes sans descendance", True,
+        bool(D.coherente("Tralalero", lua.table_from(dict(count=9, hp=1)), None)[0]))
+
     p0 = D.profil(m0)
 
     # 4. anti-cascade

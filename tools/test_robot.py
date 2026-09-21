@@ -54,7 +54,14 @@ def main():
     cas("un joueur aguerri affronte un expert", "expert", expert.nom)
     cas("le debutant reflechit plus longtemps", True, float(debutant.reflexe) > float(expert.reflexe))
     cas("le debutant se trompe, l'expert non", True, float(debutant.erreur) > 0 and float(expert.erreur) == 0)
-    cas("l'expert attaque plus tot", True, int(expert.gardeElixir) < int(debutant.gardeElixir))
+    # RENVERSE PAR LA MESURE (2026-09-21, 120 parties, les six duels de paliers deux a deux).
+    # Ce banc exigeait que l'expert attaque PLUS TOT, au nom de « l'expert est plus agressif ».
+    # Resultat en partie : debutant 35 victoires, normal 33, aguerri 27, expert 25 — l'inverse
+    # exact de l'ordre voulu, avec r = +0,98 entre le seuil d'attaque et les victoires. Attaquer
+    # tot est une FAIBLESSE : le robot descend a sec et subit la riposte. L'exigence est donc
+    # inversee : la patience appartient au meilleur.
+    cas("l'expert est PLUS PATIENT que le debutant", True,
+        int(expert.gardeElixir) > int(debutant.gardeElixir))
     cas("le debutant ne repond pas encore aux volants", False, bool(debutant.anticipe))
     cas("l'expert, si", True, bool(expert.anticipe))
 
@@ -65,7 +72,9 @@ def main():
     gardes = [int(p.gardeElixir) for _, p in valeurs]
     cas("le reflexe ne remonte jamais", True, all(reflexes[i] >= reflexes[i + 1] for i in range(len(reflexes) - 1)))
     cas("l'erreur ne remonte jamais", True, all(erreurs[i] >= erreurs[i + 1] for i in range(len(erreurs) - 1)))
-    cas("la garde d'elixir ne remonte jamais", True, all(gardes[i] >= gardes[i + 1] for i in range(len(gardes) - 1)))
+    # meme renversement que ci-dessus : le seuil d'attaque doit MONTER avec les trophees.
+    cas("la garde d'elixir ne redescend jamais", True,
+        all(gardes[i] <= gardes[i + 1] for i in range(len(gardes) - 1)))
     noms = []
     for _, p in valeurs:
         if not noms or noms[-1] != p.nom:
@@ -97,8 +106,12 @@ def main():
     court, long = float(R.delai(expert, 0)), float(R.delai(expert, 1))
     cas("le delai part du reflexe", float(expert.reflexe), court)
     cas("et ne depasse pas +50 %%", round(float(expert.reflexe) * 1.5, 6), round(long, 6))
-    cas("un debutant reste plus lent qu'un expert, meme au mieux", True,
-        float(R.delai(debutant, 0)) > float(R.delai(expert, 1)))
+    # Experience du 2026-09-21 (duel normal contre expert, 60 parties par reglage) : a 1,1 s de
+    # reflexion l'expert gagnait 35 a 42 % selon son seuil ; ramene a 2,4 s, il gagne 67 %
+    # (p = 0,013). Un robot qui reflechit trop vite reagit a tout et se disperse. La vitesse ne
+    # separe donc plus les paliers hauts ; seul le debutant reste plus lent.
+    cas("un debutant n'est jamais plus rapide qu'un expert, a tirage egal", True,
+        float(R.delai(debutant, 0)) >= float(R.delai(expert, 0)))
 
     # 7. CONTRE-ATTAQUE : punir une attaque repoussee
     def etat(**kw):
@@ -146,10 +159,16 @@ def main():
 
     normal = R.profil(300)
     cas("hors ouverture : seuil normal", float(normal.gardeElixir), float(R.gardeAttaque(normal, False)))
-    cas("en ouverture : il attend plus", float(normal.gardeElixir) + supp,
+    # « Economiser en ouverture » : un retrait aux trois paliers hauts a ete ESSAYE et MESURE le
+    # 2026-09-21 — l'expert chutait de 67 % a 37 % contre le normal. Garde donc.
+    cas("en ouverture : le normal attend plus", float(normal.gardeElixir) + supp,
         float(R.gardeAttaque(normal, True)))
     cas("un debutant ne sait pas economiser", float(debutant.gardeElixir),
         float(R.gardeAttaque(debutant, True)))
+    # la MECANIQUE reste disponible et juste, verifiee sur un profil fabrique
+    econome = lua.table_from(dict(gardeElixir=6, economise=True))
+    cas("un profil econome attendrait bien plus en ouverture", 6.0 + supp,
+        float(R.gardeAttaque(econome, True)))
     # invariant reel : AUCUN profil, dans AUCUN cas, n'exige plus que le plafond du jeu —
     # un seuil a 11 rendrait le robot definitivement inerte.
     tous_seuils = [float(R.gardeAttaque(p, ouv)) for _, p in valeurs for ouv in (True, False)]
@@ -159,19 +178,12 @@ def main():
     haut = lua.table_from(dict(gardeElixir=9, economise=True))
     cas("seuil eleve + ouverture : borne au plafond", plafond, float(R.gardeAttaque(haut, True)))
     cas("sans profil : on exige le plafond", plafond, float(R.gardeAttaque(None, False)))
-    # MONOTONIE, version corrigee. Premiere ecriture de ce cas : « un robot plus fort n'attend
-    # jamais plus longtemps ». Le banc l'a refuse, et il avait raison de le faire : en ouverture,
-    # le DEBUTANT (qui n'economise pas) ouvre plus tot que le NORMAL. Ce n'est pas une regression,
-    # c'est le sens meme de la regle — economiser est un BON geste, pas une faiblesse. L'invariant
-    # qui compte porte donc sur les profils qui economisent entre eux.
-    economes = [p for _, p in valeurs if bool(p.economise)]
-    seuils = [float(R.gardeAttaque(p, True)) for p in economes]
-    cas("entre robots qui economisent, la monotonie tient", True,
-        all(seuils[i] >= seuils[i + 1] for i in range(len(seuils) - 1)))
-    cas("le debutant, lui, ouvre trop tot : c'est sa faiblesse", True,
-        float(R.gardeAttaque(debutant, True)) < float(R.gardeAttaque(normal, True)))
-    cas("l'expert ouvre plus tot que le normal, meme en ouverture", True,
-        float(R.gardeAttaque(expert, True)) < float(R.gardeAttaque(normal, True)))
+    # MONOTONIE en ouverture : le seuil suit le palier, rien ne l'inverse.
+    seuils = [float(R.gardeAttaque(R.profil(t), True)) for t in (0, 300, 800, 3000)]
+    cas("en ouverture, le seuil suit le palier", True,
+        all(seuils[i] <= seuils[i + 1] for i in range(len(seuils) - 1)))
+    cas("l'expert n'ouvre jamais plus tot que le normal, meme en ouverture", True,
+        float(R.gardeAttaque(expert, True)) >= float(R.gardeAttaque(normal, True)))
 
     # 9. ERREUR DE PLACEMENT : la faute la plus courante d'un debutant
     ecart_deb = float(R.ecartPlacement(debutant))
@@ -215,7 +227,12 @@ def main():
     cas("le serveur exige plus d'elixir en ouverture", True, "Robot.gardeAttaque(" in serveur)
     cas("le serveur devie la pose du robot", True, "Robot.deviation(" in serveur)
     # la defense ne doit PAS etre bridee par l'ouverture : elle passe avant, dans la meme decision
-    cas("la defense reste prioritaire", True, serveur.index("elseif enDanger then") < serveur.index("Robot.gardeAttaque("))
+    # Assertion recentree le 2026-09-21 : elle comparait la position de `Robot.gardeAttaque(`
+    # dans le FICHIER, et cassait des qu'on calculait le seuil d'attaque avant le if — alors que
+    # la logique etait intacte. Ce qui compte, c'est l'ordre des BRANCHES de decision : la
+    # defense (`elseif enDanger then`) doit etre examinee avant la branche d'attaque.
+    cas("la defense reste prioritaire", True,
+        serveur.index("elseif enDanger then") < serveur.index("t.elixir >= seuilAttaque"))
 
     if ECHECS:
         print("ROUGE : " + ", ".join(ECHECS))

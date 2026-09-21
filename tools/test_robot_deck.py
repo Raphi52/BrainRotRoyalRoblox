@@ -24,9 +24,12 @@ from lupa import LuaRuntime
 # ARENES : le VRAI module partage (src/shared/Arenes.lua), injecte dans le faux
 # environnement. Un bouchon rendrait le banc aveugle a une regression des trophees.
 _ARENES_SRC = (pathlib.Path(__file__).resolve().parent.parent / "src/shared/Arenes.lua").read_text(encoding="utf-8")
+_SAISON_SRC = (pathlib.Path(__file__).resolve().parent.parent / "src/shared/Saison.lua").read_text(encoding="utf-8")
 PRELUDE_ARENES = (
     "math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end"
     + chr(10) + "ARENES = (function() " + _ARENES_SRC + " end)()"
+    # SAISON : module pur requis par Economie depuis les saisons de classement.
+    + chr(10) + "SAISON = (function() " + _SAISON_SRC + " end)()"
 )
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -98,7 +101,10 @@ def main():
     cartes = lua.execute("return (function() " + CARDS.read_text(encoding="utf-8") + " end)()")
     lua.globals().CARDS = cartes
     lua.execute(PRELUDE_ARENES)
-    lua.execute("require = function(m) if m == 'Arenes' then return ARENES end return CARDS end")
+    import pathlib as _pl_ligues
+    lua.execute("LIGUES = (function() " + (_pl_ligues.Path(__file__).resolve().parent.parent / "src/shared/Ligues.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("PASSSAISON = (function() " + (_pl_ligues.Path(__file__).resolve().parent.parent / "src/shared/PassSaison.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("require = function(m) if m == 'Arenes' then return ARENES end if m == 'Saison' then return SAISON end return CARDS end")
     Economie = lua.execute("return (function() " + luau_vers_lua(ECONOMIE.read_text(encoding="utf-8")) + " end)()")
 
     if Economie.cartesRobot is None:

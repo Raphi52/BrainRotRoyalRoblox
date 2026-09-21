@@ -42,7 +42,9 @@ local function faux_store()
   }
 end
 
-local Shared = { WaitForChild = function(_, _n) return "CARDS" end }
+-- WaitForChild rend le NOM demande : le faux `require` ci-dessous sait alors quel module
+-- rendre. En rendant toujours "CARDS", il rendait le catalogue bidon pour TOUS les modules.
+local Shared = { WaitForChild = function(_, n) return n end }
 local services = {
   Players = {},
   DataStoreService = { GetDataStore = function(_, _n) return faux_store() end },
@@ -74,11 +76,24 @@ end
 local payante = { id = "vip", name = "vip", prix = 500 }
 table.insert(CARDS.list, payante)
 CARDS.byId["vip"] = payante
-require = function(_m) return CARDS end
+-- Chaque module partage dont Economie depend doit etre declare ici, sinon `require` rend le
+-- catalogue bidon et ses fonctions sont nil (mesure du 2026-09-20 : Arenes, puis Saison).
+require = function(m)
+  if m == "Arenes" then return ARENES end if m == "Ligues" then return LIGUES end if m == "PassSaison" then return PASSSAISON end
+  if m == "Saison" then return SAISON end if m == "Journal" then return JOURNAL end
+  return CARDS
+end
 """
 
 
 def charger(lua):
+    # Les VRAIS modules partages dont Economie depend, injectes avant lui.
+    lua.execute("math.clamp = math.clamp or function(x, a, b) return math.max(a, math.min(b, x)) end")
+    for _nom, _f in (("ARENES", "Arenes"), ("SAISON", "Saison"), ("LIGUES", "Ligues"), ("PASSSAISON", "PassSaison")):
+        _src = (ROOT / "src" / "shared" / (_f + ".lua")).read_text(encoding="utf-8")
+        lua.execute(_nom + " = (function() " + _src + " end)()")
+    lua.execute("SAISON = (function() " + (pathlib.Path(__file__).resolve().parent.parent / "src/shared/Saison.lua").read_text(encoding="utf-8") + " end)()")
+    lua.execute("JOURNAL = (function() " + (pathlib.Path(__file__).resolve().parent.parent / "src/shared/Journal.lua").read_text(encoding="utf-8") + " end)()")
     lua.execute(PRELUDE)
     code = luau_vers_lua(SRC.read_text(encoding="utf-8"))
     return lua.execute("return (function() " + code + " end)()")

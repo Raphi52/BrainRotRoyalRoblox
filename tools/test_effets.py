@@ -32,6 +32,10 @@ Instance = { new = function(cls)
   TOUS[cls] = TOUS[cls] or {}
   table.insert(TOUS[cls], o)
   o.Emit = function(_, n) EMIS = EMIS + n end
+  local attrs = {}
+  o.SetAttribute = function(_, k, v) attrs[k] = v end
+  o.GetAttribute = function(_, k) return attrs[k] end
+  o.FindFirstChild = function() return nil end
   return o
 end }
 local TweenService = { Create = function(_, _inst, _info, _props)
@@ -102,7 +106,7 @@ def main():
     couleur = "ROUGE"
     arene = lua.eval("{}")
 
-    attendus = ["mort", "tourDetruite", "impact", "pose", "victoire"]
+    attendus = ["mort", "tourDetruite", "impact", "pose", "victoire", "couronne"]
     manquants = [n for n in attendus if Effets[n] is None]
     if manquants:
         print("ROUGE : effets manquants -> %s" % ", ".join(manquants))
@@ -164,6 +168,49 @@ def main():
     for nom in attendus:
         if ("Effets." + nom + "(") not in serveur:
             echecs.append("Effets.%s n'est appele nulle part dans GameServer" % nom)
+    # IMPACT LISIBLE : gerbe de la couleur du tir + etincelles blanches (2 emetteurs), sinon le
+    # coup se perd dans la melee. COURONNE : une couronne doree MONTE (animation) au-dessus de la tour.
+    avant = int(g.CREES["ParticleEmitter"] or 0)
+    Effets.impact(arene, pos, couleur)
+    if int(g.CREES["ParticleEmitter"]) - avant < 2:
+        echecs.append("impact : un seul emetteur, pas d'etincelles")
+    avantT = int(g.TWEENS)
+    if Effets.couronne is not None:
+        Effets.couronne(arene, pos, couleur)
+        if int(g.TWEENS) - avantT < 2:
+            echecs.append("couronne : pas de couronne qui monte (animation) ni d'onde")
+        # LISIBLE EN JEU (capture du 2026-09-21) : a 5 studs et 1,4 s, la couronne se fondait
+        # dans l'eclat et sa forme ne se distinguait pas. Il faut >= 2,5 s et >= 8 studs.
+        if (Effets.COURONNE_DUREE or 0) < 2.5:
+            echecs.append("couronne : visible moins de 2,5 s")
+        if (Effets.COURONNE_TAILLE or 0) < 8:
+            echecs.append("couronne : moins de 8 studs, forme illisible")
+    # GEL SPECTACULAIRE (2026-09-21) : une simple boite de glace a 45 % de transparence se lisait
+    # comme une unite « devenue blanche » (capture Rugissement). Il faut : coque + CRISTAUX +
+    # PARTICULES de givre sur l'unite, et une ONDE de givre au Rugissement.
+    corps = lua.eval("{ Size = Vector3.new(3, 3, 4), CFrame = CFrame.new(), FindFirstChild = function() return nil end }")
+    avP, avE = int(g.CREES["Part"] or 0), int(g.CREES["ParticleEmitter"] or 0)
+    Effets.givrer(corps, corps.Size)
+    if int(g.CREES["Part"] or 0) - avP < 5:
+        echecs.append("gel : coque seule, sans cristaux (au moins 4 attendus)")
+    if int(g.CREES["ParticleEmitter"] or 0) - avE < 1:
+        echecs.append("gel : aucune particule de givre sur l'unite gelee")
+    if Effets.ondeGivre is None:
+        echecs.append("Effets.ondeGivre absent : le Rugissement n'a pas d'onde de givre")
+    else:
+        avT, avEm, avPart = int(g.TWEENS), int(g.EMIS), int(g.CREES["Part"] or 0)
+        Effets.ondeGivre(arene, pos, 7)
+        # PICS DE GLACE (2026-09-21) : l'anneau plat se fondait dans sa propre lumiere vu de la
+        # camera de jeu. Il faut un CERCLE DE PICS qui sortent du sol (au moins 10).
+        if int(g.CREES["Part"] or 0) - avPart < 10:
+            echecs.append("onde de givre : pas de cercle de pics de glace (au moins 10)")
+        corpsOnde = SRC.read_text(encoding="utf-8").split("function Effets.ondeGivre")[1].split(chr(10) + "end" + chr(10))[0]
+        if "onde(parent" in corpsOnde:
+            echecs.append("onde de givre : l'anneau plat est encore la")
+        if int(g.TWEENS) - avT < 1 or int(g.EMIS) - avEm < 10:
+            echecs.append("onde de givre : ni anneau qui s'etend ni gerbe de givre")
+    if "Effets.ondeGivre(" not in serveur:
+        echecs.append("le Rugissement ne declenche pas l'onde de givre")
     source = SRC.read_text(encoding="utf-8")
     if "rbxassetid" in source:
         echecs.append("le module depend d'un identifiant d'asset : non portable")

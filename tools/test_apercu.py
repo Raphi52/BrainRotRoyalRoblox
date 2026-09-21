@@ -110,6 +110,31 @@ def main():
     gros = par_id["Nuclearo"]
     cas("une grande unite ne s'enfonce pas", True, float(A.hauteurAuSol(gros, sol)) > float(A.hauteurAuSol(solo, sol)))
 
+    # 7. PORTEE D'ATTAQUE, AVANT LA POSE. Defaut mesure le 2026-09-20 : l'apercu montrait ou la
+    # pose est permise et l'emprise de la carte, mais rien ne disait jusqu'ou elle FRAPPERA. On
+    # posait un tireur trois studs trop bas et on l'apprenait apres, l'elixir deja parti.
+    tireur = par_id["Ballerina"]
+    cas("un tireur montre sa portee", float(tireur.range), float(A.rayonPortee(tireur) or 0))
+    cas("et c'est bien celle du catalogue, pas une valeur inventee", True,
+        A.rayonPortee(tireur) == tireur.range)
+    # Un SORT : son rayon d'effet EST deja le disque de pose, un second cercle ferait doublon.
+    sortCarte = par_id["GelatoGlaciale"]
+    cas("un sort n'a pas de second cercle", None, A.rayonPortee(sortCarte))
+    # CORPS A CORPS : le cercle collerait au disque de pose et n'apprendrait rien. La limite est
+    # celle du catalogue (« range < 5 = melee »).
+    melee = [c for c in par_id.values() if c.range and float(c.range) < 5 and not c.sort]
+    cas("aucun corps a corps ne trace de cercle", [],
+        [c.id for c in melee if A.rayonPortee(c) is not None])
+    cas("la limite est celle du catalogue", 5, float(A.PORTEE_MINI))
+    # Une carte qui ne frappe PAS (collecteur d'elixir, leurre) n'a pas de portee a montrer.
+    pompe = par_id["PompaElixir"]
+    cas("un collecteur d'elixir ne trace rien", None, A.rayonPortee(pompe))
+    cas("ni une carte absente", None, A.rayonPortee(None))
+    # Le cercle de portee doit rester DISCRET : c'est un repere, le disque vert/rouge reste
+    # l'information principale.
+    cas("le cercle de portee est plus efface que le disque", True,
+        float(A.TRANSPARENCE_PORTEE) > 0.3)
+
     # 7. branchement reel cote client
     client = CLIENT.read_text(encoding="utf-8")
     cas("le client construit l'apercu", True, "Apercu.piecesFantome(" in client)
@@ -118,6 +143,26 @@ def main():
     cas("le client pose le fantome au sol", True, "Apercu.hauteurAuSol(" in client)
     cas("le client efface l'apercu", True, "effacerApercu" in client)
     cas("l'apercu suit la visee en continu", True, "RenderStepped" in client or "Heartbeat" in client)
+    cas("le client trace le cercle de portee", True, "Apercu.rayonPortee(card)" in client)
+    cas("avec la couleur et la discretion du module", True,
+        "Apercu.COULEUR_PORTEE" in client and "Apercu.TRANSPARENCE_PORTEE" in client)
+    # Il suit la visee comme le disque, sinon il resterait fige au premier point vise.
+    cas("le cercle suit la visee", True,
+        "seg.part.CFrame = CFrame.new(p.X + seg.x, 0.58, p.Z + seg.z)" in client)
+    # ANNEAU et non disque : deux disques pleins superposes donnaient une seule tache (capture).
+    cas("la portee se dessine en anneau", True, "Apercu.segmentsAnneau(rayonPortee)" in client)
+    seg = [dict(x) for x in A.segmentsAnneau(9, 8).values()]
+    cas("autant de segments que demande", 8, len(seg))
+    cas("ils sont tous a la bonne distance du centre", True,
+        all(abs((s["x"] ** 2 + s["z"] ** 2) ** 0.5 - 9) < 1e-9 for s in seg))
+    cas("leur longueur couvre le tour du cercle", True,
+        abs(sum(s["longueur"] for s in seg) - 2 * 3.141592653589793 * 9 * 1.15) < 1e-6)
+    cas("jamais moins de 6 segments (un cercle a 3 bouts n'est plus un cercle)", 6,
+        len(list(A.segmentsAnneau(9, 2).values())))
+    # Sous le disque de pose : sinon le grand cercle pale recouvre le petit disque vert ou rouge.
+    cas("il passe SOUS le disque de pose", True, "0.58" in client and "0.62" in client)
+    # Change de carte : le cercle de l'ancienne ne doit pas survivre.
+    cas("il disparait avec l'apercu", True, "apercuPortee = nil" in client)
 
     if ECHECS:
         print("ROUGE : " + ", ".join(ECHECS))

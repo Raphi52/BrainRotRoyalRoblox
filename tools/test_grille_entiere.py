@@ -18,7 +18,8 @@ for prop, args in re.findall(r"layout\.(CellSize|CellPadding) = UDim2\.new\(([^\
     champs = [c.strip() for c in args.split(",")]
     if len(champs) == 4 and champs[2] != "0":
         echecs.append("%s garde une hauteur en proportion (%s) : rangee coupee" % (prop, champs[2]))
-for h, e in re.findall(r"grilleDefilante\(.*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*\)\s*$", src, re.M):
+# hauteur et ecart sont des DECIMAUX ; une marge entiere optionnelle peut suivre (2026-09-21)
+for h, e in re.findall(r"grilleDefilante\(.*?,\s*([0-9]*\.[0-9]+)\s*,\s*([0-9]*\.[0-9]+)\s*(?:,\s*\d+\s*)?\)\s*$", src, re.M):
     if 1 / (float(h) + float(e)) < 1:
         echecs.append("appel avec %s/%s : moins d'une rangee tient dans la fenetre" % (h, e))
 

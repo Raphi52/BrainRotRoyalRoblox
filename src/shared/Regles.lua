@@ -45,6 +45,80 @@ function Regles.phase(tempsRestant, dureeMatch, enProlongation)
 	return "normale"
 end
 
+-- PREAVIS DE DOUBLE ELIXIR. Defaut mesure le 2026-09-20 : le passage au double elixir etait
+-- annonce A L'INSTANT OU IL ARRIVE (« DOUBLE ELIXIR ! »). Or toute la decision se prend AVANT :
+-- garder son elixir quelques secondes pour partir en poussee des le basculement, ou depenser
+-- maintenant. Sans preavis, l'annonce n'apprend rien — elle constate.
+-- Le joueur le voyait venir seulement s'il calculait de tete le dernier tiers du chrono.
+-- GEOMETRIE DU TERRAIN et RYTHME DE L'ELIXIR. Elles vivaient en variables locales du serveur,
+-- alors que ce sont des regles de jeu — et le serveur touchait la limite Luau de 200 variables
+-- locales. Ici, elles sont aussi lisibles par un banc.
+Regles.LARGEUR_PONT = 4
+Regles.DEMI_RIVIERE = 2.2
+Regles.ELIXIR_PAR_SEC = 1 / 2.8 -- une goutte toutes les 2,8 s en elixir simple
+
+Regles.PREAVIS = 10 -- secondes de compte a rebours avant le basculement
+
+-- Secondes restantes avant le double elixir, ou nil s'il est deja la (ou en prolongation).
+function Regles.avantDouble(tempsRestant, dureeMatch, enProlongation)
+	if enProlongation then
+		return nil
+	end
+	local reste = (tonumber(tempsRestant) or 0) - Regles.seuilDouble(dureeMatch)
+	if reste <= 0 then
+		return nil
+	end
+	return reste
+end
+
+-- Texte du preavis, ou nil quand il n'y a rien a annoncer : « DOUBLE ELIXIR DANS 7 ».
+-- Arrondi au SUPERIEUR, comme un compte a rebours : on annonce 1 tant qu'il reste une fraction.
+function Regles.texteAvantDouble(tempsRestant, dureeMatch, enProlongation)
+	local reste = Regles.avantDouble(tempsRestant, dureeMatch, enProlongation)
+	if not reste or reste > Regles.PREAVIS then
+		return nil
+	end
+	return "DOUBLE ELIXIR DANS " .. math.ceil(reste)
+end
+
+-- PREAVIS DE FIN DU TEMPS REGLEMENTAIRE. Meme defaut que pour le double elixir, en pire : on
+-- DECOUVRAIT la prolongation en y entrant. Or les dernieres secondes ne se jouent pas pareil selon
+-- qu'on va vers une prolongation (garder son elixir, la premiere tour prise gagne) ou vers la fin
+-- seche (tout envoyer, ou au contraire tout defendre). Le joueur devait comparer les couronnes ET
+-- surveiller le chrono lui-meme, au moment ou il a le moins de temps pour le faire.
+-- Le texte DIT laquelle des deux arrive, parce que ce sont deux jeux differents.
+function Regles.texteAvantFin(tempsRestant, couronnes1, couronnes2, enProlongation)
+	if enProlongation then
+		return nil -- la prolongation est deja la : plus rien a annoncer
+	end
+	local reste = tonumber(tempsRestant) or 0
+	if reste <= 0 or reste > Regles.PREAVIS then
+		return nil
+	end
+	local n = math.ceil(reste)
+	-- Egalite de couronnes = prolongation (Regles.finDuTemps rend nil). Une seule source de
+	-- verite : on l'INTERROGE au lieu de recopier sa regle.
+	if Regles.finDuTemps(couronnes1 or 0, couronnes2 or 0) == nil then
+		return "PROLONGATION DANS " .. n
+	end
+	return "FIN DANS " .. n
+end
+
+-- RAPPEL PERMANENT DE LA PROLONGATION. Defaut mesure le 2026-09-20 : l'entree en prolongation
+-- etait annoncee par un « PROLONGATION ! » de deux secondes et demie, puis plus rien. Or la
+-- prolongation ne se joue PAS comme le reste de la partie : la premiere tour prise gagne
+-- sur-le-champ. Un joueur qui n'a pas lu le manuel defendait comme d'habitude, et perdait sans
+-- comprendre pourquoi une seule tour avait suffi. La regle doit rester SOUS LES YEUX tant qu'elle
+-- s'applique, pas passer en coup de vent.
+Regles.RAPPEL_PROLONGATION = "MORT SUBITE : LA PREMIERE TOUR PRISE GAGNE"
+
+function Regles.rappelProlongation(enProlongation)
+	if not enProlongation then
+		return nil
+	end
+	return Regles.RAPPEL_PROLONGATION
+end
+
 -- FIN DU TEMPS REGLEMENTAIRE. Rend le vainqueur (1 ou 2), ou nil s'il faut jouer la prolongation.
 -- Une partie ne se termine plus sur une egalite de couronnes : elle se joue.
 function Regles.finDuTemps(couronnes1, couronnes2)
@@ -105,5 +179,12 @@ function Regles.peutViserVolant(card)
 	end
 	return card.flying == true or (card.range or 0) >= 5
 end
+
+-- ACCELERATION des series de simulation : le temps de jeu avance SIM_ACCEL fois plus vite qu'en
+-- temps reel. Deplacee ici depuis GameServer le 2026-09-21 — le fichier principal du serveur est
+-- a la limite des 200 variables locales de Luau. C'est aussi sa place : tout depouillement doit
+-- pouvoir lire ce facteur pour convertir un temps mural en temps de JEU (voir tools/depouille.py,
+-- ou l'oublier avait fausse une mesure d'un facteur 8).
+Regles.SIM_ACCEL = 8
 
 return Regles

@@ -39,8 +39,13 @@ end
 
 -- Degats appliques a UNE cible. Une TOUR encaisse moins qu'une unite (regle classique du genre) :
 -- sans cela, deux sorts suffisaient a raser une tour sans jamais attaquer avec des unites.
-function Sorts.degats(sort, estBatiment)
-	local d = sort.degats or 0
+-- `mult` (facultatif) : multiplicateur de NIVEAU de la carte chez celui qui la lance.
+-- Defaut mesure le 2026-09-21 : le niveau s'appliquait aux PV et degats des unites, au bouclier,
+-- aux soins et aux degats de mort — mais PAS aux degats d'un sort. Ameliorer Pizza Bombarda
+-- coutait des pieces et des exemplaires, et n'augmentait pas ses degats : un achat qui ne
+-- rapportait rien sur le seul chiffre qui compte pour un sort de degats.
+function Sorts.degats(sort, estBatiment, mult)
+	local d = (sort.degats or 0) * (tonumber(mult) or 1)
 	if estBatiment then
 		-- arrondi AU PLUS PROCHE : 340 x 0,35 vaut 118,999... en virgule flottante, et un
 		-- `floor` rendait 118 la ou la regle annonce 119 (vu au banc, 2026-09-20).

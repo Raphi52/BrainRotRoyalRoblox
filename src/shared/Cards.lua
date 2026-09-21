@@ -719,7 +719,7 @@ local Cards = {
 		},
 	},
 	{
-		id = "AquilaFrizzante", name = "Aquila Frizzante", cost = 4, desc = "Aigle gazeuse : vole et tire loin",
+		id = "AquilaFrizzante", name = "Aquila Frizzante", cost = 4, desc = "Aigle gazeuse : vole et tire en mouvement",
 		hp = 430, dmg = 95, range = 6.5, speed = 12, atkSpeed = 1.0, count = 1, flying = true,
 		targets = "any", color = Color3.fromRGB(255, 165, 70), size = Vector3.new(3, 2, 3),
 		vitesseTir = 60,
@@ -825,8 +825,52 @@ local RARETES = {
 	commune = { nom = "Commune", couleur = Color3.fromRGB(170, 180, 200) },
 	rare = { nom = "Rare", couleur = Color3.fromRGB(90, 190, 255) },
 	epique = { nom = "Epique", couleur = Color3.fromRGB(190, 110, 255) },
-	legendaire = { nom = "Legendaire", couleur = Color3.fromRGB(255, 190, 60) },
+	-- ORANGE-OR : a (255,190,60) la legendaire se confondait avec l'or des PIECES (capture de la
+	-- revelation du 2026-09-21). Elle a desormais sa propre teinte, partout ou la rarete se dessine.
+	legendaire = { nom = "Legendaire", couleur = Color3.fromRGB(255, 140, 30) },
 }
+
+-- CHAMPIONS (2026-09-21) : cartes a CAPACITE ACTIVABLE (module Champions). Chacun reprend la
+-- silhouette et le MODELE 3D de sa carte de base (champ `modele`), en plus grand, couronne doree
+-- sur la tete. Un seul par deck (Economie). `capacite` = cle de Champions.CAPACITES.
+local function champion(baseId, champ)
+	local base
+	for _, c in ipairs(Cards) do
+		if c.id == baseId then
+			base = c
+		end
+	end
+	local c = {}
+	for k, v in pairs(base) do
+		c[k] = v
+	end
+	c.morceaux = {}
+	for _, m in ipairs(base.morceaux or {}) do
+		table.insert(c.morceaux, m)
+	end
+	-- sommet de la silhouette de base, DONNE par le champion (mesure sur ses morceaux)
+	local haut = champ.couronneY or 3
+	-- couronne doree : bandeau + trois pointes, posee au sommet de la silhouette
+	local OR = Color3.fromRGB(255, 205, 60)
+	table.insert(c.morceaux, { pos = Vector3.new(0, haut + 0.25, 0), taille = Vector3.new(1.6, 0.5, 1.6), couleur = OR })
+	for i = -1, 1 do
+		table.insert(c.morceaux, { pos = Vector3.new(i * 0.6, haut + 0.75, 0), taille = Vector3.new(0.35, 0.6, 0.35), couleur = OR })
+	end
+	c.modele = baseId
+	for k, v in pairs(champ) do
+		c[k] = v
+	end
+	table.insert(Cards, c)
+end
+-- DUELLISTE : peu de PV, gros coups ; sa survie vient de son Bouclier royal (capacite), pas de ses PV.
+champion("Tralalero", { id = "RoiTralalero", name = "Roi Tralalero", prix = 1500, cost = 4,
+	hp = 640, dmg = 260, speed = 12, echelle = 1.3, hauteurModele = 6, capacite = "bouclierRoyal", couronneY = 3.5,
+	desc = "CHAMPION - capacite : Bouclier royal (2 elixir)" })
+champion("Patapim", { id = "PatapimAncien", name = "Patapim l'Ancien", prix = 1500, cost = 6,
+	-- COMBATTANT (et non plus fonceur de tours comme sa carte de base) : il se defend, et son
+	-- Rugissement gele ce qui l entoure.
+	hp = 2400, dmg = 210, atkSpeed = 1.5, splash = 3, targets = "any", echelle = 1.2, hauteurModele = 7.5, capacite = "rugissement", couronneY = 6.7,
+	desc = "CHAMPION - capacite : Rugissement, gele les ennemis proches (2 elixir)" })
 
 local function rareteDe(prix)
 	if not prix then

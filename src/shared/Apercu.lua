@@ -45,6 +45,60 @@ end
 -- MESURE DU 2026-09-20 (capture --apercu) : teinter tout le fantome en vert neon donnait une
 -- MASSE lumineuse ou l'on ne reconnaissait plus la carte. La silhouette garde donc ses couleurs
 -- (on identifie ce qu'on pose) et c'est le DISQUE au sol qui dit oui ou non.
+-- PORTEE D'ATTAQUE, MONTREE AVANT LA POSE. Defaut mesure le 2026-09-20 : l'apercu montrait ou la
+-- pose est PERMISE et l'emprise de la carte, mais rien ne disait jusqu'ou elle FRAPPERA une fois
+-- posee. On decouvrait apres coup qu'un tireur pose trois studs trop bas n'atteignait pas la tour,
+-- et l'elixir etait deja parti. Le second cercle repond a la seule question qui compte a cet
+-- instant : « de la, est-ce que ca touche ? ».
+Apercu.COULEUR_PORTEE = Color3.fromRGB(255, 225, 120)
+Apercu.TRANSPARENCE_PORTEE = 0.55
+-- En dessous de ce rayon, la carte frappe au CORPS A CORPS (regle du catalogue, Cards.lua :
+-- « range < 5 = melee ») : le cercle se confondrait avec le disque de pose et n'apprendrait rien.
+Apercu.PORTEE_MINI = 5
+
+-- Rend le rayon a tracer, ou nil quand il n'y a rien d'utile a montrer :
+--   * un SORT : son rayon d'effet est DEJA le disque de pose, un second cercle ferait doublon ;
+--   * un corps a corps : trop petit pour se distinguer de l'emprise ;
+--   * une carte qui ne frappe pas (leurre, collecteur d'elixir) : elle n'a pas de portee.
+function Apercu.rayonPortee(card)
+	if not card or card.sort then
+		return nil
+	end
+	local r = tonumber(card.range)
+	if not r or r < Apercu.PORTEE_MINI then
+		return nil
+	end
+	if (tonumber(card.dmg) or 0) <= 0 then
+		return nil
+	end
+	return r
+end
+
+-- SEGMENTS DE L'ANNEAU DE PORTEE. Un disque PLEIN par-dessus le disque de pose donnait une seule
+-- tache verdatre ou l'on ne distinguait plus rien (capture cap-portee.png du 2026-09-20) : la
+-- portee se dessine donc en ANNEAU. Rend la liste des segments a poser : decalage au sol et angle
+-- (en degres) de chacun, pour un cercle de `rayon` studs.
+Apercu.SEGMENTS_ANNEAU = 28
+
+function Apercu.segmentsAnneau(rayon, nombre)
+	local n = math.max(6, math.floor(tonumber(nombre) or Apercu.SEGMENTS_ANNEAU))
+	local r = math.max(0, tonumber(rayon) or 0)
+	local l = {}
+	for i = 1, n do
+		local a = (i - 1) * (2 * math.pi / n)
+		l[i] = {
+			x = math.cos(a) * r,
+			z = math.sin(a) * r,
+			-- Le segment est tangent au cercle : sa face longue suit le contour.
+			angle = -math.deg(a),
+			-- Longueur d'un segment : le tour du cercle divise par leur nombre, un peu allonge
+			-- pour que les segments se touchent presque (sinon l'anneau fait des pointilles).
+			longueur = (2 * math.pi * r / n) * 1.15,
+		}
+	end
+	return l
+end
+
 function Apercu.piecesFantome(card, permise)
 	local pieces = {}
 	if card.sort or not card.morceaux then

@@ -1,0 +1,722 @@
+[
+ {
+  "id": 70392907781620,
+  "nom": "Orcalero Orcala",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 540552523,
+  "nom": "Mammoth (Free)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12359361433,
+  "nom": "gnu",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9353222706,
+  "nom": "bird gang",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9796669383,
+  "nom": "Triceratops With Sound",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9803985442,
+  "nom": "Funni Trike",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9796616868,
+  "nom": "Triceratops But With Slower Moving Animation",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9803963475,
+  "nom": "Trike",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 12359247287,
+  "nom": "Mastodon",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 14580206760,
+  "nom": "Triceratops (NPC) (REUPLOADED + MODIFIED)",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8711684283,
+  "nom": "Ba ra gone",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8438755217,
+  "nom": "spinofaarus vulgaris",
+  "cat": "modele",
+  "scripts": false,
+  "up": 10,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5399187286,
+  "nom": "Pachycephalosaurus",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 10370638880,
+  "nom": "FINISH",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 948293071,
+  "nom": "Rigged Bird",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5311961197,
+  "nom": "Iguanodon",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 8249032495,
+  "nom": "feet",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 16412954429,
+  "nom": "fair scp682",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 16402429597,
+  "nom": "scp682",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 123456938,
+  "nom": "Awesomesaurus Rex",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 321299200,
+  "nom": "Kelenken ",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5366188030,
+  "nom": "Pachycephalosaurus",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5323027720,
+  "nom": "Anzu",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 93818907609447,
+  "nom": ":ama Plushi",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 6507399146,
+  "nom": "SCP-682",
+  "cat": "modele",
+  "scripts": true,
+  "up": 61,
+  "down": 9,
+  "type": 10
+ },
+ {
+  "id": 2688496165,
+  "nom": "h",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 7102765575,
+  "nom": "SCP-682",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 596013965,
+  "nom": "Maiasaura",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4522218853,
+  "nom": "####### (Hard To Destroy Reptile AI)",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5437521792,
+  "nom": "SCP-682",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 444542420,
+  "nom": "Plainstrider",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 13823677781,
+  "nom": "mammoth",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 16302493792,
+  "nom": "Mammoth",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 123204006283907,
+  "nom": "Ring Ouzel",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 12943460975,
+  "nom": "SCP",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 14324236432,
+  "nom": "Meshes/Capybara",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 2809547668,
+  "nom": "American Beaver",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 79242604488039,
+  "nom": "Ikran",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 17031542565,
+  "nom": "Meshes/капибаоа_mesh_0",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 7111050055,
+  "nom": "Scp ###",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 118585759008550,
+  "nom": "Winged Dragon of Ra",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 444537194,
+  "nom": "Riding Kodo",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 2454226987,
+  "nom": "Sunshine",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 891192813,
+  "nom": "Helmaroc King No Mask",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 18660635731,
+  "nom": "Nuthatch",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 116897561679665,
+  "nom": "dokugumon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 891192378,
+  "nom": "Helmaroc King Mask",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 10216630737,
+  "nom": "jurassic world dominion giganotosaurus",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 16989971758,
+  "nom": "capybara",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 14462449001,
+  "nom": "Scp6821",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 127917195711953,
+  "nom": "Realistic Goblin",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 16271508792,
+  "nom": "scp 682",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 430892620,
+  "nom": "Dilophosaurus",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 9778200201,
+  "nom": "Velociraptor",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 3024597151,
+  "nom": "Dead rat",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 895008457,
+  "nom": "tauros pokemon",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 11986421733,
+  "nom": "Tree-Tex",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 6217070990,
+  "nom": "Marty (Free)",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 112168381551236,
+  "nom": "snark",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 8143544610,
+  "nom": "Strider",
+  "cat": "maillage",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 40
+ },
+ {
+  "id": 120837176677507,
+  "nom": "sahara 300 adventure",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 553382701,
+  "nom": "HD sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5117615603,
+  "nom": "Rocky Hills Midday Sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1698782933,
+  "nom": "HD sky Mountain B",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 960968763,
+  "nom": "HD sky Mountain",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 5584165396,
+  "nom": "Sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 339409945,
+  "nom": "HD sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2724150620,
+  "nom": "Kiara Mid-Morning Sky (HD)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2680989638,
+  "nom": "HD sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 674871501,
+  "nom": "HD sky above",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 125635552169078,
+  "nom": "Mountain Sunrise",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 91117481953871,
+  "nom": "Tracer",
+  "cat": "modele",
+  "scripts": true,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 9839624015,
+  "nom": "Cliff Sunrise Sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 217381279,
+  "nom": "(Original)  Impaler (Skybox)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 95445195201736,
+  "nom": "Ruins Skybox",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 2724152980,
+  "nom": "Kiara Noon Sky (HD)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 17377865071,
+  "nom": "untitled",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 1084437875,
+  "nom": "HD sky Mountain Prairie",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 194804686,
+  "nom": "Deception {Skybox} (Original)",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ },
+ {
+  "id": 4929449812,
+  "nom": "Qwantani Midday Sky",
+  "cat": "modele",
+  "scripts": false,
+  "up": 0,
+  "down": 0,
+  "type": 10
+ }
+]

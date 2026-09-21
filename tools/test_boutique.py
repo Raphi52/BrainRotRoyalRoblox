@@ -12,6 +12,9 @@ CARDS = ROOT.parent / "src" / "shared" / "Cards.lua"
 
 def unites():
     texte = CARDS.read_text(encoding="utf-8")
+    # la liste litterale s'arrete a la premiere accolade fermante en debut de ligne
+    debut = texte.index("local Cards = {")
+    texte = texte[debut:texte.index("\n}\n", debut)]
     out = {}
     for bloc in texte.split("\n\t{")[1:]:
         m = re.search(r'id = "(\w+)"', bloc)
@@ -33,6 +36,8 @@ defauts = []
 cartes = unites()
 choix = json.loads((BOUT / "choix.json").read_text(encoding="utf-8"))
 a_trouver = json.loads((BOUT / "a_trouver.json").read_text(encoding="utf-8"))
+fichier_refus = BOUT / "refuses.json"
+refuses = set(json.loads(fichier_refus.read_text(encoding="utf-8"))) if fichier_refus.exists() else set()
 for ident, nom in cartes.items():
     fiche = BOUT / f"{ident}.json"
     if not fiche.exists():
@@ -44,6 +49,11 @@ for ident, nom in cartes.items():
         if ident not in a_trouver:
             defauts.append(f"{ident} ({nom}) : sans modele et absent de a_trouver.json")
         continue
+    # Un asset deja REFUSE par Roblox a l'export (« User is not authorized to access Asset »)
+    # ne doit jamais etre re-choisi : sans ce garde-fou, on relance un export Studio de 5 minutes
+    # pour reobtenir le meme refus (mesure du 2026-09-20, asset 80500909913897 re-tente).
+    if aid in refuses:
+        defauts.append(f"{ident} : le modele {aid} figure dans refuses.json (inaccessible a l'export)")
     r = resultats.get(aid)
     if r is None:
         continue  # choix historique issu d'un export Studio, hors de cette recherche

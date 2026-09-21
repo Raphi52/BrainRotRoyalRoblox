@@ -18,6 +18,9 @@ Cible.BONUS_ANTI_TOUR = 6
 -- Marge d'hysteresis : on ne change de cible que si la nouvelle est MEILLEURE de cette marge.
 -- Sans elle, deux ennemis a egalite se volent la cible a chaque image.
 Cible.MARGE_CHANGEMENT = 3
+-- Portee a partir de laquelle une cible compte comme un TIREUR, pour les unites qui les chassent
+-- (voir Assassin.lua, qui porte la meme valeur et la carte concernee).
+Cible.PORTEE_TIREUR = 5
 
 -- PRIORITE d'une cible : plus le nombre est PETIT, plus elle passe en premier.
 -- C'est une distance CORRIGEE par la menace, donc elle reste lisible en studs.
@@ -29,6 +32,14 @@ function Cible.priorite(defenseur, cible, distance)
 		-- Seules les TOURS raisonnent en menace : une unite, elle, frappe ce qu'elle a devant.
 		if cible and cible.targets == "buildings" and not cible.isBuilding then
 			p = p - Cible.BONUS_ANTI_TOUR
+		end
+	elseif defenseur and (tonumber(defenseur.chasseTireurs) or 0) > 0 then
+		-- ASSASSIN : il traverse le mur de melee pour aller chercher ce qui tire de loin. C'est un
+		-- simple bonus de priorite, donc il herite de la persistance et de l'hysteresis ci-dessous
+		-- au lieu d'ouvrir un second chemin de ciblage.
+		if cible and not cible.isBuilding
+			and (tonumber(cible.range) or 0) >= Cible.PORTEE_TIREUR then
+			p = p - defenseur.chasseTireurs
 		end
 	end
 	return p
