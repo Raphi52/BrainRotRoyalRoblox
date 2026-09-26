@@ -29,6 +29,9 @@ def offres(Economie, lua, ids):
 def main():
     lua = nouveau_lua()
     Economie = charger(lua)
+    # Ce banc porte sur les PRODUITS. Le pass VIP, configure depuis le 2026-09-26, ajoute sa
+    # propre offre : il a son banc (tools/test_pass_achete.py), on l'eteint ici.
+    Economie.PASS_VIP = 0
 
     vides = offres(Economie, lua, [0, 0, 0])
     print("identifiants a 0 -> offres :", vides)

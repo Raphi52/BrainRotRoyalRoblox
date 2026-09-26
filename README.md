@@ -1252,6 +1252,25 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   robot). Ces bancs demandent `pip install lupa`. `tools/harnais_economie.py` n'est PAS un banc :
   c'est le prelude Lua partage (il s'appelait test_economie_lib.py et passait pour un test muet).
 
+### Etat de la publication (2026-09-26)
+- Experience **Brainrot Royale** publiee en **PRIVE** : universe `10768149063`, place `126168119650545`
+  (compte viralstudiogames). Creation en equipe et partage de donnees Gen AI desactives.
+- Offres creees sur create.roblox.com, **prix fixes** (tarification geree desactivee : l'activer
+  demande d'accepter ses conditions et laisse Roblox tester les prix) et branchees dans `Economie.lua` :
+
+  | Offre | Type | Identifiant | Prix |
+  |---|---|---|---|
+  | Sac de 500 pieces | Developer Product | 3714887785 | 49 R$ |
+  | Coffre de 1500 pieces | Developer Product | 3714889079 | 129 R$ |
+  | Poignee de 80 gemmes | Developer Product | 3714889708 | 99 R$ |
+  | VIP (pieces x2) | Game Pass | 1999832722 | 199 R$ |
+  | Pass de saison premium | Game Pass | 1999634739 | 299 R$ |
+
+  Verifie par `MarketplaceService:GetProductInfo` dans Studio (nom, prix, en vente). Un Game Pass est
+  PERMANENT : le pass de saison ouvre la piste premium de toutes les saisons (sa description le dit).
+- Restent a faire par le proprietaire : etapes 0 et 3 ci-dessous (eligibilite, questionnaire de
+  maturite), puis passer l'experience en Public ; nombre max de joueurs par serveur (6, voir plus haut).
+
 ### A faire avec TON compte (rien n'est vendu tant que ce n'est pas fait)
 0. **Eligibilite** (obligatoire depuis le 17/12/2025 pour publier ou mettre a jour une experience
    PUBLIQUE) : verification d'identite, OU un achat en argent reel sur le compte depuis le

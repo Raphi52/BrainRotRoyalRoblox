@@ -32,15 +32,18 @@ local Quetes = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared
 
 local Economie = {}
 
--- A REMPLIR par le createur apres creation sur create.roblox.com (0 = desactive).
+-- Identifiants crees le 2026-09-26 sur create.roblox.com, experience « Brainrot Royale »
+-- (universe 10768149063, place 126168119650545). 0 = offre desactivee et masquee.
+-- Prix fixes (tarification geree desactivee) : 49 / 129 / 99 Robux ; VIP 199 ; pass de saison 299.
+-- Un pass Roblox est PERMANENT : PASS_SAISON ouvre la piste premium de TOUTES les saisons.
 Economie.PRODUITS = {
-	{ id = 0, nom = "Sac de 500 pieces", pieces = 500 },
-	{ id = 0, nom = "Coffre de 1500 pieces", pieces = 1500 },
-	{ id = 0, nom = "Poignee de 80 gemmes", gemmes = 80 }, -- monnaie premium, uniquement en Robux
+	{ id = 3714887785, nom = "Sac de 500 pieces", pieces = 500 },
+	{ id = 3714889079, nom = "Coffre de 1500 pieces", pieces = 1500 },
+	{ id = 3714889708, nom = "Poignee de 80 gemmes", gemmes = 80 }, -- monnaie premium, uniquement en Robux
 }
-Economie.PASS_VIP = 0 -- pass « VIP » : pieces x2 en fin de partie
--- PASS DE SAISON PREMIUM (Game Pass Roblox) : ouvre la piste premium du pass. 0 = pas encore cree.
-Economie.PASS_SAISON = 0
+Economie.PASS_VIP = 1999832722 -- pass « VIP » : pieces x2 en fin de partie
+-- PASS DE SAISON PREMIUM (Game Pass Roblox) : ouvre la piste premium du pass.
+Economie.PASS_SAISON = 1999634739
 
 -- DECK : nombre de cartes emportees en partie (4 en main + 4 en file, voir newDeck cote serveur
 -- de jeu). Tant que le joueur possede moins de DECK_TAILLE cartes, aucun choix n'est possible et

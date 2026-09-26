@@ -220,7 +220,9 @@ def main():
             idx_gemmes = i
     cas("un produit de gemmes existe au catalogue", True, idx_gemmes is not None)
     if idx_gemmes is not None:
-        cas("... desactive tant que son id vaut 0", 0, Economie.PRODUITS[idx_gemmes].id)
+        # Depuis le 2026-09-26 le produit porte son vrai identifiant : on repose 0 ici pour
+        # verifier la regle « id 0 = offre masquee », au lieu de supposer l'etat livre.
+        Economie.PRODUITS[idx_gemmes].id = 0
         dora = joueur(lua, "Dora", 4)
         Economie.charger(dora)
         offres = Economie.vue(dora).offresRobux

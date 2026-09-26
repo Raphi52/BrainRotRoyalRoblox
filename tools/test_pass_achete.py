@@ -48,6 +48,10 @@ MS.PromptProductPurchase = function(_, _pl, id) table.insert(INVITES, id) end
     g = lua.globals()
     Eco.PASS_SAISON = 555
     Eco.PASS_VIP = 777
+    # Les produits livres portent leurs vrais identifiants depuis le 2026-09-26 : on part de 0
+    # pour que le cas 3 ne voie QUE l'offre VIP, et le cas 4 pose le sien.
+    for i in range(1, len(Eco.PRODUITS) + 1):
+        Eco.PRODUITS[i].id = 0
     noter = Eco.noterPassAchete
 
     def invites():
