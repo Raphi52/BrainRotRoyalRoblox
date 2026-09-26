@@ -889,8 +889,11 @@ local function afficher(v)
 			c:Destroy()
 		end
 	end
+	-- Largeur partagee entre les offres (espacement 0.02) : 0.32 fixe tenait 3 offres, et le pass
+	-- VIP en fait une 4e qui sortait de la bande.
 	for _, offre in ipairs(v.offresRobux) do
-		local b = bouton(offresRobux, offre.nom .. " (Robux)", UDim2.new(0.32, 0, 1, 0), UDim2.new(), Color3.fromRGB(0, 160, 90))
+		local b = bouton(offresRobux, offre.nom .. " (Robux)",
+			UDim2.new((1 - 0.02 * (#v.offresRobux - 1)) / #v.offresRobux, 0, 1, 0), UDim2.new(), Color3.fromRGB(0, 160, 90))
 		b.MouseButton1Click:Connect(function()
 			afficher(Boutique:InvokeServer("robux", offre.index).vue)
 		end)
@@ -3653,6 +3656,17 @@ else
 	end
 	print("[HUB] accueil ouvert")
 end
+
+-- VUE POUSSEE PAR LE SERVEUR (Remotes.Vue) : apres l'achat d'un pass Roblox, aucun solde ne
+-- bouge, donc rien d'autre ne rafraichissait l'ecran. Aucune variable locale ajoutee ici : le
+-- corps de ce script est au plafond des 200 locales de Luau.
+task.spawn(function()
+	ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Vue").OnClientEvent:Connect(function(v)
+		if v then
+			afficher(v)
+		end
+	end)
+end)
 
 -- CAPTURE DES REGLAGES SONORES (build.py --son) : l'ecran s'ouvre au clic. On appelle la
 -- fonction du bouton, et on COUPE la musique pour que la photo montre les deux etats a la fois

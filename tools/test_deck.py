@@ -39,6 +39,11 @@ local function faux_store()
   return {
     GetAsync = function(_, cle) return DONNEES[cle] end,
     SetAsync = function(_, cle, v) DONNEES[cle] = v end,
+    UpdateAsync = function(_, cle, f)
+      local v = f(DONNEES[cle])
+      if v ~= nil then DONNEES[cle] = v end
+      return v
+    end,
   }
 end
 

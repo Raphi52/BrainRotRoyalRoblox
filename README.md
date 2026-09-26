@@ -1178,7 +1178,8 @@ l'ecran de l'utilisateur (voir D:\AutoWinOS\scripts\hors-ecran-capture.ps1).
 ## Mettre le jeu en ligne (a faire avec TON compte Roblox)
 
 Le code gere deja deux joueurs par serveur (camp 1, camp 2, bot sur le camp vide, spectateurs).
-La publication engage ton compte : elle se fait a la main dans Studio.
+La publication engage ton compte : elle se fait a la main dans Studio. Pour passer en PUBLIC et
+vendre, voir aussi « A faire avec TON compte » plus bas (eligibilite, questionnaire, produits).
 
 1. Ouvrir `BrainRotRoyale.rbxlx` dans Roblox Studio (la version normale, PAS `.autotest`).
 2. `Fichier > Publier sur Roblox` : creer une nouvelle experience, nom « Brainrot Royale ».
@@ -1232,7 +1233,19 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   plus toutes les 30 s (`DELAI_ECRITURE`), plus une ecriture immediate au depart du joueur et a la
   fermeture du serveur. Roblox plafonne les `SetAsync` par cle : un ecrit par geste se faisait
   rejeter sous charge.
-- **Tests** : `python build.py --autotest --ecotest` (19 cas, journal [ECOTEST]),
+- **Verrou de session** (2026-09-26) : chaque match change le joueur de serveur (serveur reserve).
+  Le profil porte le serveur qui le tient (`_session`) ; il se lit et s'ecrit par `UpdateAsync`.
+  Le serveur d'arrivee attend que celui de depart l'ait rendu (au plus ~14 s, puis reprise de
+  force si l'ancien est mort), et un serveur a qui le profil a ete repris n'ecrit plus rien.
+  Avant, le serveur d'arrivee pouvait lire le profil avant la derniere ecriture de l'autre, puis
+  l'ecraser : victoire, coffre ou achat en pieces perdus. Banc : `tools/test_verrou_session.py`.
+- **Pass payes en jeu** (2026-09-26) : Roblox garde en cache la reponse de
+  `UserOwnsGamePassAsync` pour la session ; un pass achete en jeu restait « non possede » jusqu'a
+  la reconnexion. L'evenement `PromptGamePassPurchaseFinished` fait foi (`Economie.noterPassAchete`)
+  et le serveur pousse la vue a jour au client (`Remotes.Vue`). Le **VIP** est desormais propose
+  dans la boutique (offre Robux « Pass VIP : pieces x2 ») tant qu'il n'est pas possede.
+  Banc : `tools/test_pass_achete.py`.
+- **Tests** : `python build.py --autotest --ecotest` (83 cas au 2026-09-26, journal [ECOTEST]),
   `--hub` (accueil ouvert), `--boutique` (boutique ouverte), a capturer avec `tools/studio-capture-moteur.ps1`.
   Hors Studio (rapide, sans compte) : `python tools/test_economie.py`, `tools/test_deck.py`,
   `tools/test_recus.py` (achats Robux + ecritures regroupees), `tools/test_robot_deck.py` (paquet du
@@ -1240,14 +1253,22 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   c'est le prelude Lua partage (il s'appelait test_economie_lib.py et passait pour un test muet).
 
 ### A faire avec TON compte (rien n'est vendu tant que ce n'est pas fait)
+0. **Eligibilite** (obligatoire depuis le 17/12/2025 pour publier ou mettre a jour une experience
+   PUBLIQUE) : verification d'identite, OU un achat en argent reel sur le compte depuis le
+   01/01/2025. A verifier sur create.roblox.com/settings/eligibility/public-publish.
 1. Publier le jeu (Fichier > Publier sur Roblox). Sans publication, la sauvegarde est refusee
    (« You must publish this place to the web to access DataStore »).
 2. Parametres du jeu > Securite : cocher **Enable Studio Access to API Services** pour tester la sauvegarde dans Studio.
-3. create.roblox.com > l'experience > Monetization :
-   - creer 2 **Developer Products** (ex. 500 pieces, 1500 pieces) et reporter leurs identifiants dans
-     `Economie.PRODUITS` ;
-   - creer un **Game Pass** « VIP » (pieces x2) et reporter son identifiant dans `Economie.PASS_VIP`.
-   Tant qu'un identifiant vaut 0, l'offre est masquee.
+3. create.roblox.com > l'experience : remplir le **questionnaire de maturite et de conformite**
+   (obligatoire ; c'est une declaration du proprietaire du compte, elle ne se delegue pas).
+4. create.roblox.com > l'experience > Monetization — 3 **Developer Products** et 2 **Game Passes**,
+   identifiants a reporter dans `src/server/Economie.lua` puis `python build.py` et republier :
+   - `Economie.PRODUITS[1]` « Sac de 500 pieces », `[2]` « Coffre de 1500 pieces »,
+     `[3]` « Poignee de 80 gemmes » ;
+   - `Economie.PASS_VIP` « VIP » (pieces x2) ; `Economie.PASS_SAISON` « Pass de saison premium ».
+   Tant qu'un identifiant vaut 0, l'offre est masquee. Les prix sont un choix du createur.
+5. Encaisser en argent reel (DevEx) : au moins 30 000 Robux GAGNES, 13 ans ou plus, e-mail
+   verifie, formulaire fiscal W-8 (hors Etats-Unis). Taux standard 0,0038 $ par Robux gagne.
 
 ## Deck
 - Le joueur compose un deck de **8 cartes** (`Economie.DECK_TAILLE`) parmi celles qu'il possede,

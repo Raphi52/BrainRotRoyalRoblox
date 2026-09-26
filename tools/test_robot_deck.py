@@ -53,7 +53,12 @@ warn = function(...) end
 DONNEES = {}
 local function faux_store()
   return { GetAsync = function(_, cle) return DONNEES[cle] end,
-           SetAsync = function(_, cle, v) DONNEES[cle] = v end }
+           SetAsync = function(_, cle, v) DONNEES[cle] = v end,
+           UpdateAsync = function(_, cle, f)
+             local v = f(DONNEES[cle])
+             if v ~= nil then DONNEES[cle] = v end
+             return v
+           end }
 end
 -- WaitForChild rend le NOM demande : le faux require sait alors quel module rendre.
 local Shared = { WaitForChild = function(_, n) return n end }

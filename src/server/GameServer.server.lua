@@ -138,6 +138,14 @@ RefusEvent.Parent = remotes
 local PingEvent = Instance.new("RemoteEvent")
 PingEvent.Name = "Ping"
 PingEvent.Parent = remotes
+-- VUE POUSSEE : un pass Roblox paye en jeu ne bouge aucun solde, et le hub ne se rafraichissait
+-- que sur un changement de solde — la piste premium restait verrouillee sous les yeux du joueur
+-- qui venait de payer. Bloc `do` : aucune variable locale de plus au niveau du script.
+do
+	local vueEvent = Instance.new("RemoteEvent")
+	vueEvent.Name = "Vue"
+	vueEvent.Parent = remotes
+end
 
 -- Constantes
 -- Largeur de l'arene portee de 18 a 28 (2026-09-14) : a 36 studs de large pour 64 de long, l'arene
@@ -2809,7 +2817,13 @@ local function ecotest(player)
 	local p = Economie.profil(player)
 	cas("solde de depart", 100, p.pieces)
 	cas("Bombardiro verrouille au depart", "nil", tostring(p.cartes.Bombardiro))
+	-- DEBLOCAGE PAR ARENE (Arenes.carteDebloquee) : Bombardiro n'est vendu qu'a partir de la Plage
+	-- Tralalero. Ce scenario datait d'avant cette regle et attendait « pas assez de pieces » des
+	-- 0 trophee : 9 cas etaient rouges en moteur sans aucun defaut du jeu (mesure du 2026-09-26).
 	local ok, motif = Economie.acheterCarte(player, "Bombardiro")
+	cas("achat avant son arene", "carte de Plage Tralalero", motif)
+	p.trophees = 200 -- Plage Tralalero atteinte : seul le prix peut encore bloquer
+	ok, motif = Economie.acheterCarte(player, "Bombardiro")
 	cas("achat sans assez de pieces", "pas assez de pieces", motif)
 	cas("solde inchange apres refus", 100, p.pieces)
 	p.pieces = 1000
@@ -2828,13 +2842,23 @@ local function ecotest(player)
 	cas("solde apres bonus", 550, p.pieces)
 	ok = Economie.bonusQuotidien(player)
 	cas("second bonus refuse", false, ok)
+	-- TROPHEES (Arenes.apres) : le tiers de l'enjeu contre le robot, l'enjeu entier contre un
+	-- humain de meme niveau, et le plancher protege a la descente.
+	p.trophees = 0
 	local r = Economie.recompenser(player, "victoire")
 	cas("victoire : pieces", 30, r.pieces)
-	cas("victoire : trophees", 30, p.trophees)
-	Economie.recompenser(player, "defaite")
-	cas("defaite : trophees", 15, p.trophees)
-	Economie.recompenser(player, "defaite")
-	cas("trophees jamais negatifs", 0, p.trophees)
+	cas("victoire contre le robot : le tiers des trophees", 10, p.trophees)
+	Economie.recompenser(player, "victoire", true, nil, p.trophees)
+	cas("victoire contre un humain de meme niveau : +30", 40, p.trophees)
+	Economie.recompenser(player, "defaite", true, nil, p.trophees)
+	cas("defaite sous le plancher protege : rien perdu", 40, p.trophees)
+	p.trophees = 300
+	Economie.recompenser(player, "defaite", true, nil, 300)
+	cas("defaite au-dessus du plancher : -15", 285, p.trophees)
+	p.trophees = 105
+	Economie.recompenser(player, "defaite", true, nil, 105)
+	cas("jamais sous le plancher protege", 100, p.trophees)
+	p.trophees = 10 -- etat attendu par la suite du scenario (coffres, niveaux)
 	cas("leaderstats a jour", p.pieces, player.leaderstats.Pieces.Value)
 	-- COFFRES
 	Economie.graine(7)
@@ -3317,7 +3341,8 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 		end
 		return { ok = false, motif = "Pass premium bientot en vente", vue = Economie.vue(player) }
 	elseif action == "robux" then
-		Economie.demanderRobux(player, tonumber(arg))
+		-- rang d'un produit, ou "vip" : Economie.demanderRobux verifie l'un et l'autre
+		Economie.demanderRobux(player, arg)
 		return { ok = true, vue = Economie.vue(player) }
 	elseif action == "tutoriel" then
 		-- REVOIR LE TUTORIEL : la prochaine entree en partie rejoue le scenario, meme si le
@@ -3347,6 +3372,13 @@ BoutiqueFn.OnServerInvoke = function(player, action, arg)
 end
 
 Players.PlayerAdded:Connect(arrivee)
+-- PASS ROBLOX PAYE EN JEU : actif tout de suite (Economie.noterPassAchete), et l'ecran du joueur
+-- recoit sa vue a jour sans attendre un changement de solde (Remotes.Vue).
+game:GetService("MarketplaceService").PromptGamePassPurchaseFinished:Connect(function(player, passId, achete)
+	if Economie.noterPassAchete(player, passId, achete) then
+		remotes.Vue:FireClient(player, Economie.vue(player))
+	end
+end)
 Players.PlayerRemoving:Connect(function(player)
 	Matchmaking.sortir(player)
 	-- MEME CHEMIN qu'un retour au hub, mais NON VOLONTAIRE : une deconnexion peut etre une simple

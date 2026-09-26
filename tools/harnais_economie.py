@@ -30,6 +30,7 @@ Random = { new = function(_) return { NextInteger = function(_, a, _b) return a 
 warn = function(...) print("[warn]", ...) end
 ECHECS_LECTURE = {}   -- userId -> true : GetAsync renvoie une erreur pour ce joueur
 SAUVEGARDES = {}      -- cle -> nombre de SetAsync reussis
+ENREGS = {}           -- cle -> dernier enregistrement ecrit par UpdateAsync
 
 local function faux_store()
   return {
@@ -39,6 +40,18 @@ local function faux_store()
       return nil
     end,
     SetAsync = function(_, cle, _v) SAUVEGARDES[cle] = (SAUVEGARDES[cle] or 0) + 1 end,
+    -- UpdateAsync (verrou de session) : lecture qui peut echouer comme GetAsync, ecriture comptee
+    -- comme un SetAsync ; le dernier enregistrement est garde pour que le verrou se relise.
+    UpdateAsync = function(_, cle, f)
+      local id = tonumber(string.sub(cle, 2))
+      if ECHECS_LECTURE[id] then error("DataStore indisponible (simule)") end
+      local v = f(ENREGS[cle])
+      if v ~= nil then
+        ENREGS[cle] = v
+        SAUVEGARDES[cle] = (SAUVEGARDES[cle] or 0) + 1
+      end
+      return v
+    end,
   }
 end
 

@@ -51,6 +51,14 @@ local function storeProfils()
       COMPTEUR.profil = COMPTEUR.profil + 1
       DONNEES[cle] = v
     end,
+    UpdateAsync = function(_, cle, f)
+      local v = f(DONNEES[cle])
+      if v == nil then return nil end
+      if PANNE.ecrireProfil then error("ecriture profil indisponible (simule)") end
+      COMPTEUR.profil = COMPTEUR.profil + 1
+      DONNEES[cle] = v
+      return v
+    end,
   }
 end
 

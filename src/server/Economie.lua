@@ -133,6 +133,7 @@ local sansSauvegarde = {} -- player -> true : profil illisible, on n'ecrit pas (
 -- niveau marquait le profil d'un SetAsync immediat ; on note desormais le profil « sale » et
 -- une seule ecriture part au plus toutes les DELAI_ECRITURE secondes.
 local sales = {} -- player -> true : profil modifie en memoire, pas encore ecrit
+local passAchetes = {} -- player -> { [passId] = true } : pass payes pendant la session (voir possedePass)
 local DELAI_ECRITURE = 30
 -- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
 -- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
@@ -167,6 +168,88 @@ do
 end
 
 local profils = {}
+
+-- VERROU DE SESSION. Chaque match se joue dans un serveur RESERVE (Matchmaking) : le joueur change
+-- de serveur a chaque partie. Le profil etait lu par GetAsync et ecrit par SetAsync sans aucune
+-- trace de QUI le tenait : le serveur d'arrivee pouvait le lire AVANT que celui de depart n'ait
+-- ecrit ses derniers gains (victoire, coffre, achat en pieces — tout ce qui attend l'ecriture
+-- regroupee), puis l'ecraser avec sa copie perimee. Les gains disparaissaient sans un mot.
+-- Le profil sur le disque porte desormais le serveur qui le tient (`_session`) : on ne le prend
+-- qu'une fois rendu, et on n'ecrit que tant qu'on le tient. Banc : tools/test_verrou_session.py.
+Economie.VERROU_ESSAIS = 8 -- tentatives avant de reprendre de force un verrou jamais rendu
+Economie.VERROU_ATTENTE = 2 -- secondes entre deux tentatives (~14 s au pire, serveur mort)
+local MOI = (game.JobId ~= nil and game.JobId ~= "") and game.JobId or "studio"
+
+local function attendre(secondes)
+	if task and task.wait then
+		task.wait(secondes)
+	end
+end
+
+-- Pur : identifiant du serveur qui tient cet enregistrement disque, nil s'il est libre.
+function Economie.verrouTenu(enreg)
+	if type(enreg) == "table" and type(enreg._session) == "table" then
+		return enreg._session.job
+	end
+	return nil
+end
+
+-- Pur : l'enregistrement a ecrire pour PRENDRE le profil, ou nil s'il est tenu par un autre
+-- serveur. `forcer` : cet autre serveur ne l'a pas rendu a temps, il est tenu pour mort.
+function Economie.verrouPrendre(enreg, moi, maintenant, forcer)
+	local tenant = Economie.verrouTenu(enreg)
+	if tenant ~= nil and tenant ~= moi and not forcer then
+		return nil
+	end
+	local nouveau = {}
+	if type(enreg) == "table" then
+		for k, v in pairs(enreg) do
+			nouveau[k] = v
+		end
+	end
+	nouveau._session = { job = moi, t = maintenant }
+	return nouveau
+end
+
+-- Pur : on n'ecrit par-dessus le disque que si c'est NOUS qui tenons le profil. Un serveur a qui
+-- le profil a ete repris tient une copie perimee : l'ecrire effacerait les gains faits ailleurs.
+function Economie.verrouPeutEcrire(enreg, moi)
+	return Economie.verrouTenu(enreg) == moi
+end
+
+-- Lit le profil ET le prend, en une seule operation (UpdateAsync). Rend (ok, donnees|erreur) ;
+-- les donnees ne contiennent jamais le verrou lui-meme.
+local function lireEtPrendre(player)
+	local cle = "u" .. player.UserId
+	for essai = 1, Economie.VERROU_ESSAIS do
+		local forcer = essai == Economie.VERROU_ESSAIS
+		local pris, tenant = nil, nil
+		local ok, err = pcall(function()
+			store:UpdateAsync(cle, function(enreg)
+				tenant = Economie.verrouTenu(enreg)
+				pris = Economie.verrouPrendre(enreg, MOI, os.time(), forcer)
+				return pris
+			end)
+		end)
+		if not ok then
+			return false, err
+		end
+		if pris then
+			if tenant ~= nil and tenant ~= MOI and forcer then
+				warn(string.format("[ECO] %s : profil jamais rendu par le serveur %s, repris de force", player.Name, tostring(tenant)))
+			end
+			local data = {}
+			for k, v in pairs(pris) do
+				if k ~= "_session" then
+					data[k] = v
+				end
+			end
+			return true, data
+		end
+		attendre(Economie.VERROU_ATTENTE)
+	end
+	return false, "verrou de session non obtenu"
+end
 
 local function profilNeuf()
 	local cartes = {}
@@ -229,9 +312,7 @@ end
 function Economie.charger(player)
 	local p = profilNeuf()
 	if store and persistant then
-		local ok, data = pcall(function()
-			return store:GetAsync("u" .. player.UserId)
-		end)
+		local ok, data = lireEtPrendre(player)
 		if ok and type(data) == "table" then
 			for k, v in pairs(data) do
 				p[k] = v
@@ -396,7 +477,9 @@ end
 
 -- Rend TRUE si le profil est bel et bien sur le disque apres cet appel. Un achat paye en Robux
 -- s'appuie dessus : on ne confirme la vente que si l'ecriture a reussi.
-function Economie.sauver(player)
+-- `rendre` : derniere ecriture de ce serveur pour ce joueur (depart, fermeture) — le verrou est
+-- rendu avec elle, et le serveur suivant peut prendre le profil sans attendre.
+function Economie.sauver(player, rendre)
 	local p = profils[player]
 	if not p then
 		return false
@@ -406,11 +489,31 @@ function Economie.sauver(player)
 		-- pas de disque (Studio sans API, ou profil illisible) : rien a garantir
 		return false
 	end
+	local refuse = false
 	local ok, err = pcall(function()
-		store:SetAsync("u" .. player.UserId, p)
+		store:UpdateAsync("u" .. player.UserId, function(enreg)
+			refuse = not Economie.verrouPeutEcrire(enreg, MOI)
+			if refuse then
+				return nil -- nil : UpdateAsync n'ecrit rien
+			end
+			local nouveau = {}
+			for k, v in pairs(p) do
+				nouveau[k] = v
+			end
+			if not rendre then
+				nouveau._session = { job = MOI, t = os.time() }
+			end
+			return nouveau
+		end)
 	end)
 	if not ok then
 		warn("[ECO] sauvegarde ratee pour " .. player.Name .. " : " .. tostring(err))
+		return false
+	end
+	if refuse then
+		-- Un autre serveur a pris le profil : notre copie est perimee, on n'ecrira plus rien.
+		sansSauvegarde[player] = true
+		warn("[ECO] " .. player.Name .. " : profil repris par un autre serveur, copie locale abandonnee")
 		return false
 	end
 	-- Classement : une panne ici ne doit pas faire croire que le PROFIL n'est pas ecrit.
@@ -491,10 +594,11 @@ function Economie.viderSales()
 end
 
 function Economie.liberer(player)
-	Economie.sauver(player)
+	Economie.sauver(player, true)
 	profils[player] = nil
 	sansSauvegarde[player] = nil
 	sales[player] = nil
+	passAchetes[player] = nil
 end
 
 -- Deck CHOISI : valide ou nil. Le client n'est jamais cru — meme un deck deja SAUVEGARDE est
@@ -630,14 +734,41 @@ function Economie.choisirDeck(player, ids)
 	return true
 end
 
-local function aVip(player)
-	if Economie.PASS_VIP == 0 then
+-- PASS ACHETES PENDANT LA SESSION. UserOwnsGamePassAsync garde sa reponse en cache pour toute
+-- la session : un pass paye EN JEU restait « non possede » jusqu'a la reconnexion — le joueur
+-- payait et ne recevait rien. L'achat confirme par Roblox (PromptGamePassPurchaseFinished, cable
+-- dans GameServer) fait foi pour le reste de la session (table `passAchetes`, declaree en tete
+-- du module pour que `liberer` la voie). Banc : tools/test_pass_achete.py.
+
+-- Rend true si l'achat est retenu : seulement un achat REEL, et d'un pass de CE jeu.
+function Economie.noterPassAchete(player, passId, achete)
+	if achete ~= true or passId == nil or passId == 0 then
 		return false
 	end
+	if passId ~= Economie.PASS_VIP and passId ~= Economie.PASS_SAISON then
+		return false
+	end
+	passAchetes[player] = passAchetes[player] or {}
+	passAchetes[player][passId] = true
+	print(string.format("[ECO] %s : pass %s achete en jeu, actif tout de suite", player.Name, tostring(passId)))
+	return true
+end
+
+local function possedePass(player, passId)
+	if passId == 0 then
+		return false
+	end
+	if passAchetes[player] and passAchetes[player][passId] then
+		return true
+	end
 	local ok, res = pcall(function()
-		return MarketplaceService:UserOwnsGamePassAsync(player.UserId, Economie.PASS_VIP)
+		return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
 	end)
-	return ok and res
+	return ok and res == true
+end
+
+local function aVip(player)
+	return possedePass(player, Economie.PASS_VIP)
 end
 
 -- COSMETIQUES (skins de tours, emotes premium) : en GEMMES, aucun effet sur le jeu.
@@ -700,13 +831,7 @@ function Economie.aPassPremium(player)
 	if Economie.passPremiumTest then -- pose par GameServer en copie de test uniquement
 		return true
 	end
-	if Economie.PASS_SAISON == 0 then
-		return false
-	end
-	local ok, res = pcall(function()
-		return MarketplaceService:UserOwnsGamePassAsync(player.UserId, Economie.PASS_SAISON)
-	end)
-	return ok and res
+	return possedePass(player, Economie.PASS_SAISON)
 end
 
 -- Etat du pass pour la saison EN COURS : un pass d'une saison passee repart a zero.
@@ -1290,6 +1415,11 @@ function Economie.vue(player)
 			table.insert(offres, { index = i, nom = prod.nom })
 		end
 	end
+	-- PASS VIP : il n'etait propose NULLE PART dans le jeu (seule la page Roblox le vendait).
+	-- Montre tant qu'il est configure et pas encore possede.
+	if Economie.PASS_VIP ~= 0 and not aVip(player) then
+		table.insert(offres, { index = "vip", nom = "Pass VIP : pieces x2" })
+	end
 	return {
 		pieces = p.pieces, gemmes = p.gemmes, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
 		cartes = p.cartes, sauvegarde = Economie.sauvegardeActive(player), offresRobux = offres,
@@ -1339,8 +1469,15 @@ function Economie.vue(player)
 	}
 end
 
+-- `index` : rang d'un produit de Economie.PRODUITS, ou "vip" pour le pass VIP.
 function Economie.demanderRobux(player, index)
-	local prod = Economie.PRODUITS[index]
+	if index == "vip" then
+		if Economie.PASS_VIP ~= 0 and not aVip(player) then
+			MarketplaceService:PromptGamePassPurchase(player, Economie.PASS_VIP)
+		end
+		return
+	end
+	local prod = Economie.PRODUITS[tonumber(index)]
 	if prod and prod.id ~= 0 then
 		MarketplaceService:PromptProductPurchase(player, prod.id)
 	end
@@ -1440,7 +1577,7 @@ end
 
 game:BindToClose(function()
 	for player in pairs(profils) do
-		Economie.sauver(player)
+		Economie.sauver(player, true)
 	end
 end)
 

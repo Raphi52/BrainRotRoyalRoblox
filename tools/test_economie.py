@@ -34,6 +34,7 @@ Random = { new = function(_) return { NextInteger = function(_, a, _b) return a 
 warn = function(...) print("[warn]", ...) end
 ECHECS_LECTURE = {}   -- userId -> true : GetAsync renvoie une erreur pour ce joueur
 SAUVEGARDES = {}      -- cle -> nombre de SetAsync reussis
+ENREGS = {}           -- cle -> dernier enregistrement ecrit par UpdateAsync
 
 local function faux_store()
   return {
@@ -43,6 +44,18 @@ local function faux_store()
       return nil
     end,
     SetAsync = function(_, cle, _v) SAUVEGARDES[cle] = (SAUVEGARDES[cle] or 0) + 1 end,
+    -- UpdateAsync (verrou de session) : lecture qui peut echouer comme GetAsync, ecriture comptee
+    -- comme un SetAsync ; le dernier enregistrement est garde pour que le verrou se relise.
+    UpdateAsync = function(_, cle, f)
+      local id = tonumber(string.sub(cle, 2))
+      if ECHECS_LECTURE[id] then error("DataStore indisponible (simule)") end
+      local v = f(ENREGS[cle])
+      if v ~= nil then
+        ENREGS[cle] = v
+        SAUVEGARDES[cle] = (SAUVEGARDES[cle] or 0) + 1
+      end
+      return v
+    end,
   }
 end
 
@@ -103,8 +116,9 @@ def main():
     bob = joueur(lua, "Bob", 2)
     Economie.charger(alice)
     Economie.charger(bob)          # Bob, lui, se charge sans probleme
+    avant = g.SAUVEGARDES["u2"] or 0  # la prise du verrou de session au chargement est deja une ecriture
     Economie.sauver(bob)
-    n = g.SAUVEGARDES["u2"] or 0
+    n = (g.SAUVEGARDES["u2"] or 0) - avant
     print("SetAsync pour Bob (u2) :", n)
     if n != 1:
         print("ROUGE : la panne d'Alice a coupe la sauvegarde de Bob.")
