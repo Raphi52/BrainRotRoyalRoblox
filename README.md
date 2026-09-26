@@ -1279,7 +1279,10 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
 - **Version en ligne en retard d'une correction** : la place publiee precede le verrou par SESSION
   (reconnexion sur le meme serveur) et la fin du double rendu a la fermeture (faux avertissement
   « profil repris par un autre serveur »). `BrainRotRoyale.rbxlx` les contient : republier par
-  Fichier > Publier sur Roblox > Mettre a jour l'experience existante.
+  Fichier > Publier sur Roblox > Mettre a jour l'experience existante, ou SANS Studio :
+  `python tools/publier_place.py` (reconstruit puis publie par l'API Open Cloud ; cle dans la
+  variable `ROBLOX_API_KEY`, droit « universe-places » en ecriture sur l'experience ; jamais
+  affichee). Banc hors ligne : `tools/test_publier_place.py` (faux serveur local).
 
 ### A faire avec TON compte (rien n'est vendu tant que ce n'est pas fait)
 0. **Eligibilite** (obligatoire depuis le 17/12/2025 pour publier ou mettre a jour une experience
