@@ -16412,6 +16412,10 @@ local sansSauvegarde = {} -- player -> true : profil illisible, on n'ecrit pas (
 -- une seule ecriture part au plus toutes les DELAI_ECRITURE secondes.
 local sales = {} -- player -> true : profil modifie en memoire, pas encore ecrit
 local passAchetes = {} -- player -> { [passId] = true } : pass payes pendant la session (voir possedePass)
+-- player -> true : profil deja RENDU par ce serveur (voir sauver). A la fermeture, BindToClose le
+-- rend, puis PlayerRemoving (liberer) le rendait une seconde fois : l'ecriture etait refusee et
+-- le journal accusait a tort « un autre serveur » (mesure en Studio le 2026-09-26).
+local rendus = {}
 local DELAI_ECRITURE = 30
 -- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
 -- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
@@ -16452,11 +16456,16 @@ local profils = {}
 -- trace de QUI le tenait : le serveur d'arrivee pouvait le lire AVANT que celui de depart n'ait
 -- ecrit ses derniers gains (victoire, coffre, achat en pieces — tout ce qui attend l'ecriture
 -- regroupee), puis l'ecraser avec sa copie perimee. Les gains disparaissaient sans un mot.
--- Le profil sur le disque porte desormais le serveur qui le tient (`_session`) : on ne le prend
+-- Le profil sur le disque porte desormais la SESSION qui le tient (`_session`) : on ne le prend
 -- qu'une fois rendu, et on n'ecrit que tant qu'on le tient. Banc : tools/test_verrou_session.py.
+-- SESSION et non SERVEUR (2026-09-26) : un joueur qui se reconnecte sur le MEME serveur pendant
+-- que son ancienne session ecrit encore prenait le profil sans attendre (sans les derniers gains),
+-- puis l'ancienne le rendait par-dessus et plus rien de la nouvelle session n'etait sauvegarde.
 Economie.VERROU_ESSAIS = 8 -- tentatives avant de reprendre de force un verrou jamais rendu
 Economie.VERROU_ATTENTE = 2 -- secondes entre deux tentatives (~14 s au pire, serveur mort)
 local MOI = (game.JobId ~= nil and game.JobId ~= "") and game.JobId or "studio"
+local numeroSession = 0
+local jetons = {} -- player -> identifiant de SA session de profil (serveur + numero)
 
 local function attendre(secondes)
 	if task and task.wait then
@@ -16505,7 +16514,7 @@ local function lireEtPrendre(player)
 		local ok, err = pcall(function()
 			store:UpdateAsync(cle, function(enreg)
 				tenant = Economie.verrouTenu(enreg)
-				pris = Economie.verrouPrendre(enreg, MOI, os.time(), forcer)
+				pris = Economie.verrouPrendre(enreg, jetons[player], os.time(), forcer)
 				return pris
 			end)
 		end)
@@ -16513,7 +16522,7 @@ local function lireEtPrendre(player)
 			return false, err
 		end
 		if pris then
-			if tenant ~= nil and tenant ~= MOI and forcer then
+			if tenant ~= nil and tenant ~= jetons[player] and forcer then
 				warn(string.format("[ECO] %s : profil jamais rendu par le serveur %s, repris de force", player.Name, tostring(tenant)))
 			end
 			local data = {}
@@ -16590,6 +16599,8 @@ end
 function Economie.charger(player)
 	local p = profilNeuf()
 	if store and persistant then
+		numeroSession += 1
+		jetons[player] = MOI .. "#" .. numeroSession
 		local ok, data = lireEtPrendre(player)
 		if ok and type(data) == "table" then
 			for k, v in pairs(data) do
@@ -16767,10 +16778,14 @@ function Economie.sauver(player, rendre)
 		-- pas de disque (Studio sans API, ou profil illisible) : rien a garantir
 		return false
 	end
+	if rendus[player] then
+		-- deja rendu par CE serveur (fermeture puis depart) : il n'est plus a nous, rien a ecrire
+		return false
+	end
 	local refuse = false
 	local ok, err = pcall(function()
 		store:UpdateAsync("u" .. player.UserId, function(enreg)
-			refuse = not Economie.verrouPeutEcrire(enreg, MOI)
+			refuse = not Economie.verrouPeutEcrire(enreg, jetons[player])
 			if refuse then
 				return nil -- nil : UpdateAsync n'ecrit rien
 			end
@@ -16779,7 +16794,7 @@ function Economie.sauver(player, rendre)
 				nouveau[k] = v
 			end
 			if not rendre then
-				nouveau._session = { job = MOI, t = os.time() }
+				nouveau._session = { job = jetons[player], t = os.time() }
 			end
 			return nouveau
 		end)
@@ -16793,6 +16808,9 @@ function Economie.sauver(player, rendre)
 		sansSauvegarde[player] = true
 		warn("[ECO] " .. player.Name .. " : profil repris par un autre serveur, copie locale abandonnee")
 		return false
+	end
+	if rendre then
+		rendus[player] = true
 	end
 	-- Classement : une panne ici ne doit pas faire croire que le PROFIL n'est pas ecrit.
 	if storeClassement then
@@ -16877,6 +16895,8 @@ function Economie.liberer(player)
 	sansSauvegarde[player] = nil
 	sales[player] = nil
 	passAchetes[player] = nil
+	rendus[player] = nil
+	jetons[player] = nil
 end
 
 -- Deck CHOISI : valide ou nil. Le client n'est jamais cru — meme un deck deja SAUVEGARDE est

@@ -42,7 +42,8 @@ PRELUDE = r"""
 math.clamp = function(x, a, b) if x < a then return a elseif x > b then return b else return x end end
 Random = { new = function(_) return { NextInteger = function(_, a, _b) return a end,
                                       NextNumber = function(_, a, _b) return (a or 0) end } end }
-warn = function(...) print("[warn]", ...) end
+AVERTISSEMENTS = {}
+warn = function(m) table.insert(AVERTISSEMENTS, tostring(m)); print("[warn]", m) end
 
 -- task.wait sans task.spawn : la boucle de fond du module ne demarre pas, mais chaque ATTENTE
 -- est comptee et peut declencher ce que « l'autre serveur » fait pendant ce temps.
@@ -103,7 +104,7 @@ local services = {
   ReplicatedStorage = { WaitForChild = function(_, _n) return Shared end },
 }
 game = { GetService = function(_, n) return services[n] end,
-         BindToClose = function(_, _f) end, JobId = "" }
+         BindToClose = function(_, f) FERMETURE = f end, JobId = "" }  -- FERMETURE : celle du dernier module charge
 Enum = { ProductPurchaseDecision = { PurchaseGranted = "GRANTED", NotProcessedYet = "PAS_ENCORE" } }
 Instance = { new = function(cls)
   local o = {}
@@ -160,8 +161,10 @@ def main():
         g.game.JobId = job
         eco = lua.execute("return (function() " + code + " end)()")
         eco.PRODUITS[1].id = 12345
+        FERMETURES[job] = g.FERMETURE
         return eco, g.MarketplaceService.ProcessReceipt
 
+    FERMETURES = {}
     A, recuA = serveur("srv-A")
     B, recuB = serveur("srv-B")
     essais = int(B.VERROU_ESSAIS or 0)
@@ -224,13 +227,41 @@ def main():
     B.liberer(pB)
     cas("verrou rendu sur le disque", None, disque(1)._session)
 
-    print("\n-- 6. meme serveur : retour immediat, sans attente")
+    print("\n-- 6. meme serveur : reconnexion pendant que l'ancienne session ecrit encore")
+    # Le verrou designait le SERVEUR : la nouvelle session prenait le profil sans attendre (donc
+    # sans les derniers gains), puis l'ancienne le rendait par-dessus — et plus rien de la
+    # nouvelle session n'etait sauvegarde (constat du 2026-09-26). Il designe maintenant la SESSION.
     pA6 = fab("Dora", 6)
     A.charger(pA6)
+    A.profil(pA6).pieces = 250
+    A.marquerSale(pA6)
     pA6bis = fab("Dora", 6)
     g.ATTENTES = 0
+    g.QUAND_ATTENTE = lambda: A.liberer(pA6)  # l'ancienne session finit de partir
     A.charger(pA6bis)
-    cas("aucune attente sur le serveur qui tient deja le profil", 0, int(g.ATTENTES))
+    g.QUAND_ATTENTE = None
+    cas("la nouvelle session attend l'ancienne", True, int(g.ATTENTES) >= 1)
+    cas("la nouvelle session voit les derniers gains", 250, int(A.profil(pA6bis).pieces))
+    A.profil(pA6bis).pieces = 260
+    cas("la nouvelle session ecrit", True, bool(A.sauver(pA6bis)))
+    cas("disque : version de la nouvelle session", 260, int(disque(6).pieces))
+
+    print("\n-- 7. fermeture du serveur : BindToClose rend le profil, puis le depart du joueur")
+    # Mesure du 2026-09-26 en Studio (arret de Play) : BindToClose rendait le profil, puis
+    # PlayerRemoving -> liberer tentait une SECONDE ecriture, refusee (« profil repris par un autre
+    # serveur ») alors que personne ne l'avait repris. Rien n'etait perdu, mais chaque fermeture de
+    # serveur ecrivait un faux avertissement et une ecriture refusee par joueur present.
+    pA7 = fab("Eve", 7)
+    A.charger(pA7)
+    A.profil(pA7).pieces = 321
+    A.marquerSale(pA7)
+    n_avant = len(g.AVERTISSEMENTS)
+    FERMETURES["srv-A"]()
+    A.liberer(pA7)
+    nouveaux = [g.AVERTISSEMENTS[i] for i in range(n_avant + 1, len(g.AVERTISSEMENTS) + 1)]
+    cas("disque : derniere version ecrite", 321, int(disque(7).pieces))
+    cas("disque : verrou rendu", None, disque(7)._session)
+    cas("aucun faux avertissement de reprise", [], [m for m in nouveaux if "repris" in m])
 
     print()
     if ECHECS:

@@ -1270,6 +1270,16 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   PERMANENT : le pass de saison ouvre la piste premium de toutes les saisons (sa description le dit).
 - Restent a faire par le proprietaire : etapes 0 et 3 ci-dessous (eligibilite, questionnaire de
   maturite), puis passer l'experience en Public ; nombre max de joueurs par serveur (6, voir plus haut).
+- **Test d'achat de bout en bout** (2026-09-26, Studio sur la place en ligne, acces aux API active) :
+  achat test du Sac de 500 pieces -> journal `[ECO] ... achat Robux Sac de 500 pieces, +500 pieces`,
+  solde 100 -> 600 ; victoire -> `+60 pieces` (30 x 2, VIP actif) ; profil relu apres arret a
+  660 pieces. Le VIP n'est PAS achetable par le compte createur : Roblox lui attribue d'office ses
+  propres pass (API d'inventaire), donc l'offre est masquee et le x2 deja actif. Un achat de pass en
+  jeu se teste avec un SECOND compte.
+- **Version en ligne en retard d'une correction** : la place publiee precede le verrou par SESSION
+  (reconnexion sur le meme serveur) et la fin du double rendu a la fermeture (faux avertissement
+  « profil repris par un autre serveur »). `BrainRotRoyale.rbxlx` les contient : republier par
+  Fichier > Publier sur Roblox > Mettre a jour l'experience existante.
 
 ### A faire avec TON compte (rien n'est vendu tant que ce n'est pas fait)
 0. **Eligibilite** (obligatoire depuis le 17/12/2025 pour publier ou mettre a jour une experience

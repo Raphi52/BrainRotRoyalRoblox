@@ -27,7 +27,7 @@ else:
     run = lua.execute(luau(
         "local Economie = { sauvegardeActive = function() return true end,\n"
         "  verrouPeutEcrire = function() return true end }\n"
-        "local profils, sales, sansSauvegarde = {}, {}, {}\nlocal ECRITS = {}\nlocal PANNE = false\nlocal MOI = 'srv'\n"
+        "local profils, sales, sansSauvegarde, rendus, jetons = {}, {}, {}, {}, {}\nlocal ECRITS = {}\nlocal PANNE = false\nlocal MOI = 'srv'\n"
         # verrou de session : ce serveur tient le profil, l'ecriture passe par UpdateAsync
         "local store = { UpdateAsync = function(_, k, f) if PANNE then error('panne') end return f({ _session = { job = MOI } }) end }\n"
         "local storeClassement = { SetAsync = function(_, k, v) ECRITS[k] = v end }\n"
