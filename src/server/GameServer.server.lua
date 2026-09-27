@@ -2844,6 +2844,12 @@ local function ecotest(player)
 	cas("second bonus refuse", false, ok)
 	-- TROPHEES (Arenes.apres) : le tiers de l'enjeu contre le robot, l'enjeu entier contre un
 	-- humain de meme niveau, et le plancher protege a la descente.
+	-- Le compte qui lance Studio peut POSSEDER le pass VIP (son createur le possede d'office) : la
+	-- victoire rapportait alors 60 au lieu de 30 (constate le 2026-09-27 par tools/ecotest_moteur.ps1
+	-- apres le branchement du vrai pass). Le scenario mesure la recompense de BASE ; le x2 du VIP a
+	-- son banc (tools/test_pass_achete.py).
+	local passVip = Economie.PASS_VIP
+	Economie.PASS_VIP = 0
 	p.trophees = 0
 	local r = Economie.recompenser(player, "victoire")
 	cas("victoire : pieces", 30, r.pieces)
@@ -2858,6 +2864,7 @@ local function ecotest(player)
 	p.trophees = 105
 	Economie.recompenser(player, "defaite", true, nil, 105)
 	cas("jamais sous le plancher protege", 100, p.trophees)
+	Economie.PASS_VIP = passVip
 	p.trophees = 10 -- etat attendu par la suite du scenario (coffres, niveaux)
 	cas("leaderstats a jour", p.pieces, player.leaderstats.Pieces.Value)
 	-- COFFRES
