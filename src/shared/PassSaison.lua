@@ -29,9 +29,16 @@ function PassSaison.progression(points)
 	return p % PassSaison.POINTS_PALIER, PassSaison.POINTS_PALIER
 end
 
+-- ARTICLE ALEATOIRE PAYANT (2026-09-27) : la piste premium s'achete en Robux (pass de saison) et
+-- son coffre d'or a un contenu TIRE AU HASARD. La ou Roblox interdit ces articles
+-- (PolicyService, ArePaidRandomItemsRestricted), il est REMPLACE par un gain FIXE. 400 pieces :
+-- un coffre d'or rend 150 a 250 pieces PLUS une carte (200 pieces quand la collection est complete).
+PassSaison.PIECES_AU_LIEU_DU_COFFRE = 400
+
 -- Recompense du palier i sur une piste ("gratuit" | "premium").
 -- { type = "pieces" | "gemmes" | "coffre", valeur = nombre ou type de coffre, texte = court }
-function PassSaison.recompense(i, piste)
+-- `sansAleatoirePayant` : vrai pour un joueur d'un pays ou l'article aleatoire payant est interdit.
+function PassSaison.recompense(i, piste, sansAleatoirePayant)
 	if type(i) ~= "number" or i < 1 or i > PassSaison.PALIERS or i % 1 ~= 0 then
 		return nil
 	end
@@ -45,6 +52,10 @@ function PassSaison.recompense(i, piste)
 		if i == PassSaison.PALIERS then
 			return { type = "gemmes", valeur = 150, texte = "150 gemmes" }
 		elseif i % 5 == 0 then
+			if sansAleatoirePayant then
+				local n = PassSaison.PIECES_AU_LIEU_DU_COFFRE
+				return { type = "pieces", valeur = n, texte = n .. " pieces" }
+			end
 			return { type = "coffre", valeur = "or", texte = "Coffre d'or" }
 		elseif i % 2 == 0 then
 			return { type = "gemmes", valeur = 15, texte = "15 gemmes" }

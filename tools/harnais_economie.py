@@ -63,6 +63,12 @@ local services = {
   DataStoreService = { GetDataStore = function(_, _n) return faux_store() end },
   MarketplaceService = {},
   ReplicatedStorage = { WaitForChild = function(_, _n) return Shared end },
+  -- Politique du pays : POLITIQUE_INTERDIT = true -> tirages payants interdits ;
+  -- POLITIQUE_PANNE = true -> l'appel echoue (tools/test_aleatoire_payant.py).
+  PolicyService = { GetPolicyInfoForPlayerAsync = function(_, _p)
+    if POLITIQUE_PANNE then error("PolicyService indisponible") end
+    return { ArePaidRandomItemsRestricted = POLITIQUE_INTERDIT == true }
+  end },
 }
 game = { GetService = function(_, n) return services[n] end,
          BindToClose = function(_, _f) end }
@@ -90,6 +96,7 @@ require = function(m)
   if m == "Saison" then return SAISON end
   if m == "Journal" then return JOURNAL end
   if m == "Quetes" then return QUETES end
+  if m == "Coffres" then return COFFRES end
   return CARDS
 end
 """
@@ -119,6 +126,9 @@ def charger_arenes(lua):
     # QUETES : l'annonce d'une quete terminee. Meme regle.
     quetes = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Quetes.lua").read_text(encoding="utf-8")
     lua.execute("QUETES = (function() " + quetes + " end)()")
+    # COFFRES : prix en gemmes de l'ouverture immediate (Economie.accelererCoffre). Meme regle.
+    coffres = (_p.Path(__file__).resolve().parent.parent / "src" / "shared" / "Coffres.lua").read_text(encoding="utf-8")
+    lua.execute("COFFRES = (function() " + coffres + " end)()")
 
 
 def charger(lua):

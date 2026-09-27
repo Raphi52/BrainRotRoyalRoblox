@@ -109,10 +109,20 @@ function Coffres.coutGemmes(reste)
 	if reste <= 0 then return 0 end
 	return math.max(1, math.ceil(reste / (Coffres.MINUTES_PAR_GEMME * 60)))
 end
-function Coffres.texteEnCours(reste)
+-- `sansGemmes` : pays ou l'ouverture contre des gemmes (article aleatoire payant) est interdite ;
+-- on n'affiche alors que le temps restant, sans prix.
+function Coffres.texteEnCours(reste, sansGemmes)
 	local t = reste >= 3600 and string.format("%dh%02d", reste // 3600, (reste % 3600) // 60)
 		or string.format("%d:%02d", reste // 60, reste % 60)
+	if sansGemmes then
+		return t
+	end
 	return t .. "  |  " .. Coffres.coutGemmes(reste) .. " gemmes"
+end
+-- Ce que dit le coffre EN COURS touche la ou l'ouverture contre des gemmes est interdite.
+function Coffres.texteAttendre(reste)
+	return "Ce coffre s'ouvre dans " .. Coffres.texteEnCours(reste, true)
+		.. " (ouverture contre des gemmes indisponible dans ton pays)"
 end
 -- CONFIRMATION AVANT DE DEPENSER DES GEMMES : le 1er clic affiche le prix, seul un 2e clic sur le
 -- MEME coffre dans les CONFIRMATION_S secondes achete. Evite l'achat par clic accidentel.
@@ -123,7 +133,11 @@ end
 function Coffres.texteConfirmer(reste) return "CONFIRMER : " .. Coffres.coutGemmes(reste) .. " gemmes" end
 -- A QUOI SERVENT LES GEMMES : le jeton du bandeau affichait un chiffre sans rien expliquer.
 -- `parQuete` vient de Quetes.GEMMES : la bulle dit la vraie regle, pas un texte fige.
-function Coffres.texteGemmes(n, parQuete)
+function Coffres.texteGemmes(n, parQuete, sansOuverture)
+	if sansOuverture then
+		return string.format("%d gemmes : elles achetent les cosmetiques (skins, emotes). "
+			.. "Gagne-en %d par quete du jour.", tonumber(n) or 0, tonumber(parQuete) or 0)
+	end
 	return string.format("%d gemmes : ouvrent tout de suite un coffre en cours (1 par %d min). "
 		.. "Gagne-en %d par quete du jour.", tonumber(n) or 0, Coffres.MINUTES_PAR_GEMME, tonumber(parQuete) or 0)
 end
