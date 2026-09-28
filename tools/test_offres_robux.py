@@ -15,6 +15,8 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from harnais_economie import charger, joueur, nouveau_lua  # noqa: E402
 
+GENRES = []  # genre de chaque offre remontee (pastille dessinee par le client)
+
 
 def offres(Economie, lua, ids):
     """Pose `ids` dans Economie.PRODUITS puis rend la liste des noms remontes au client."""
@@ -23,6 +25,7 @@ def offres(Economie, lua, ids):
     p = joueur(lua, "Alice", 1)
     Economie.charger(p)
     vue = Economie.vue(p)
+    GENRES.extend(vue.offresRobux[i].genre for i in range(1, len(vue.offresRobux) + 1))
     return [vue.offresRobux[i].nom for i in range(1, len(vue.offresRobux) + 1)]
 
 
@@ -40,7 +43,11 @@ def main():
         return 1
 
     attendus = ["Sac de 500 pieces", "Coffre de 1500 pieces", "Poignee de 80 gemmes"]
+    del GENRES[:]
     posees = offres(Economie, lua, [111111111, 222222222, 333333333])
+    if GENRES != ["pieces", "pieces", "gemmes"]:
+        print("ROUGE : genre des offres (pastille) :", GENRES, "attendu ['pieces', 'pieces', 'gemmes']")
+        return 1
     print("identifiants poses -> offres :", posees)
     if posees != attendus:
         print("ROUGE : les produits configures ne remontent pas a la boutique.")

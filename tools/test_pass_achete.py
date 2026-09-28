@@ -41,7 +41,8 @@ def main():
     lua.execute("""
 local MS = game:GetService("MarketplaceService")
 INVITES = {}
-MS.UserOwnsGamePassAsync = function(_, _uid, _pass) return false end -- cache de Roblox : faux
+PROPRIETAIRE = false -- vrai : le compte possede d'office ses pass (compte createur)
+MS.UserOwnsGamePassAsync = function(_, _uid, _pass) return PROPRIETAIRE end -- cache de Roblox : faux
 MS.PromptGamePassPurchase = function(_, _pl, pass) table.insert(INVITES, pass) end
 MS.PromptProductPurchase = function(_, _pl, id) table.insert(INVITES, id) end
 """)
@@ -77,6 +78,8 @@ MS.PromptProductPurchase = function(_, _pl, id) table.insert(INVITES, id) end
 
     print("\n-- 3. le VIP est en vente dans la boutique, et s'achete en jeu")
     cas("offre VIP visible (produits a 0 : seule offre)", ["Pass VIP : pieces x2"], offres(bob))
+    v = Eco.vue(bob).offresRobux
+    cas("l'offre VIP porte sa pastille (genre)", "vip", v[1].genre if len(v) else None)
     Eco.demanderRobux(bob, "vip")
     cas("achat du VIP propose", [777], invites())
     cas("l'achat du VIP est retenu", True, bool(noter and noter(bob, 777, True)))
@@ -98,6 +101,19 @@ MS.PromptProductPurchase = function(_, _pl, id) table.insert(INVITES, id) end
     alice2 = H.joueur(lua, "Alice", 1)
     Eco.charger(alice2)
     cas("nouvelle session : on repart de la reponse de Roblox", False, bool(Eco.aPassPremium(alice2)))
+
+    print("\n-- 6. copie de test --vip-non-possede : le createur voit l'offre VIP")
+    g.PROPRIETAIRE = True
+    carl = H.joueur(lua, "Carl", 3)
+    Eco.charger(carl)
+    vip = "Pass VIP : pieces x2"
+    cas("createur, sans le drapeau : offre VIP masquee", False, vip in offres(carl))
+    Eco.vipTestNonPossede = True
+    cas("createur, avec le drapeau : offre VIP visible", True, vip in offres(carl))
+    noter(carl, 777, True)
+    cas("achat en jeu retenu malgre le drapeau : offre retiree", False, vip in offres(carl))
+    Eco.vipTestNonPossede = False
+    g.PROPRIETAIRE = False
 
     print()
     if ECHECS:

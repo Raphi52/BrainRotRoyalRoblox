@@ -141,6 +141,12 @@ local passAchetes = {} -- player -> { [passId] = true } : pass payes pendant la 
 -- rend, puis PlayerRemoving (liberer) le rendait une seconde fois : l'ecriture etait refusee et
 -- le journal accusait a tort « un autre serveur » (mesure en Studio le 2026-09-26).
 local rendus = {}
+-- ARTICLES ALEATOIRES PAYANTS (2026-09-27, questionnaire de maturite : « Oui ») : ouvrir un coffre
+-- contre des gemmes (vendues en Robux) et le coffre d'or de la piste premium (pass paye) donnent un
+-- contenu tire au hasard. Roblox exige de les bloquer ou de les remplacer la ou la loi les interdit :
+-- https://create.roblox.com/docs/production/promotion/content-maturity (PolicyService).
+-- player -> false : autorise ; true ou absent : INTERDIT. Faute de reponse de Roblox, on bloque.
+local aleatoireInterdit = {}
 local DELAI_ECRITURE = 30
 -- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
 -- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
@@ -355,6 +361,7 @@ function Economie.charger(player)
 	-- PASSAGE DE SAISON : on le constate a la CONNEXION, pas par une horloge qui tournerait dans le
 	-- vide. Le joueur recoit sa recompense de fin de saison et repart du plancher.
 	Economie.tournerSaison(player, p)
+	Economie.lirePolitique(player)
 	profils[player] = p
 	leaderstats(player, p)
 	print(string.format("[ECO] profil %s : %d pieces, %d trophees, sauvegarde=%s", player.Name, p.pieces, p.trophees, tostring(Economie.sauvegardeActive(player))))
@@ -614,8 +621,28 @@ function Economie.viderSales()
 	return n
 end
 
+-- Politique du PAYS du joueur, lue une fois a la connexion. pcall : l'appel peut echouer (doc
+-- PolicyService) ; alors on BLOQUE, car vendre un tirage la ou il est interdit n'est pas rattrapable.
+function Economie.lirePolitique(player)
+	local ok, info = pcall(function()
+		return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player)
+	end)
+	local permis = ok and type(info) == "table" and info.ArePaidRandomItemsRestricted == false
+	aleatoireInterdit[player] = not permis
+	if not ok then
+		warn("[ECO] politique du pays illisible pour " .. player.Name .. " : " .. tostring(info) .. " (tirages payants bloques)")
+	end
+	print(string.format("[ECO] %s : articles aleatoires payants %s", player.Name, permis and "permis" or "INTERDITS"))
+	return not permis
+end
+
+function Economie.aleatoirePayantInterdit(player)
+	return aleatoireInterdit[player] ~= false
+end
+
 function Economie.liberer(player)
 	Economie.sauver(player, true)
+	aleatoireInterdit[player] = nil
 	profils[player] = nil
 	sansSauvegarde[player] = nil
 	sales[player] = nil
@@ -781,6 +808,11 @@ local function possedePass(player, passId)
 	if passId == 0 then
 		return false
 	end
+	-- COPIE DE TEST (build.py --vip-non-possede) : le compte qui lance Studio est le createur, qui
+	-- possede d'office ses pass ; l'offre VIP n'apparaitrait jamais a la capture.
+	if passId == Economie.PASS_VIP and Economie.vipTestNonPossede and not (passAchetes[player] and passAchetes[player][passId]) then
+		return false
+	end
 	if passAchetes[player] and passAchetes[player][passId] then
 		return true
 	end
@@ -888,7 +920,7 @@ function Economie.reclamerPalier(player, i, piste)
 	if not ok then
 		return false, motif
 	end
-	local r = PassSaison.recompense(i, piste)
+	local r = PassSaison.recompense(i, piste, Economie.aleatoirePayantInterdit(player))
 	if r.type == "coffre" then
 		-- emplacements pleins : on NE marque PAS le palier, la recompense reste a prendre
 		if not Economie.gagnerCoffre(player, r.valeur) then
@@ -1095,6 +1127,10 @@ end
 
 -- OUVERTURE IMMEDIATE contre des gemmes d'un coffre EN COURS (prix : Coffres.coutGemmes).
 function Economie.accelererCoffre(player, index)
+	if Economie.aleatoirePayantInterdit(player) then
+		-- article aleatoire payant : refuse AVANT toute depense (voir aleatoireInterdit)
+		return false, "ouverture contre des gemmes indisponible dans ton pays"
+	end
 	local Coffres = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Coffres"))
 	local p = profils[player]
 	local c = p and type(index) == "number" and p.coffres[index]
@@ -1431,23 +1467,26 @@ function Economie.vue(player)
 	local passDans, passSur = PassSaison.progression(passEtat.points)
 	local passVue = { saison = passEtat.saison, points = passEtat.points, palier = PassSaison.palier(passEtat.points),
 		dans = passDans, sur = passSur, reclames = passEtat.reclames, premium = Economie.aPassPremium(player),
+		sansAleatoirePayant = Economie.aleatoirePayantInterdit(player),
 		achetable = Economie.PASS_SAISON ~= 0, reste = Saison.texteReste(os.time()) }
 	local offres = {}
 	for i, prod in ipairs(Economie.PRODUITS) do
 		if prod.id ~= 0 then
-			table.insert(offres, { index = i, nom = prod.nom })
+			-- `genre` : la pastille que le client dessine sur l'offre (pieces / gemmes / vip).
+			table.insert(offres, { index = i, nom = prod.nom, genre = prod.gemmes and "gemmes" or "pieces" })
 		end
 	end
 	-- PASS VIP : il n'etait propose NULLE PART dans le jeu (seule la page Roblox le vendait).
 	-- Montre tant qu'il est configure et pas encore possede.
 	if Economie.PASS_VIP ~= 0 and not aVip(player) then
-		table.insert(offres, { index = "vip", nom = "Pass VIP : pieces x2" })
+		table.insert(offres, { index = "vip", nom = "Pass VIP : pieces x2", genre = "vip" })
 	end
 	return {
 		pieces = p.pieces, gemmes = p.gemmes, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
 		cartes = p.cartes, sauvegarde = Economie.sauvegardeActive(player), offresRobux = offres,
 		bonusDispo = p.dernierBonus + UN_JOUR <= os.time(),
 		coffres = p.coffres, maintenant = os.time(),
+		sansAleatoirePayant = Economie.aleatoirePayantInterdit(player), -- pas d'ouverture en gemmes
 		-- CE QUE CONTIENT CHAQUE TYPE DE COFFRE : le joueur choisit lequel ouvrir (un seul a la
 		-- fois, de 15 min a 3 h) et n'avait AUCUN moyen de savoir ce qu'il y gagnerait. Les
 		-- chiffres partent d'ici, ils ne sont pas recopies dans l'ecran.

@@ -7085,10 +7085,20 @@ function Coffres.coutGemmes(reste)
 	if reste <= 0 then return 0 end
 	return math.max(1, math.ceil(reste / (Coffres.MINUTES_PAR_GEMME * 60)))
 end
-function Coffres.texteEnCours(reste)
+-- `sansGemmes` : pays ou l'ouverture contre des gemmes (article aleatoire payant) est interdite ;
+-- on n'affiche alors que le temps restant, sans prix.
+function Coffres.texteEnCours(reste, sansGemmes)
 	local t = reste >= 3600 and string.format("%dh%02d", reste // 3600, (reste % 3600) // 60)
 		or string.format("%d:%02d", reste // 60, reste % 60)
+	if sansGemmes then
+		return t
+	end
 	return t .. "  |  " .. Coffres.coutGemmes(reste) .. " gemmes"
+end
+-- Ce que dit le coffre EN COURS touche la ou l'ouverture contre des gemmes est interdite.
+function Coffres.texteAttendre(reste)
+	return "Ce coffre s'ouvre dans " .. Coffres.texteEnCours(reste, true)
+		.. " (ouverture contre des gemmes indisponible dans ton pays)"
 end
 -- CONFIRMATION AVANT DE DEPENSER DES GEMMES : le 1er clic affiche le prix, seul un 2e clic sur le
 -- MEME coffre dans les CONFIRMATION_S secondes achete. Evite l'achat par clic accidentel.
@@ -7099,7 +7109,11 @@ end
 function Coffres.texteConfirmer(reste) return "CONFIRMER : " .. Coffres.coutGemmes(reste) .. " gemmes" end
 -- A QUOI SERVENT LES GEMMES : le jeton du bandeau affichait un chiffre sans rien expliquer.
 -- `parQuete` vient de Quetes.GEMMES : la bulle dit la vraie regle, pas un texte fige.
-function Coffres.texteGemmes(n, parQuete)
+function Coffres.texteGemmes(n, parQuete, sansOuverture)
+	if sansOuverture then
+		return string.format("%d gemmes : elles achetent les cosmetiques (skins, emotes). "
+			.. "Gagne-en %d par quete du jour.", tonumber(n) or 0, tonumber(parQuete) or 0)
+	end
 	return string.format("%d gemmes : ouvrent tout de suite un coffre en cours (1 par %d min). "
 		.. "Gagne-en %d par quete du jour.", tonumber(n) or 0, Coffres.MINUTES_PAR_GEMME, tonumber(parQuete) or 0)
 end
@@ -7349,9 +7363,16 @@ function PassSaison.progression(points)
 	return p % PassSaison.POINTS_PALIER, PassSaison.POINTS_PALIER
 end
 
+-- ARTICLE ALEATOIRE PAYANT (2026-09-27) : la piste premium s'achete en Robux (pass de saison) et
+-- son coffre d'or a un contenu TIRE AU HASARD. La ou Roblox interdit ces articles
+-- (PolicyService, ArePaidRandomItemsRestricted), il est REMPLACE par un gain FIXE. 400 pieces :
+-- un coffre d'or rend 150 a 250 pieces PLUS une carte (200 pieces quand la collection est complete).
+PassSaison.PIECES_AU_LIEU_DU_COFFRE = 400
+
 -- Recompense du palier i sur une piste ("gratuit" | "premium").
 -- { type = "pieces" | "gemmes" | "coffre", valeur = nombre ou type de coffre, texte = court }
-function PassSaison.recompense(i, piste)
+-- `sansAleatoirePayant` : vrai pour un joueur d'un pays ou l'article aleatoire payant est interdit.
+function PassSaison.recompense(i, piste, sansAleatoirePayant)
 	if type(i) ~= "number" or i < 1 or i > PassSaison.PALIERS or i % 1 ~= 0 then
 		return nil
 	end
@@ -7365,6 +7386,10 @@ function PassSaison.recompense(i, piste)
 		if i == PassSaison.PALIERS then
 			return { type = "gemmes", valeur = 150, texte = "150 gemmes" }
 		elseif i % 5 == 0 then
+			if sansAleatoirePayant then
+				local n = PassSaison.PIECES_AU_LIEU_DU_COFFRE
+				return { type = "pieces", valeur = n, texte = n .. " pieces" }
+			end
 			return { type = "coffre", valeur = "or", texte = "Coffre d'or" }
 		elseif i % 2 == 0 then
 			return { type = "gemmes", valeur = 15, texte = "15 gemmes" }
@@ -14142,6 +14167,8 @@ local function arrivee(player)
 	end
 	-- capture du PASS DE SAISON (build.py --pass-points=N) : N points deja faits cette saison
 	Economie.passPremiumTest = ReplicatedStorage:FindFirstChild("BRR_PASS_PREMIUM") ~= nil
+	-- capture de la boutique a 4 offres (build.py --vip-non-possede) : le createur possede le VIP
+	Economie.vipTestNonPossede = ReplicatedStorage:FindFirstChild("BRR_VIP_NON_POSSEDE") ~= nil
 	-- capture des COSMETIQUES (build.py --cosmetiques / --skin=id)
 	if ReplicatedStorage:FindFirstChild("BRR_COSMETIQUES") then
 		Economie.profil(player).gemmes = 500
@@ -16423,6 +16450,12 @@ local passAchetes = {} -- player -> { [passId] = true } : pass payes pendant la 
 -- rend, puis PlayerRemoving (liberer) le rendait une seconde fois : l'ecriture etait refusee et
 -- le journal accusait a tort « un autre serveur » (mesure en Studio le 2026-09-26).
 local rendus = {}
+-- ARTICLES ALEATOIRES PAYANTS (2026-09-27, questionnaire de maturite : « Oui ») : ouvrir un coffre
+-- contre des gemmes (vendues en Robux) et le coffre d'or de la piste premium (pass paye) donnent un
+-- contenu tire au hasard. Roblox exige de les bloquer ou de les remplacer la ou la loi les interdit :
+-- https://create.roblox.com/docs/production/promotion/content-maturity (PolicyService).
+-- player -> false : autorise ; true ou absent : INTERDIT. Faute de reponse de Roblox, on bloque.
+local aleatoireInterdit = {}
 local DELAI_ECRITURE = 30
 -- Registre des RECUS d'achat Robux. Roblox rappelle ProcessReceipt jusqu'a obtenir une reponse :
 -- sans trace du PurchaseId deja honore, un rappel apres crediter recredite le joueur.
@@ -16637,6 +16670,7 @@ function Economie.charger(player)
 	-- PASSAGE DE SAISON : on le constate a la CONNEXION, pas par une horloge qui tournerait dans le
 	-- vide. Le joueur recoit sa recompense de fin de saison et repart du plancher.
 	Economie.tournerSaison(player, p)
+	Economie.lirePolitique(player)
 	profils[player] = p
 	leaderstats(player, p)
 	print(string.format("[ECO] profil %s : %d pieces, %d trophees, sauvegarde=%s", player.Name, p.pieces, p.trophees, tostring(Economie.sauvegardeActive(player))))
@@ -16896,8 +16930,28 @@ function Economie.viderSales()
 	return n
 end
 
+-- Politique du PAYS du joueur, lue une fois a la connexion. pcall : l'appel peut echouer (doc
+-- PolicyService) ; alors on BLOQUE, car vendre un tirage la ou il est interdit n'est pas rattrapable.
+function Economie.lirePolitique(player)
+	local ok, info = pcall(function()
+		return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player)
+	end)
+	local permis = ok and type(info) == "table" and info.ArePaidRandomItemsRestricted == false
+	aleatoireInterdit[player] = not permis
+	if not ok then
+		warn("[ECO] politique du pays illisible pour " .. player.Name .. " : " .. tostring(info) .. " (tirages payants bloques)")
+	end
+	print(string.format("[ECO] %s : articles aleatoires payants %s", player.Name, permis and "permis" or "INTERDITS"))
+	return not permis
+end
+
+function Economie.aleatoirePayantInterdit(player)
+	return aleatoireInterdit[player] ~= false
+end
+
 function Economie.liberer(player)
 	Economie.sauver(player, true)
+	aleatoireInterdit[player] = nil
 	profils[player] = nil
 	sansSauvegarde[player] = nil
 	sales[player] = nil
@@ -17063,6 +17117,11 @@ local function possedePass(player, passId)
 	if passId == 0 then
 		return false
 	end
+	-- COPIE DE TEST (build.py --vip-non-possede) : le compte qui lance Studio est le createur, qui
+	-- possede d'office ses pass ; l'offre VIP n'apparaitrait jamais a la capture.
+	if passId == Economie.PASS_VIP and Economie.vipTestNonPossede and not (passAchetes[player] and passAchetes[player][passId]) then
+		return false
+	end
 	if passAchetes[player] and passAchetes[player][passId] then
 		return true
 	end
@@ -17170,7 +17229,7 @@ function Economie.reclamerPalier(player, i, piste)
 	if not ok then
 		return false, motif
 	end
-	local r = PassSaison.recompense(i, piste)
+	local r = PassSaison.recompense(i, piste, Economie.aleatoirePayantInterdit(player))
 	if r.type == "coffre" then
 		-- emplacements pleins : on NE marque PAS le palier, la recompense reste a prendre
 		if not Economie.gagnerCoffre(player, r.valeur) then
@@ -17377,6 +17436,10 @@ end
 
 -- OUVERTURE IMMEDIATE contre des gemmes d'un coffre EN COURS (prix : Coffres.coutGemmes).
 function Economie.accelererCoffre(player, index)
+	if Economie.aleatoirePayantInterdit(player) then
+		-- article aleatoire payant : refuse AVANT toute depense (voir aleatoireInterdit)
+		return false, "ouverture contre des gemmes indisponible dans ton pays"
+	end
 	local Coffres = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Coffres"))
 	local p = profils[player]
 	local c = p and type(index) == "number" and p.coffres[index]
@@ -17713,23 +17776,26 @@ function Economie.vue(player)
 	local passDans, passSur = PassSaison.progression(passEtat.points)
 	local passVue = { saison = passEtat.saison, points = passEtat.points, palier = PassSaison.palier(passEtat.points),
 		dans = passDans, sur = passSur, reclames = passEtat.reclames, premium = Economie.aPassPremium(player),
+		sansAleatoirePayant = Economie.aleatoirePayantInterdit(player),
 		achetable = Economie.PASS_SAISON ~= 0, reste = Saison.texteReste(os.time()) }
 	local offres = {}
 	for i, prod in ipairs(Economie.PRODUITS) do
 		if prod.id ~= 0 then
-			table.insert(offres, { index = i, nom = prod.nom })
+			-- `genre` : la pastille que le client dessine sur l'offre (pieces / gemmes / vip).
+			table.insert(offres, { index = i, nom = prod.nom, genre = prod.gemmes and "gemmes" or "pieces" })
 		end
 	end
 	-- PASS VIP : il n'etait propose NULLE PART dans le jeu (seule la page Roblox le vendait).
 	-- Montre tant qu'il est configure et pas encore possede.
 	if Economie.PASS_VIP ~= 0 and not aVip(player) then
-		table.insert(offres, { index = "vip", nom = "Pass VIP : pieces x2" })
+		table.insert(offres, { index = "vip", nom = "Pass VIP : pieces x2", genre = "vip" })
 	end
 	return {
 		pieces = p.pieces, gemmes = p.gemmes, trophees = p.trophees, victoires = p.victoires, parties = p.parties,
 		cartes = p.cartes, sauvegarde = Economie.sauvegardeActive(player), offresRobux = offres,
 		bonusDispo = p.dernierBonus + UN_JOUR <= os.time(),
 		coffres = p.coffres, maintenant = os.time(),
+		sansAleatoirePayant = Economie.aleatoirePayantInterdit(player), -- pas d'ouverture en gemmes
 		-- CE QUE CONTIENT CHAQUE TYPE DE COFFRE : le joueur choisit lequel ouvrir (un seul a la
 		-- fois, de 15 min a 3 h) et n'avait AUCUN moyen de savoir ce qu'il y gagnerait. Les
 		-- chiffres partent d'ici, ils ne sont pas recopies dans l'ecran.
@@ -22635,7 +22701,7 @@ local function majCoffres()
 			if c.fin == 0 then
 				e.etat.Text = Coffres.etatAttente(Coffres.unEnCours(vue.coffres, maintenant))
 			elseif c.fin > maintenant then
-				e.etat.Text = Coffres.texteEnCours(c.fin - maintenant)
+				e.etat.Text = Coffres.texteEnCours(c.fin - maintenant, vue.sansAleatoirePayant)
 				if not Coffres.doitConfirmer(montee.confirmeCoffre, i, maintenant) then
 					e.etat.Text = Coffres.texteConfirmer(c.fin - maintenant)
 				end
@@ -22864,6 +22930,29 @@ local function afficher(v)
 		b.MouseButton1Click:Connect(function()
 			afficher(Boutique:InvokeServer("robux", offre.index).vue)
 		end)
+		-- PASTILLE DE L'OFFRE (champ `genre` de la vue) : le meme dessin que les jetons du bandeau
+		-- (pieces « $ » or, gemmes « G » vert), et « x2 » violet pour le VIP. Tout est DESSINE :
+		-- aucune image a televerser sur le compte du createur.
+		local sorte = ({ pieces = { "$", OR }, gemmes = { "G", Color3.fromRGB(80, 210, 160) },
+			vip = { "x2", Color3.fromRGB(190, 120, 255) } })[offre.genre or "pieces"] or { "$", OR }
+		local pastille = Instance.new("Frame")
+		pastille.Name = "Pastille"
+		pastille.Size = UDim2.fromScale(0.2, 0.8)
+		pastille.Position = UDim2.fromScale(0.03, 0.1)
+		pastille.BackgroundColor3 = sorte[2]
+		pastille.ZIndex = b.ZIndex + 1
+		pastille.Parent = b
+		local carre = Instance.new("UIAspectRatioConstraint")
+		carre.Parent = pastille
+		coin(pastille, 100)
+		contour(pastille, 2)
+		-- symbole aux deux tiers, centre : a pleine taille, son contour sombre masquait la couleur
+		texte(pastille, sorte[1], UDim2.fromScale(0.64, 0.64), UDim2.fromScale(0.18, 0.18), Color3.fromRGB(30, 26, 10)).ZIndex = b.ZIndex + 2
+		-- Le libelle passe dans une etiquette A DROITE de la pastille : une marge (UIPadding) sur le
+		-- bouton deplacait aussi la pastille, qui masquait le debut du texte (capture du 2026-09-27).
+		local libelle = texte(b, b.Text, UDim2.fromScale(0.72, 0.9), UDim2.fromScale(0.25, 0.05), Color3.new(1, 1, 1))
+		libelle.ZIndex = b.ZIndex + 1
+		b.Text = ""
 	end
 end
 
@@ -23652,6 +23741,12 @@ for i = 1, 4 do
 			action = "accelererCoffre" -- en cours : ouverture immediate contre des gemmes
 			local Coffres = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Coffres"))
 			local maintenant = os.time() + decalageHorloge
+			if vue.sansAleatoirePayant then
+				-- tirage payant interdit dans son pays (Economie.aleatoirePayantInterdit) : on dit
+				-- l'attente, rien n'est propose a l'achat (le serveur refuserait de toute facon).
+				message.Text = Coffres.texteAttendre(c.fin - maintenant)
+				return
+			end
 			if Coffres.doitConfirmer(montee.confirmeCoffre, i, maintenant) then
 				-- 1er clic : on affiche le prix, rien n'est depense.
 				montee.confirmeCoffre = { index = i, jusqua = maintenant + Coffres.CONFIRMATION_S }
@@ -24880,6 +24975,25 @@ end
 	coin(P.jauge, 6)
 	-- sous la liste des joueurs de Roblox, qui couvre le coin haut droit (capture du 2026-09-21)
 	P.premium = z(bouton(P.ecran, "PREMIUM", UDim2.fromScale(0.22, 0.08), UDim2.fromScale(0.64, 0.135), OR), 61)
+	-- PASTILLE « P » du pass de saison premium : la 5e offre Robux, vendue ici et non en boutique.
+	do
+		local pastille = Instance.new("Frame")
+		pastille.Name = "Pastille"
+		pastille.Size = UDim2.fromScale(0.2, 0.8)
+		pastille.Position = UDim2.fromScale(0.03, 0.1)
+		-- violet fonce : une pastille claire sur le bouton dore ne se voyait pas (capture du 2026-09-27)
+		pastille.BackgroundColor3 = Color3.fromRGB(60, 40, 120)
+		pastille.ZIndex = 62
+		pastille.Parent = P.premium
+		Instance.new("UIAspectRatioConstraint").Parent = pastille
+		coin(pastille, 100)
+		contour(pastille, 2)
+		texte(pastille, "P", UDim2.fromScale(0.64, 0.64), UDim2.fromScale(0.18, 0.18), OR).ZIndex = 63
+		-- libelle a droite de la pastille (voir les offres de la boutique) ; majPass l'ecrit ici
+		P.premiumTexte = texte(P.premium, P.premium.Text, UDim2.fromScale(0.72, 0.9), UDim2.fromScale(0.25, 0.05), Color3.new(1, 1, 1))
+		P.premiumTexte.ZIndex = 62
+		P.premium.Text = ""
+	end
 	P.fermer = z(bouton(P.ecran, "X", UDim2.fromScale(0.06, 0.08), UDim2.fromScale(0.91, 0.135),
 		Color3.fromRGB(170, 60, 70)), 61)
 	P.message = z(texte(P.ecran, "", UDim2.fromScale(0.9, 0.045), UDim2.fromScale(0.05, 0.935), OR), 61)
@@ -24949,13 +25063,15 @@ end
 		P.sousTitre.Text = string.format("%s restants  -  Palier %d / %d  (%d / %d points)",
 			tostring(pv.reste or "?"), pv.palier or 0, PassSaison.PALIERS, pv.dans or 0, pv.sur or 0)
 		P.jauge.Size = UDim2.fromScale((pv.sur or 0) > 0 and pv.dans / pv.sur or 1, 1)
-		P.premium.Text = pv.premium and "PREMIUM ACTIF" or "PREMIUM"
+		P.premiumTexte.Text = pv.premium and "PREMIUM ACTIF" or "PREMIUM"
 		local etat = { points = pv.points, reclames = pv.reclames }
 		for i = 1, PassSaison.PALIERS do
 			local atteint = i <= (pv.palier or 0)
 			P.cases[i].num.BackgroundColor3 = atteint and Color3.fromRGB(150, 230, 90) or Color3.fromRGB(45, 42, 80)
 			for _, piste in ipairs({ "gratuit", "premium" }) do
 				local k = P.cases[i][piste]
+				-- le coffre d'or premium devient un gain fixe la ou le tirage payant est interdit
+				k.quoi.Text = PassSaison.recompense(i, piste, pv.sansAleatoirePayant).texte
 				local pris = pv.reclames and pv.reclames[piste] and pv.reclames[piste][tostring(i)]
 				local verrou = piste == "premium" and not pv.premium
 				local ok = PassSaison.peutReclamer(etat, i, piste, pv.premium)
@@ -25406,7 +25522,8 @@ majBandeau = function(v)
 	valPieces.Text = tostring(v.pieces)
 	valGemmes.Text = tostring(v.gemmes or 0)
 	montee.bulleGemmes.Text = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Coffres")).texteGemmes(
-		v.gemmes or 0, require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quetes")).GEMMES)
+		v.gemmes or 0, require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quetes")).GEMMES,
+		v.sansAleatoirePayant)
 	valTrophees.Text = tostring(v.trophees)
 end
 

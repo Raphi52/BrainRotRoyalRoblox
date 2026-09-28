@@ -1189,7 +1189,8 @@ vendre, voir aussi « A faire avec TON compte » plus bas (eligibilite, question
      les camps, les suivants sont SPECTATEURS (chat, emotes, pronostic Rouge/Bleu a +15 pieces).
      Le mettre a 2 eteindrait tout le mode spectateur, qui est code et teste.
    - **Securite** : laisser « Autoriser les requetes HTTP » desactive (inutile ici).
-4. Remplir la fiche : icone 512x512, miniature 1920x1080 (une capture de la voie de secours convient).
+4. Remplir la fiche : icone 512x512, miniature 1920x1080. FAIT le 2026-09-27, voir « Etat de la
+   publication » : images produites par `python tools/fiche_images.py`.
 5. Tester : lancer le jeu depuis la page Roblox sur deux comptes / deux appareils.
 
 Limite connue : les « vrais » modeles Brainrot sont des creations d'autres auteurs du catalogue ;
@@ -1245,6 +1246,15 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
   et le serveur pousse la vue a jour au client (`Remotes.Vue`). Le **VIP** est desormais propose
   dans la boutique (offre Robux « Pass VIP : pieces x2 ») tant qu'il n'est pas possede.
   Banc : `tools/test_pass_achete.py`.
+- **Tirages payants bloques la ou la loi les interdit** (2026-09-27) : deux chemins donnent un
+  contenu tire au hasard contre de l'argent reel — ouvrir un coffre EN COURS contre des gemmes
+  (vendues en Robux) et le coffre d'or de la piste PREMIUM du pass. A la connexion, le serveur lit
+  `PolicyService:GetPolicyInfoForPlayerAsync().ArePaidRandomItemsRestricted`
+  (`Economie.lirePolitique`) ; pour un joueur concerne, l'ouverture en gemmes est refusee AVANT
+  toute depense et masquee a l'ecran, et le coffre d'or premium devient **400 pieces** fixes
+  (`PassSaison.PIECES_AU_LIEU_DU_COFFRE`). Si Roblox ne repond pas, on BLOQUE. Dans Studio, le
+  compte createur (France) lit « permis ». Banc : `tools/test_aleatoire_payant.py` (24 cas ; ROUGE
+  sur l'ancien Economie.lua).
 - **Tests** : `python build.py --autotest --ecotest` (83 cas au 2026-09-26, journal [ECOTEST]),
   `--hub` (accueil ouvert), `--boutique` (boutique ouverte), a capturer avec `tools/studio-capture-moteur.ps1`.
   Hors Studio (rapide, sans compte) : `python tools/test_economie.py`, `tools/test_deck.py`,
@@ -1268,31 +1278,86 @@ les personnages du jeu sont sculptes dans le code (aucun asset externe a importe
 
   Verifie par `MarketplaceService:GetProductInfo` dans Studio (nom, prix, en vente). Un Game Pass est
   PERMANENT : le pass de saison ouvre la piste premium de toutes les saisons (sa description le dit).
-- Restent a faire par le proprietaire : etapes 0 et 3 ci-dessous (eligibilite, questionnaire de
-  maturite), puis passer l'experience en Public ; nombre max de joueurs par serveur (6, voir plus haut).
+- **Fiche** (2026-09-27, Creator Hub pilote sur un bureau Windows CACHE) : nombre max de joueurs par
+  serveur = **6** (relu apres rechargement) ; **icone** `tools/fiche/icone-512.png` et **miniature**
+  `tools/fiche/miniature-1920x1080.png` en place sur la page d'accueil ET la page de details
+  (API publique thumbnails.roblox.com : etat « Completed » pour les deux). Les deux images sortent de
+  `python tools/fiche_images.py`, qui compose trois captures MOTEUR (`captures/fiche-partie.png`,
+  `boutique-offres.png`, `pass-premium.png`, voir l'en-tete du script pour les regenerer).
+- **Offres Robux lisibles** : chaque offre de la boutique porte une pastille (pieces, gemmes, VIP) et
+  le bouton PREMIUM du pass de saison la sienne. Capture de la boutique a 4 offres avec le compte
+  createur : `python build.py --autotest --boutique --vip-non-possede` (drapeau de TEST seulement :
+  il fait voir l'offre VIP au createur, qui possede d'office ses propres pass ; banc
+  `tools/test_pass_achete.py`, cas 6).
+- **Questionnaire de maturite** : ENVOYE le 2026-09-27 (reponses validees par le proprietaire,
+  saisies sur un bureau cache). Resultat Roblox : label **Leger**, descripteur « Violence
+  (Repete/Leger) », regions non conformes : aucune, restriction d'age : aucune. Seul « Oui » hors
+  violence : articles aleatoires payants, avec respect de l'API ArePaidRandomItemsRestricted.
+- Reste a faire par le proprietaire : etape 0 ci-dessous (verification de l'age), puis passer
+  l'experience en Public.
 - **Test d'achat de bout en bout** (2026-09-26, Studio sur la place en ligne, acces aux API active) :
   achat test du Sac de 500 pieces -> journal `[ECO] ... achat Robux Sac de 500 pieces, +500 pieces`,
   solde 100 -> 600 ; victoire -> `+60 pieces` (30 x 2, VIP actif) ; profil relu apres arret a
   660 pieces. Le VIP n'est PAS achetable par le compte createur : Roblox lui attribue d'office ses
   propres pass (API d'inventaire), donc l'offre est masquee et le x2 deja actif. Un achat de pass en
   jeu se teste avec un SECOND compte.
-- **Version en ligne en retard d'une correction** : la place publiee precede le verrou par SESSION
-  (reconnexion sur le meme serveur) et la fin du double rendu a la fermeture (faux avertissement
-  « profil repris par un autre serveur »). `BrainRotRoyale.rbxlx` les contient : republier par
-  Fichier > Publier sur Roblox > Mettre a jour l'experience existante, ou SANS Studio :
-  `python tools/publier_place.py` (reconstruit puis publie par l'API Open Cloud ; cle dans la
-  variable `ROBLOX_API_KEY`, droit « universe-places » en ecriture sur l'experience ; jamais
-  affichee). Banc hors ligne : `tools/test_publier_place.py` (faux serveur local).
+- **Republier** (controle du 2026-09-27 17:18 UTC : version **7** en ligne, identique au code local,
+  79 scripts, 0 ecart) :
+  `python tools/publier_studio_cache.py` — Studio sur un bureau Windows CACHE (rien sur l'ecran),
+  sans cle : il ouvre la place EN LIGNE, un plugin temporaire remplace le code des scripts qui
+  different du local, Fichier > Publier sur Roblox PAR SON NOM (accessibilite, `tools/studio_menu_uia.ps1` : la mise a
+  jour de Studio du 2026-09-27 a change l'echelle et l'ordre du menu, le geste positionnel ne
+  publiait plus), puis un SECOND Studio controle
+  « 0 ecart ». `--comparer-seulement` ne fait que ce controle. Limites : ne transporte que le CODE
+  (un script absent en ligne arrete tout) ; les sauvegardes de recuperation de CETTE place sont
+  deplacees dans `archives/autosaves-studio/` (leur boite « recuperer ? » bloquait le menu).
+  Autre voie, sans Studio : `python tools/publier_place.py` (API Open Cloud ; cle dans
+  `ROBLOX_API_KEY`, droit « universe-places » en ecriture ; jamais affichee ; banc
+  `tools/test_publier_place.py`).
+- **Scenario moteur [ECOTEST]** : `powershell -NoProfile -ExecutionPolicy Bypass -File
+  tools/ecotest_moteur.ps1` le rejoue sur un bureau cache (n'arrete que SON Studio) et enregistre un
+  passage vert dans `tools/ecotest-dernier.json` ; `tools/test_ecotest_a_jour.py` passe au ROUGE des
+  que le scenario, Economie.lua ou ses modules changent sans nouveau passage vert (derive de 9 cas
+  passee inapercue jusqu'au 2026-09-26). Dernier passage : 83 OK, 0 ECHEC.
+
+### Tester un achat de pass avec un SECOND compte
+Le compte createur possede d'office ses pass : l'achat du VIP ou du pass de saison EN JEU ne se
+prouve qu'avec un autre compte. Sur un serveur en ligne, l'achat coute de VRAIS Robux (pas d'achat
+gratuit hors Studio) ; le createur en recupere 70 %.
+1. Creer (ou reprendre) un second compte Roblox et y mettre au moins **199 R$** (VIP) ou **49 R$**
+   (Sac de 500 pieces, pour le recu d'un Developer Product). La creation d'un compte et l'achat de
+   Robux sont a toi : ils engagent une identite et un moyen de paiement.
+2. Donner a ce compte la permission **Play** sur l'experience PRIVEE : Studio, place ouverte >
+   bouton **Collaborate** > chercher le compte > **Play** > Save. Pour une experience d'un
+   utilisateur, Play s'accorde a n'importe quel compte, sans lien d'amitie
+   (https://create.roblox.com/docs/projects/collaboration).
+3. Avec le second compte, ouvrir le LIEN DIRECT https://www.roblox.com/games/126168119650545 (une
+   experience privee n'apparait dans aucune recherche) puis Jouer.
+4. Boutique > « Pass VIP : pieces x2 » > acheter. Attendu, sans se reconnecter : l'offre disparait,
+   la victoire suivante donne 60 pieces au lieu de 30, et la sortie serveur (console F9 cote
+   createur, onglet Server) porte `[ECO] <joueur> : pass 1999832722 achete en jeu, actif tout de
+   suite`. Meme chose pour le pass de saison (1999634739) :
+   la piste premium s'ouvre tout de suite.
+5. Se deconnecter puis revenir : le VIP doit rester actif (relu chez Roblox cette fois).
 
 ### A faire avec TON compte (rien n'est vendu tant que ce n'est pas fait)
-0. **Eligibilite** (obligatoire depuis le 17/12/2025 pour publier ou mettre a jour une experience
-   PUBLIQUE) : verification d'identite, OU un achat en argent reel sur le compte depuis le
-   01/01/2025. A verifier sur create.roblox.com/settings/eligibility/public-publish.
+0. **Eligibilite** : page create.roblox.com/settings/eligibility/publishing-permissions (lue le
+   2026-09-27 sur le compte viralstudiogames). Trois paliers, regles officielles :
+   https://create.roblox.com/docs/production/publishing/kids-and-select
+   - Usage personnel : compte en regle. **ACQUIS.**
+   - **16 ans et plus + Amis de confiance** : compte en regle (acquis) + **verification de l'age**
+     (camera ou piece d'identite, A FAIRE) + questionnaire de maturite (etape 3). C'est le palier
+     le plus court pour ouvrir le jeu au public.
+   - **Tous les ages** : en plus, **verification d'identite** (piece officielle si 18 ans ou plus),
+     **verification en 2 etapes**, puis 2 mois consecutifs de Roblox Plus/Premium OU des frais uniques
+     remboursables (rembourses 90 jours apres), et une evaluation : 250 parties uniques de joueurs
+     16+ verifies en 60 jours. Aucune de ces verifications n'est faite a ce jour.
 1. Publier le jeu (Fichier > Publier sur Roblox). Sans publication, la sauvegarde est refusee
    (« You must publish this place to the web to access DataStore »).
 2. Parametres du jeu > Securite : cocher **Enable Studio Access to API Services** pour tester la sauvegarde dans Studio.
 3. create.roblox.com > l'experience : remplir le **questionnaire de maturite et de conformite**
-   (obligatoire ; c'est une declaration du proprietaire du compte, elle ne se delegue pas).
+   (obligatoire ; les REPONSES sont une declaration du proprietaire). FAIT le 2026-09-27, voir
+   « Etat de la publication ». A refaire si le contenu change (bouton « Redemarrer »).
 4. create.roblox.com > l'experience > Monetization — 3 **Developer Products** et 2 **Game Passes**,
    identifiants a reporter dans `src/server/Economie.lua` puis `python build.py` et republier :
    - `Economie.PRODUITS[1]` « Sac de 500 pieces », `[2]` « Coffre de 1500 pieces »,

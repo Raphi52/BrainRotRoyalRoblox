@@ -3047,6 +3047,8 @@ local function arrivee(player)
 	end
 	-- capture du PASS DE SAISON (build.py --pass-points=N) : N points deja faits cette saison
 	Economie.passPremiumTest = ReplicatedStorage:FindFirstChild("BRR_PASS_PREMIUM") ~= nil
+	-- capture de la boutique a 4 offres (build.py --vip-non-possede) : le createur possede le VIP
+	Economie.vipTestNonPossede = ReplicatedStorage:FindFirstChild("BRR_VIP_NON_POSSEDE") ~= nil
 	-- capture des COSMETIQUES (build.py --cosmetiques / --skin=id)
 	if ReplicatedStorage:FindFirstChild("BRR_COSMETIQUES") then
 		Economie.profil(player).gemmes = 500

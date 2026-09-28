@@ -22,6 +22,7 @@ CHAMPION = next((a.split("=", 1)[1] if "=" in a else "RoiTralalero" for a in sys
 COSMETIQUES = AUTOTEST and "--cosmetiques" in sys.argv  # gemmes offertes + ecran cosmetiques ouvert
 SKIN = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--skin=")), "") if AUTOTEST else ""  # skin possede et equipe
 PASS_PREMIUM = AUTOTEST and "--pass-premium" in sys.argv  # piste premium ouverte sans achat
+VIP_NON_POSSEDE = AUTOTEST and "--vip-non-possede" in sys.argv  # le createur possede le VIP : l'offre serait masquee
 PASS_POINTS = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--pass-points=")), 0) if AUTOTEST else 0
 OUVERTURE = AUTOTEST and "--ouverture" in sys.argv  # coffre pret ouvert tout seul : scene d'ouverture
 COFFRES = AUTOTEST and ("--coffres" in sys.argv or OUVERTURE)  # accueil avec des coffres dans chaque etat
@@ -396,6 +397,7 @@ place = "".join([
          + (item("BoolValue", "BRR_COFFRES") if COFFRES else "")
          + (item("BoolValue", "BRR_OUVERTURE") if OUVERTURE else "")
          + (item("BoolValue", "BRR_PASS_PREMIUM") if PASS_PREMIUM else "")
+         + (item("BoolValue", "BRR_VIP_NON_POSSEDE") if VIP_NON_POSSEDE else "")
          + (item("BoolValue", "BRR_COSMETIQUES") if COSMETIQUES else "")
          + (item("StringValue", "BRR_CHAMPION", extra=f'<string name="Value">{CHAMPION}</string>') if CHAMPION else "")
          + (item("StringValue", "BRR_SKIN", extra=f'<string name="Value">{SKIN}</string>') if SKIN else "")

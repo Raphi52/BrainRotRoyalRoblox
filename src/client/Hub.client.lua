@@ -668,7 +668,7 @@ local function majCoffres()
 			if c.fin == 0 then
 				e.etat.Text = Coffres.etatAttente(Coffres.unEnCours(vue.coffres, maintenant))
 			elseif c.fin > maintenant then
-				e.etat.Text = Coffres.texteEnCours(c.fin - maintenant)
+				e.etat.Text = Coffres.texteEnCours(c.fin - maintenant, vue.sansAleatoirePayant)
 				if not Coffres.doitConfirmer(montee.confirmeCoffre, i, maintenant) then
 					e.etat.Text = Coffres.texteConfirmer(c.fin - maintenant)
 				end
@@ -897,6 +897,29 @@ local function afficher(v)
 		b.MouseButton1Click:Connect(function()
 			afficher(Boutique:InvokeServer("robux", offre.index).vue)
 		end)
+		-- PASTILLE DE L'OFFRE (champ `genre` de la vue) : le meme dessin que les jetons du bandeau
+		-- (pieces « $ » or, gemmes « G » vert), et « x2 » violet pour le VIP. Tout est DESSINE :
+		-- aucune image a televerser sur le compte du createur.
+		local sorte = ({ pieces = { "$", OR }, gemmes = { "G", Color3.fromRGB(80, 210, 160) },
+			vip = { "x2", Color3.fromRGB(190, 120, 255) } })[offre.genre or "pieces"] or { "$", OR }
+		local pastille = Instance.new("Frame")
+		pastille.Name = "Pastille"
+		pastille.Size = UDim2.fromScale(0.2, 0.8)
+		pastille.Position = UDim2.fromScale(0.03, 0.1)
+		pastille.BackgroundColor3 = sorte[2]
+		pastille.ZIndex = b.ZIndex + 1
+		pastille.Parent = b
+		local carre = Instance.new("UIAspectRatioConstraint")
+		carre.Parent = pastille
+		coin(pastille, 100)
+		contour(pastille, 2)
+		-- symbole aux deux tiers, centre : a pleine taille, son contour sombre masquait la couleur
+		texte(pastille, sorte[1], UDim2.fromScale(0.64, 0.64), UDim2.fromScale(0.18, 0.18), Color3.fromRGB(30, 26, 10)).ZIndex = b.ZIndex + 2
+		-- Le libelle passe dans une etiquette A DROITE de la pastille : une marge (UIPadding) sur le
+		-- bouton deplacait aussi la pastille, qui masquait le debut du texte (capture du 2026-09-27).
+		local libelle = texte(b, b.Text, UDim2.fromScale(0.72, 0.9), UDim2.fromScale(0.25, 0.05), Color3.new(1, 1, 1))
+		libelle.ZIndex = b.ZIndex + 1
+		b.Text = ""
 	end
 end
 
@@ -1685,6 +1708,12 @@ for i = 1, 4 do
 			action = "accelererCoffre" -- en cours : ouverture immediate contre des gemmes
 			local Coffres = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Coffres"))
 			local maintenant = os.time() + decalageHorloge
+			if vue.sansAleatoirePayant then
+				-- tirage payant interdit dans son pays (Economie.aleatoirePayantInterdit) : on dit
+				-- l'attente, rien n'est propose a l'achat (le serveur refuserait de toute facon).
+				message.Text = Coffres.texteAttendre(c.fin - maintenant)
+				return
+			end
 			if Coffres.doitConfirmer(montee.confirmeCoffre, i, maintenant) then
 				-- 1er clic : on affiche le prix, rien n'est depense.
 				montee.confirmeCoffre = { index = i, jusqua = maintenant + Coffres.CONFIRMATION_S }
@@ -2913,6 +2942,25 @@ end
 	coin(P.jauge, 6)
 	-- sous la liste des joueurs de Roblox, qui couvre le coin haut droit (capture du 2026-09-21)
 	P.premium = z(bouton(P.ecran, "PREMIUM", UDim2.fromScale(0.22, 0.08), UDim2.fromScale(0.64, 0.135), OR), 61)
+	-- PASTILLE « P » du pass de saison premium : la 5e offre Robux, vendue ici et non en boutique.
+	do
+		local pastille = Instance.new("Frame")
+		pastille.Name = "Pastille"
+		pastille.Size = UDim2.fromScale(0.2, 0.8)
+		pastille.Position = UDim2.fromScale(0.03, 0.1)
+		-- violet fonce : une pastille claire sur le bouton dore ne se voyait pas (capture du 2026-09-27)
+		pastille.BackgroundColor3 = Color3.fromRGB(60, 40, 120)
+		pastille.ZIndex = 62
+		pastille.Parent = P.premium
+		Instance.new("UIAspectRatioConstraint").Parent = pastille
+		coin(pastille, 100)
+		contour(pastille, 2)
+		texte(pastille, "P", UDim2.fromScale(0.64, 0.64), UDim2.fromScale(0.18, 0.18), OR).ZIndex = 63
+		-- libelle a droite de la pastille (voir les offres de la boutique) ; majPass l'ecrit ici
+		P.premiumTexte = texte(P.premium, P.premium.Text, UDim2.fromScale(0.72, 0.9), UDim2.fromScale(0.25, 0.05), Color3.new(1, 1, 1))
+		P.premiumTexte.ZIndex = 62
+		P.premium.Text = ""
+	end
 	P.fermer = z(bouton(P.ecran, "X", UDim2.fromScale(0.06, 0.08), UDim2.fromScale(0.91, 0.135),
 		Color3.fromRGB(170, 60, 70)), 61)
 	P.message = z(texte(P.ecran, "", UDim2.fromScale(0.9, 0.045), UDim2.fromScale(0.05, 0.935), OR), 61)
@@ -2982,13 +3030,15 @@ end
 		P.sousTitre.Text = string.format("%s restants  -  Palier %d / %d  (%d / %d points)",
 			tostring(pv.reste or "?"), pv.palier or 0, PassSaison.PALIERS, pv.dans or 0, pv.sur or 0)
 		P.jauge.Size = UDim2.fromScale((pv.sur or 0) > 0 and pv.dans / pv.sur or 1, 1)
-		P.premium.Text = pv.premium and "PREMIUM ACTIF" or "PREMIUM"
+		P.premiumTexte.Text = pv.premium and "PREMIUM ACTIF" or "PREMIUM"
 		local etat = { points = pv.points, reclames = pv.reclames }
 		for i = 1, PassSaison.PALIERS do
 			local atteint = i <= (pv.palier or 0)
 			P.cases[i].num.BackgroundColor3 = atteint and Color3.fromRGB(150, 230, 90) or Color3.fromRGB(45, 42, 80)
 			for _, piste in ipairs({ "gratuit", "premium" }) do
 				local k = P.cases[i][piste]
+				-- le coffre d'or premium devient un gain fixe la ou le tirage payant est interdit
+				k.quoi.Text = PassSaison.recompense(i, piste, pv.sansAleatoirePayant).texte
 				local pris = pv.reclames and pv.reclames[piste] and pv.reclames[piste][tostring(i)]
 				local verrou = piste == "premium" and not pv.premium
 				local ok = PassSaison.peutReclamer(etat, i, piste, pv.premium)
@@ -3439,7 +3489,8 @@ majBandeau = function(v)
 	valPieces.Text = tostring(v.pieces)
 	valGemmes.Text = tostring(v.gemmes or 0)
 	montee.bulleGemmes.Text = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Coffres")).texteGemmes(
-		v.gemmes or 0, require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quetes")).GEMMES)
+		v.gemmes or 0, require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quetes")).GEMMES,
+		v.sansAleatoirePayant)
 	valTrophees.Text = tostring(v.trophees)
 end
 

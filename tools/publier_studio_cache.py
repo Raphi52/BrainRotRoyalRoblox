@@ -12,9 +12,10 @@ Deroule :
      Source de chaque script qui differe du code local (fins de ligne ignorees). Un script absent
      en ligne arrete tout : cet outil ne transporte que du CODE ; une place dont la STRUCTURE a change
      (build.py) se republie depuis le fichier (Fichier > Publier sur Roblox comme).
-  3. Fichier > Publier sur Roblox, AU CLAVIER : un menu Qt s'ouvre au clic poste mais ne s'active
-     qu'au clavier (mesure du 2026-09-27) ; « Publier sur Roblox » est la 15e entree du menu Fichier
-     d'une place en ligne.
+  3. Fichier > Publier sur Roblox, PAR SON NOM via l'accessibilite (tools/studio_menu_uia.ps1).
+     Le premier geste (clic a coordonnees fixes puis 15 fleches) a cesse de marcher avec la mise a
+     jour de Studio du 2026-09-27 14 h 45 : barre de menus a une autre echelle, entrees ajoutees au
+     menu Fichier (un second « Sauvegarder sur Roblox »).
   4. Preuve dans le journal de Studio : « Go to PublishSuccessful » et « version N ».
   5. Controle : un SECOND Studio rouvre la place en ligne et compare les scripts -> 0 ecart attendu.
 Seul NOTRE Studio est arrete (ligne de commande -placeId, demarre apres nous) ; le plugin est retire.
@@ -28,6 +29,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -40,8 +42,9 @@ UNIVERSE_ID = 10768149063
 HDESK_LANCER = r"D:\AutoWinOS\scripts\hdesk-lancer.ps1"
 LOGS = pathlib.Path(os.environ["LOCALAPPDATA"]) / "Roblox" / "logs"
 PLUGINS = pathlib.Path(os.environ["LOCALAPPDATA"]) / "Roblox" / "Plugins"
-ENTREE_PUBLIER = 15  # rang de « Publier sur Roblox » dans le menu Fichier d'une place EN LIGNE
-ATTENTE_AVANT_GESTE = 45  # secondes entre « place prete » et le geste clavier
+MENU_UIA = ROOT / "tools" / "studio_menu_uia.ps1"
+ENTREE_PUBLIER = "Publier sur Roblox"  # nom EXACT de l'entree du menu Fichier (Studio en francais)
+ATTENTE_AVANT_GESTE = 45  # secondes entre « place prete » et le geste (entrees grisees avant)
 
 
 def studio_exe():
@@ -178,41 +181,41 @@ def fenetres(d):
     return liste
 
 
-def poster_clic(h, x, y):
-    lp = (y << 16) | (x & 0xFFFF)
-    u32.PostMessageW(h, 0x200, 0, lp)
-    time.sleep(0.04)
-    u32.PostMessageW(h, 0x201, 1, lp)
-    time.sleep(0.06)
-    u32.PostMessageW(h, 0x202, 0, lp)
+def a_une_barre_de_titre(h):
+    return (u32.GetWindowLongW(h, -16) & 0x00C00000) == 0x00C00000  # GWL_STYLE & WS_CAPTION
 
 
-def poster_touche(h, vk, n=1):
-    for _ in range(n):
-        u32.PostMessageW(h, 0x100, vk, 1)
-        time.sleep(0.04)
-        u32.PostMessageW(h, 0x101, vk, 0xC0000001)
-        time.sleep(0.06)
+def ranger_recuperations():
+    """Une sauvegarde de RECUPERATION de cette place (Studio en ecrit une toutes les 5 min) fait
+    afficher, a chaque ouverture suivante, une boite « recuperer ? » qui BLOQUE le menu Fichier
+    (constate le 2026-09-27 : 126168119650545_AutoRecovery_0.rbxl de 08:14). Elles sont DEPLACEES
+    dans archives/ (jamais supprimees), et seulement celles de CETTE place."""
+    dossier = pathlib.Path(os.environ["LOCALAPPDATA"]) / "Roblox" / "RobloxStudio" / "AutoSaves"
+    ranges = []
+    for f in dossier.glob("%d_AutoRecovery_*.rbxl" % PLACE_ID):
+        dest = ROOT / "archives" / "autosaves-studio" / time.strftime("%Y%m%d-%H%M%S")
+        dest.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(f), str(dest / f.name))  # autre disque : rename echoue (WinError 17)
+        ranges.append(str(dest / f.name))
+    return ranges
 
 
-def publier_au_clavier(bureau):
-    def geste(d):
+def publier_par_nom(bureau):
+    def boites_bloquantes(d):
         principales = [h for h, t in fenetres(d) if t.endswith("- Roblox Studio")]
         if not principales:
             return "fenetre de Studio introuvable"
         h = principales[0]
-        u32.ShowWindow(h, 3)  # maximiser : sinon le menu Fichier peut sortir du bureau
-        time.sleep(1.0)
-        echelle = (u32.GetDpiForWindow(h) or 96) / 96.0
-        poster_clic(h, int(25 * echelle), int(12 * echelle))  # « Fichier », coordonnees client
-        time.sleep(1.2)
-        menus = [m for m, t in fenetres(d) if t == "RobloxStudio" and m != h]
-        if not menus:
-            return "le menu Fichier ne s'est pas ouvert"
-        poster_touche(menus[0], 0x28, ENTREE_PUBLIER)
-        poster_touche(menus[0], 0x0D)
-        return "ok"
-    return dans_le_bureau(bureau, geste)
+        # Une boite de dialogue (barre de titre) bloque la fenetre : ne RIEN lui envoyer.
+        boites = [t for m, t in fenetres(d) if m != h and t and a_une_barre_de_titre(m)]
+        return "boite de dialogue bloquante : %s" % boites if boites else None
+    bloque = dans_le_bureau(bureau, boites_bloquantes)
+    if bloque:
+        return bloque
+    r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(MENU_UIA),
+                        "-Bureau", bureau, "-Menu", "Fichier", "-Entree", ENTREE_PUBLIER],
+                       capture_output=True, text=True, timeout=60)
+    return (r.stdout.strip() or r.stderr.strip() or "sans reponse").splitlines()[-1]
 
 
 # ---------- journal et processus ----------
@@ -238,6 +241,7 @@ def arreter_notre_studio(depuis):
 
 
 def session(mode, jeton, scripts, delai=180):
+    recuperations = ranger_recuperations()
     plugin = ecrire_plugin(scripts, mode, jeton)
     depuis = time.time()
     ident = "publier-%s" % jeton
@@ -253,7 +257,9 @@ def session(mode, jeton, scripts, delai=180):
             return {"erreur": "le plugin n'a rien ecrit en %d s (place en ligne non chargee ?)" % delai}
         texte = journal.read_text(encoding="utf-8", errors="replace")
         m = re.search(r"\[BRRPUB %s\] PRET mode=\w+ scripts=(\d+) modifies=(\d+) absents=(\d+) refus=(\d+)" % jeton, texte)
-        res = {"journal": journal.name, "scripts": int(m.group(1)), "modifies": int(m.group(2)), "absents": int(m.group(3)),
+        charge = re.search(r"asset/\?id=%d&version=(\d+)" % PLACE_ID, texte)
+        res = {"recuperations_rangees": recuperations, "journal": journal.name,
+               "version_chargee": int(charge.group(1)) if charge else None, "scripts": int(m.group(1)), "modifies": int(m.group(2)), "absents": int(m.group(3)),
                "refus": int(m.group(4)),
                "differents": re.findall(r"\[BRRPUB %s\] DIFFERENT (\S+)" % jeton, texte)}
         if mode != "appliquer" or res["absents"] or res["refus"] or not res["modifies"]:
@@ -264,19 +270,23 @@ def session(mode, jeton, scripts, delai=180):
         # les entrees grisees) n'atteignent pas « Publier sur Roblox » (constate le 2026-09-27 :
         # geste 8 s apres le chargement -> aucune publication).
         time.sleep(ATTENTE_AVANT_GESTE)
-        res["geste"] = publier_au_clavier("AutowinTest_" + ident)
+        res["geste"] = publier_par_nom("AutowinTest_" + ident)
         time.sleep(3)
         res["fenetres_apres_geste"] = [t for _, t in dans_le_bureau("AutowinTest_" + ident, fenetres) if t]
         fin = time.time() + 90
         while time.time() < fin:
             texte = journal.read_text(encoding="utf-8", errors="replace")
             if texte.count("Go to PublishSuccessful") > n_avant:
+                time.sleep(3)  # la ligne « version N » suit la reussite de quelques millisecondes
+                texte = journal.read_text(encoding="utf-8", errors="replace")
                 v = re.findall(r"CreatorOutput\].*?version (\d+)", texte)
                 res["publie"] = True
                 res["version"] = int(v[-1]) if v else None
                 break
             time.sleep(3)
         else:
+            res["publie"] = False
+        if res["geste"] != "ok":
             res["publie"] = False
         return res
     finally:
@@ -316,8 +326,7 @@ def main(argv):
     if c.get("erreur") or c.get("absents") or c.get("modifies"):
         print("ECHEC : la place en ligne differe encore du code local.")
         return 1
-    v = (rapport.get("publication") or {}).get("version")
-    print("OK : place en ligne identique au code local (%d scripts)%s." % (c["scripts"], (", version %s" % v) if v else ""))
+    print("OK : place en ligne (version %s) identique au code local (%d scripts)." % (c.get("version_chargee"), c["scripts"]))
     return 0
 
 
