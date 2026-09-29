@@ -16,6 +16,9 @@ Decor.CLES = {
 	id = true, nom = true, herbeProche = true, herbeLoin = true, exterieur = true,
 	eau = true, pierre = true, bois = true, allee = true, feuillage = true, rocher = true,
 	heure = true, brume = true, teinte = true, brumeCouleur = true, brumeFond = true,
+	-- `liquide` : ce qui entoure l'ile maquette (src/shared/Maquette.lua) — « eau » ou « lave ».
+	-- Une MATIERE, jamais une forme : la mer de lave a la meme taille que la mer d'eau.
+	liquide = true,
 }
 
 -- PLAFOND DE BRUME. Mesure a l'ecran (capture du 2026-09-20) : a 0,55 de densite, l'atmosphere
@@ -28,7 +31,7 @@ Decor.BRUME_MAX = 0.4
 -- `teinte` : saturation ajoutee. Trois reglages de lumiere, zero effet sur le jeu.
 Decor.THEMES = {
 	{
-		id = "prairie", nom = "Prairie",
+		id = "prairie", nom = "Prairie", liquide = "eau",
 		herbeProche = { 90, 170, 80 }, herbeLoin = { 80, 150, 70 }, exterieur = { 55, 105, 50 },
 		eau = { 60, 140, 220 }, pierre = { 150, 145, 135 }, bois = { 110, 75, 45 },
 		allee = { 170, 135, 90 }, feuillage = { 60, 145, 60 }, rocher = { 125, 125, 130 },
@@ -36,7 +39,7 @@ Decor.THEMES = {
 		heure = 15.5, brume = 0.26, teinte = 0.18,
 	},
 	{
-		id = "couchant", nom = "Vallee du couchant",
+		id = "couchant", nom = "Vallee du couchant", liquide = "eau",
 		herbeProche = { 120, 150, 75 }, herbeLoin = { 105, 130, 65 }, exterieur = { 85, 95, 45 },
 		eau = { 90, 130, 205 }, pierre = { 175, 150, 120 }, bois = { 125, 80, 40 },
 		allee = { 195, 150, 95 }, feuillage = { 150, 130, 55 }, rocher = { 150, 135, 120 },
@@ -44,7 +47,7 @@ Decor.THEMES = {
 		heure = 17.4, brume = 0.30, teinte = 0.26,
 	},
 	{
-		id = "neige", nom = "Plateau gele",
+		id = "neige", nom = "Plateau gele", liquide = "eau",
 		herbeProche = { 215, 228, 240 }, herbeLoin = { 195, 210, 228 }, exterieur = { 170, 190, 210 },
 		eau = { 120, 200, 235 }, pierre = { 190, 195, 205 }, bois = { 95, 80, 70 },
 		allee = { 200, 205, 215 }, feuillage = { 200, 215, 225 }, rocher = { 165, 175, 190 },
@@ -52,7 +55,7 @@ Decor.THEMES = {
 		heure = 13.0, brume = 0.34, teinte = 0.05,
 	},
 	{
-		id = "volcan", nom = "Terres brulees",
+		id = "volcan", nom = "Terres brulees", liquide = "lave",
 		herbeProche = { 105, 85, 70 }, herbeLoin = { 90, 70, 58 }, exterieur = { 70, 52, 45 },
 		eau = { 220, 110, 50 }, pierre = { 95, 85, 85 }, bois = { 80, 55, 40 },
 		allee = { 130, 95, 70 }, feuillage = { 120, 75, 50 }, rocher = { 85, 78, 78 },
@@ -60,7 +63,7 @@ Decor.THEMES = {
 		heure = 19.2, brume = 0.32, teinte = 0.3,
 	},
 	{
-		id = "nuit", nom = "Arene de nuit",
+		id = "nuit", nom = "Arene de nuit", liquide = "eau",
 		herbeProche = { 60, 95, 85 }, herbeLoin = { 50, 82, 75 }, exterieur = { 35, 55, 55 },
 		eau = { 70, 130, 200 }, pierre = { 110, 115, 130 }, bois = { 75, 60, 50 },
 		allee = { 115, 105, 90 }, feuillage = { 55, 100, 85 }, rocher = { 95, 100, 115 },

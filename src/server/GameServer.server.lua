@@ -273,10 +273,17 @@ local function makePart(props)
 	p.Anchored = true
 	p.TopSurface = Enum.SurfaceType.Smooth
 	p.BottomSurface = Enum.SurfaceType.Smooth
+	-- LE PARENT EN DERNIER : une piece qui entre dans le jeu deja reglee n'est repliquee qu'une fois.
+	-- Sans `Parent`, elle va dans l'arene, comme avant.
+	local parent = arena
 	for k, v in pairs(props) do
-		p[k] = v
+		if k == "Parent" then
+			parent = v
+		else
+			p[k] = v
+		end
 	end
-	p.Parent = arena
+	p.Parent = parent
 	return p
 end
 
@@ -340,40 +347,38 @@ local function deco(props)
 	return makePart(props)
 end
 
+-- L'ILE MAQUETTE (src/shared/Maquette.lua) : damier, muret, canal et cascades, plateau a falaises,
+-- mer, vegetation dense, ilots au large. Le module rend des pieces ; on les pose ici, TOUTES par
+-- deco() — donc sans collision et invisibles aux clics — dans un sous-dossier « Decor ». Pourquoi
+-- un sous-dossier : le client parcourt les enfants DIRECTS de l'arene a chaque image (etiquettes,
+-- camps) ; sept cents pieces de decor dans cette liste, ce seraient sept cents tours de boucle
+-- gaspilles par image. Le module est requis ICI et non en tete du script : ce fichier est au
+-- plafond des 200 locales de Lua.
 local function decorerArene()
-	local pierre = c3(themeArene.pierre)
-	-- bordures en pierre autour du terrain
-	for _, s in ipairs({ -1, 1 }) do
-		deco({ Name = "Muret", Size = Vector3.new(1.5, 1.6, HALF_L * 2 + 3), Position = Vector3.new(s * (HALF_W + 0.75), 0.8, 0), Color = pierre, Material = Enum.Material.Cobblestone })
-		deco({ Name = "Muret", Size = Vector3.new(HALF_W * 2 + 3, 1.6, 1.5), Position = Vector3.new(0, 0.8, s * (HALF_L + 0.75)), Color = pierre, Material = Enum.Material.Cobblestone })
-	end
-	-- sol exterieur plus sombre pour detacher l'arene
-	deco({ Name = "Exterieur", Size = Vector3.new(HALF_W * 2 + 120, 0.8, HALF_L * 2 + 120), Position = Vector3.new(0, -0.3, 0), Color = c3(themeArene.exterieur), Material = Enum.Material.Grass, CastShadow = false })
-	-- allees de terre menant aux ponts
-	for _, bx in ipairs(BRIDGES) do
-		deco({ Name = "Allee", Size = Vector3.new(3.2, 0.06, HALF_L * 2 - 4), Position = Vector3.new(bx, 0.53, 0), Color = c3(themeArene.allee), Material = Enum.Material.Ground, CastShadow = false })
-		for _, s in ipairs({ -1, 1 }) do
-			deco({ Name = "Rambarde", Size = Vector3.new(0.4, 1, 6), Position = Vector3.new(bx + s * 2.1, 1.1, 0), Color = c3(themeArene.bois), Material = Enum.Material.Wood })
+	local Maquette = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Maquette"))
+	-- Le dossier est rempli HORS du jeu, puis accroche a l'arene en une fois : le client recoit l'ile
+	-- d'un bloc, au lieu de voir sept cents pieces entrer une a une.
+	local dossier = Instance.new("Folder")
+	dossier.Name = "Decor"
+	-- demiRiviere : moitie de la largeur d'eau de la piece River posee par buildArena (Size.Z = 4).
+	local pieces = Maquette.pieces({ demiLargeur = HALF_W, demiLongueur = HALF_L, voies = BRIDGES,
+		dessus = GROUND_Y, demiRiviere = 2 }, themeArene)
+	for _, d in ipairs(pieces) do
+		local ellipsoide = d.forme == "Ellipsoide"
+		local p = deco({ Name = d.nom, Shape = ellipsoide and Enum.PartType.Block or Enum.PartType[d.forme],
+			Size = Vector3.new(d.taille[1], d.taille[2], d.taille[3]), Color = c3(d.couleur),
+			Material = Enum.Material[d.matiere], Transparency = d.transparence, Reflectance = d.reflet,
+			CastShadow = d.ombre, Parent = dossier,
+			CFrame = CFrame.new(d.pos[1], d.pos[2], d.pos[3])
+				* CFrame.Angles(math.rad(d.rot[1]), math.rad(d.rot[2]), math.rad(d.rot[3])) })
+		if ellipsoide then
+			-- une boule Roblox reste une SPHERE ; un maillage sphere suit la taille de sa piece
+			local maillage = Instance.new("SpecialMesh")
+			maillage.MeshType = Enum.MeshType.Sphere
+			maillage.Parent = p
 		end
 	end
-	-- berges de la riviere
-	for _, s in ipairs({ -1, 1 }) do
-		deco({ Name = "Berge", Size = Vector3.new(HALF_W * 2, 0.7, 0.6), Position = Vector3.new(0, 0.55, s * 2.2), Color = c3(themeArene.pierre), Material = Enum.Material.Slate })
-	end
-	-- arbres et rochers autour, placement deterministe (meme decor a chaque partie)
-	local rng = Random.new(42)
-	for i = 1, 26 do
-		local cote = (i % 2 == 0) and 1 or -1
-		local x = cote * (HALF_W + 4 + rng:NextNumber(0, 14))
-		local z = rng:NextNumber(-HALF_L, HALF_L)
-		if i % 3 == 0 then
-			deco({ Name = "Rocher", Shape = Enum.PartType.Ball, Size = Vector3.new(3, 2.2, 3) * rng:NextNumber(0.7, 1.4), Position = Vector3.new(x, 0.6, z), Color = c3(themeArene.rocher), Material = Enum.Material.Rock })
-		else
-			local h = rng:NextNumber(4, 7)
-			deco({ Name = "Tronc", Size = Vector3.new(0.9, h, 0.9), Position = Vector3.new(x, h / 2, z), Color = c3(themeArene.bois), Material = Enum.Material.Wood })
-			deco({ Name = "Feuillage", Shape = Enum.PartType.Ball, Size = Vector3.new(5, 5, 5) * rng:NextNumber(0.8, 1.3), Position = Vector3.new(x, h + 1.5, z), Color = c3(themeArene.feuillage):Lerp(Color3.fromRGB(255, 255, 255), rng:NextNumber(0, 0.18)), Material = Enum.Material.Grass })
-		end
-	end
+	dossier.Parent = arena
 end
 
 -- RESTES : les corps en cours d'agonie vivent ICI, hors de l'arene. Le client joue le son de mort
