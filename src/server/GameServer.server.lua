@@ -906,6 +906,12 @@ local function majTours()
 	end
 end
 
+-- MODE A NIVEAUX EGALISES : arme par le duel prive (donnee de teleportation lue a l'arrivee). Il
+-- vaut pour TOUTE la partie et pour LES DEUX camps, robot compris.
+-- Declare ICI, avant `majNiveauxRobot` qui le lit : declare 300 lignes plus bas, il etait une
+-- GLOBALE vide dans cette fonction, et le robot n'etait JAMAIS egalise (selene, 2026-09-30).
+local modeEgalise = false
+
 local function majNiveauxRobot()
 	for camp = 1, 2 do
 		-- BRR_SIM : dans une SERIE de mesure, les deux camps recoivent leur profil, joueur present
@@ -1217,9 +1223,8 @@ local revancheEtat = {}
 -- REPRISE APRES COUPURE : camp -> jeton. Tant qu'un jeton vit, le camp reste RESERVE a son joueur :
 -- ni robot ni adversaire ne le prennent, et sa partie l'attend telle quelle.
 local reprises = {}
--- MODE A NIVEAUX EGALISES : arme par le duel prive (donnee de teleportation lue a l'arrivee). Il
--- vaut pour TOUTE la partie et pour LES DEUX camps, robot compris.
-local modeEgalise = false
+-- MODE A NIVEAUX EGALISES : declare plus haut, avant `majNiveauxRobot` (voir « MODE A NIVEAUX
+-- EGALISES » au-dessus de cette fonction).
 
 -- Niveaux a utiliser pour ce joueur : les siens, ou le niveau de reference si la partie est
 -- egalisee. Un seul endroit, pour qu'aucun chemin (depart, arrivee en cours, robot) ne l'oublie.
@@ -1539,10 +1544,8 @@ local function damage(target, amount)
 				print(string.format("[GARDE] camp %d : derniere garde, le Roi tire x%.2f plus vite",
 					target.team, Garde.FACTEUR))
 			end
-			if target.isKing then
-				endMatch(3 - target.team)
-			elseif prolongation then
-				-- MORT SUBITE : en prolongation, la premiere tour prise termine la partie.
+			-- Roi detruit, ou MORT SUBITE : en prolongation, la premiere tour prise termine la partie.
+			if target.isKing or prolongation then
 				endMatch(3 - target.team)
 			end
 		end
@@ -2176,6 +2179,10 @@ local function tryPlay(team, handIndex, pos)
 	end
 	return true
 end
+
+-- ANCRES D'EMOTE (camp -> part invisible au-dessus du Roi, voir `ancreEmote`). Declaree ICI pour que
+-- `resetMatch` vide la VRAIE table : declaree plus bas, sa remise a zero ecrivait une globale.
+local ancresEmote = {}
 
 local function resetMatch()
 	entities = {}
@@ -3799,8 +3806,7 @@ end
 
 -- ANCRE D'EMOTE : une part invisible posee au-dessus du Roi, qui SURVIT a sa destruction. La bulle
 -- y etait accrochee directement : Roi detruit, plus aucune emote — exactement au moment ou l'on
--- veut dire « bien joue ».
-local ancresEmote = {}
+-- veut dire « bien joue ». La table `ancresEmote` est declaree avant `resetMatch`, qui la vide.
 local function ancreEmote(camp)
 	local a = ancresEmote[camp]
 	if a and a.Parent then

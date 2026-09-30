@@ -959,7 +959,10 @@ local function majApercu()
 		ouvertureAnnoncee = true
 		local phrase = Zone.annonceOuverture(gaucheOuverte, droiteOuverte)
 		if phrase then
-			annoncer(phrase)
+			-- `hud.annoncer` et non `annoncer` : la fonction locale est declaree PLUS BAS (ligne
+			-- « local function annoncer »). Ici `annoncer` etait donc une GLOBALE vide : la chute
+			-- d'une tour de cote faisait planter l'annonce au lieu de l'afficher (selene, 2026-09-30).
+			hud.annoncer(phrase)
 		end
 	end
 	-- CAPTURE (copie de test) : sans utilisateur, la souris ne pointe jamais l'arene et l'apercu

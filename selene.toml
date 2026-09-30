@@ -1,0 +1,14 @@
+# Analyse statique de src/ par selene (tools/test_lint.py). `roblox.yml` (bibliotheque standard
+# Roblox, ~750 Ko) est REGENERE par le banc s'il manque : il n'est pas suivi par git.
+std = "roblox"
+
+[lints]
+# Le defaut que ce banc garde (mesure du 2026-09-30) : une fonction qui lit une variable locale
+# declaree PLUS BAS dans le fichier lit en fait une GLOBALE vide. Cinq cas reels en production :
+# annonce de voie ouverte, deux boutons de l'accueil, robot jamais egalise, remise a zero muette.
+undefined_variable = "deny"
+# Le jumeau : une ECRITURE vers une locale declaree plus bas cree une globale en silence.
+unscoped_variables = "deny"
+# Style seulement, sans effet sur le jeu : ils noyaient les vrais defauts (486 lignes sur 532).
+roblox_manual_fromscale_or_fromoffset = "allow"
+multiple_statements = "allow"

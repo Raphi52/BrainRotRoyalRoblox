@@ -48,3 +48,6 @@ priv-*.rbxlx
 /*.png
 # ancienne copie de travail d une refonte du menu
 /.remake-menu/
+
+# Bibliotheque standard Roblox de selene : ~750 Ko, regeneree par tools/test_lint.py.
+/roblox.yml

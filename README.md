@@ -1146,6 +1146,13 @@ constructions Luau `+=`, `-=` et `continue` sont traduites avant compilation). M
 2026-09-20 : une edition automatique avait insere un vrai saut de ligne au milieu d'une chaine ;
 ce banc l'a vu en une seconde, la ou Studio l'aurait montre plusieurs minutes plus tard.
 
+`python tools/test_lint.py` passe `src/` a selene (reglages : `selene.toml`, outil : `rokit.toml`) et
+refuse toute variable LUE ou ECRITE avant sa declaration. En Lua, une fonction ne voit une locale
+declaree plus bas que comme une globale vide : aucune erreur au chargement, un plantage au moment
+ou le code sert. Mesure du 2026-09-30 : cinq cas reels que les 129 autres bancs laissaient passer
+(annonce de voie ouverte, boutons « SI PERSONNE » et « REVOIR LE TUTORIEL », robot jamais egalise
+en duel a niveaux egaux, remise a zero des ancres d'emote).
+
 ## Test automatique (sans toucher l'ecran)
 `python build.py --autotest` puis `powershell -ExecutionPolicy Bypass -File tools/studio-run-cache.ps1 -Secondes 200`
 Studio s'ouvre sur un bureau Windows cache ; un plugin temporaire (`tools/BRR_AutoRun.lua`, retire a la fin) lance **Play**

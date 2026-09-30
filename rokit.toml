@@ -1,0 +1,4 @@
+# Outils du depot, installes par `rokit install` (https://github.com/rojo-rbx/rokit).
+[tools]
+# Analyse statique de src/ : tools/test_lint.py, reglages dans selene.toml.
+selene = "Kampfkarren/selene@0.31.0"
