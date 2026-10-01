@@ -41,7 +41,14 @@ $ErrorActionPreference = 'Stop'
 # reste plafonnee par l'ecran de la session) et changer la resolution du bureau
 # (ChangeDisplaySettingsEx rend -1). A savoir si on y revient : SetThreadDesktop exige un FIL NEUF,
 # sinon erreur 170 (ERROR_BUSY).
-$studio = (Get-ChildItem 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe' | Select-Object -First 1).FullName
+# LE STUDIO LE PLUS RECENT, dans les DEUX dossiers d'installation (fix du 2026-09-29, conv-885).
+# Cause mesuree : Studio 0.740 s'est installe dans « Program Files », le 0.739 est reste dans
+# « Program Files (x86) ». Lance, le 0.739 passe la main au 0.740 (« -parentPid <lui> » dans la
+# ligne de commande du nouveau) puis se ferme en code 0 : le script suivait un processus mort, ne
+# fermait jamais le vrai Studio (pid 3328 reste ouvert) et ne retrouvait pas l'image a son pid.
+# Meme regle que tools/ecotest_moteur.ps1 : le plus recent sur disque.
+$studio = (Get-ChildItem 'C:\Program Files\Roblox\Versions\*\RobloxStudioBeta.exe', 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe' -ErrorAction SilentlyContinue |
+  Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 $place = (Resolve-Path ($(if ($Place) { $Place } else { Join-Path $PSScriptRoot '..\BrainRotRoyale.autotest.rbxlx' }))).Path
 $stock = Join-Path $env:LOCALAPPDATA 'Roblox\tmp-capture-storage'
 $plugDir = Join-Path $env:LOCALAPPDATA 'Roblox\Plugins'
@@ -52,6 +59,25 @@ New-Item -ItemType Directory -Force $plugDir | Out-Null
 # le charge, donc aucun Play, donc aucune capture. Un nom par bureau cache supprime la collision.
 $plug = Join-Path $plugDir ('BRR_AutoRun-' + ($Id -replace '[^A-Za-z0-9_-]', '_') + '.lua')
 Copy-Item (Join-Path $PSScriptRoot 'BRR_AutoRun.lua') $plug -Force
+# CONNEXION EN FILE UNIQUE (fix du 2026-09-29, conv-885). Cause mesuree : trois captures lancees
+# ensemble ont renouvele la connexion Roblox au meme instant. Le jeton de renouvellement ne sert
+# qu'une fois : deux Studio ont recu « 401 Unauthorized » sur oauth/v1/userinfo et l'un a EFFACE la
+# session enregistree (« Deleting and logging out security cookies », journal 07:06:16). Studio
+# etait deconnecte pour tout le monde, et chaque capture suivante rendait « arretee trop tot ? ».
+# Un Studio ne demarre donc que quand aucun autre n'est en train de se connecter : un verrou
+# entre les captures, puis l'attente de tout Studio demarre depuis moins de 25 s (lance par un
+# autre script ou a la main). Le verrou est rendu des que NOTRE Studio est connecte.
+$fileConnexion = New-Object System.Threading.Mutex($false, 'Local\BRR-Studio-Connexion')
+$tientConnexion = $false
+try { $tientConnexion = $fileConnexion.WaitOne([TimeSpan]::FromSeconds(240)) }
+catch [System.Threading.AbandonedMutexException] { $tientConnexion = $true }
+if (-not $tientConnexion) {
+  [pscustomobject]@{ pid = $null; capture = $null; motif = "file de connexion Studio occupee depuis 240 s" } | ConvertTo-Json -Compress
+  exit 6
+}
+$calme = (Get-Date).AddSeconds(60)
+while ((Get-Date) -lt $calme -and (Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue |
+    Where-Object { $_.StartTime -gt (Get-Date).AddSeconds(-25) })) { Start-Sleep -Milliseconds 500 }
 $depart = Get-Date
 $pidStudio = $null
 try {
@@ -60,9 +86,45 @@ try {
     -Travail 'capture 3D par le moteur' -Conversation 'conv-531' | Select-Object -Last 1
   $lance = $json | ConvertFrom-Json
   $pidStudio = $lance.pid
+  $pidLanceur = $pidStudio
+  # Un Studio qui passe la main a une version plus recente : c'est le RELAIS qui rend la vue (et
+  # qui nomme l'image wob-<son pid>). On le reconnait a « -parentPid <notre pid> ».
+  $trouverRelais = {
+    if ($pidStudio -ne $pidLanceur) { return }
+    $relais = Get-CimInstance Win32_Process -Filter "Name='RobloxStudioBeta.exe'" -ErrorAction SilentlyContinue |
+      Where-Object { $_.CommandLine -match ('-parentPid ' + $pidLanceur + '\b') } | Select-Object -First 1
+    if ($relais) { $script:pidStudio = [int]$relais.ProcessId }
+  }
   if (-not $pidStudio) {
     [pscustomobject]@{ pid = $null; capture = $null; motif = "le bureau cache '$Id' n'a pas rendu de processus : $($lance.erreur)" } | ConvertTo-Json -Compress
     exit 4
+  }
+  # Connexion de NOTRE Studio (son journal porte le chemin de notre place des la ligne 6) :
+  # connecte -> on rend la file ; fenetre de connexion -> on le DIT, au lieu d'attendre pour rien.
+  $motPlace = [IO.Path]::GetFileName($place)
+  $etatConnexion = $null
+  $jConnexion = $null
+  $limiteConnexion = (Get-Date).AddSeconds(45)
+  while (-not $etatConnexion -and (Get-Date) -lt $limiteConnexion) {
+    Start-Sleep -Milliseconds 500
+    & $trouverRelais
+    $jConnexion = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Roblox\logs') -Filter '*Studio*.log' -ErrorAction SilentlyContinue |
+      Where-Object { $_.LastWriteTime -gt $depart } |
+      Where-Object { Select-String -Path $_.FullName -Pattern ([regex]::Escape($motPlace)) -Quiet -ErrorAction SilentlyContinue } |
+      Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if ($jConnexion) {
+      if (Select-String -Path $jConnexion.FullName -Pattern 'Logged in User GUID' -Quiet -ErrorAction SilentlyContinue) { $etatConnexion = 'connecte' }
+      # 0.739 ecrit « show login dialog [start] » ; 0.740 ouvre une page de connexion par QR code
+      # et ecrit « awaitQuickSignIn » (journaux du 2026-09-29, 5 sessions deconnectees sur 5, et
+      # aucune session connectee ne porte cette ligne).
+      elseif (Select-String -Path $jConnexion.FullName -Pattern 'show login dialog \[start\]|awaitQuickSignIn' -Quiet -ErrorAction SilentlyContinue) { $etatConnexion = 'deconnecte' }
+    }
+  }
+  & $trouverRelais
+  if ($tientConnexion) { $fileConnexion.ReleaseMutex(); $tientConnexion = $false }
+  if ($etatConnexion -eq 'deconnecte') {
+    [pscustomobject]@{ pid = $pidStudio; capture = $null; motif = "Studio n'est plus connecte a Roblox : il a ouvert sa fenetre de connexion (journal $($jConnexion.Name)). Ouvre Studio une fois, reconnecte-toi, puis relance." } | ConvertTo-Json -Compress
+    exit 5
   }
   # La fenetre existe des le lancement, mais Studio la remanie pendant le chargement : on repasse
   # plusieurs fois, jusqu'a ce que la capture soit prise (le script client attend 25 s).
@@ -123,6 +185,7 @@ try {
   # lance laissait 6 Studio ouverts (mesure 2026-09-14). On arrete ceux DEMARRES APRES notre
   # lancement — jamais un Studio que l'utilisateur avait deja ouvert.
   if ($pidStudio) { Stop-Process -Id $pidStudio -Force -ErrorAction SilentlyContinue }
+  if ($pidLanceur -and $pidLanceur -ne $pidStudio) { Stop-Process -Id $pidLanceur -Force -ErrorAction SilentlyContinue }
   # On n'arrete les autres Studio recents QUE sur le bureau par defaut : avec un -Id propre a un
   # run, tuer ceux des autres runs saboterait leur capture (constate le 2026-09-20).
   if ($Id -eq 'brrcap') {
@@ -131,4 +194,6 @@ try {
       Stop-Process -Force -ErrorAction SilentlyContinue
   }
   Remove-Item $plug -ErrorAction SilentlyContinue
+  if ($tientConnexion) { $fileConnexion.ReleaseMutex() }
+  $fileConnexion.Dispose()
 }

@@ -169,7 +169,6 @@ local function bouton(parent, t, taille, pos, couleur)
 	coin(b, 14)
 	-- relief : le haut du bouton s'eclaircit, le bas s'assombrit, et un contour sombre epais
 	-- detache la forme du fond (le trait cartoon du jeu de reference).
-	degrade(b, Color3.fromRGB(255, 255, 255), Color3.fromRGB(150, 150, 150))
 	contour(b, 3)
 	-- REACTION AU DOIGT : un fondu court sur la transparence du fond. On n'anime PAS la taille :
 	-- les boutons sont poses en echelle dans des mises en page, une taille animee les ferait
@@ -185,6 +184,10 @@ local function bouton(parent, t, taille, pos, couleur)
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0.18, 0); pad.PaddingBottom = UDim.new(0.18, 0)
 	pad.Parent = b
+	-- LEVRE (2026-09-29) : le degrade lisse devient une bande sombre en bas du bouton (relief des
+	-- jeux mobiles de reference) et le texte s'enfonce a l'appui. Module charge a l'usage : ce
+	-- fichier est au plafond des 200 variables locales de Lua.
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage")).levre(b, pad)
 	return b
 end
 
@@ -283,18 +286,14 @@ montee.jauge.Parent = montee.fond
 
 ligneProfil.Visible = false -- remplacee par le bandeau ressources permanent, en haut.
 local boutonJouer = bouton(accueil, "JOUER", UDim2.new(0.34, 0, 0.13, 0), UDim2.new(0.33, 0, 0.38, 0), Color3.fromRGB(60, 170, 80))
+-- JOUER VIVANT : reflet qui balaie et halo dore qui respire — l'action principale se voit d'abord.
+require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage")).vivant(boutonJouer)
 -- ATTENDRE UN HUMAIN. La bascule vers le robot a 20 s etait SUBIE : ce reglage la repousse, et
 -- le bouton « JOUER CONTRE LE ROBOT » ci-dessous permet d'en sortir a tout moment.
 local attendreHumain = false
 local boutonPatience = bouton(accueil, "SI PERSONNE : ROBOT", UDim2.new(0.24, 0, 0.045, 0), UDim2.new(0.515, 0, 0.665, 0), Color3.fromRGB(60, 85, 110))
-boutonPatience.MouseButton1Click:Connect(function()
-	Sons.jouer("clic")
-	attendreHumain = not attendreHumain
-	boutonPatience.Text = attendreHumain and "SI PERSONNE : J'ATTENDS" or "SI PERSONNE : ROBOT"
-	-- Le reglage dit ce qu'il CHANGE : une victoire contre un joueur rapporte un bonus (vue serveur).
-	message.Text = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Adversaire"))
-		.texteAttente(attendreHumain, vue and vue.bonusHumain, vue and vue.partRobot)
-end)
+-- Son clic est branche APRES `afficher` (plus bas, « CLICS DE L'ACCUEIL ») : il a besoin de
+-- `message` et de `vue`, declares plus loin.
 
 -- ANNULER LA RECHERCHE. Une fois JOUER presse, le joueur etait PRISONNIER de l'attente : aucun
 -- moyen de revenir au menu, et un second appui relancait une deuxieme boucle d'attente sur le
@@ -315,13 +314,7 @@ boutonRobotVite.Visible = false
 -- ou pour dix, et dans le doute on ne clique pas. Le chiffre vient du module, pas d'un texte ecrit
 -- a la main : ajouter une etape au tutoriel changera ce libelle tout seul.
 local boutonTuto = bouton(accueil, "REVOIR LE TUTORIEL - " .. Tutoriel.texteDuree(), UDim2.new(0.19, 0, 0.055, 0), UDim2.new(0.79, 0, 0.045, 0), Color3.fromRGB(70, 80, 120))
-boutonTuto.MouseButton1Click:Connect(function()
-	Sons.jouer("clic")
-	local r = Boutique:InvokeServer("tutoriel")
-	message.Text = r.ok and ("Tutoriel arme : lance une partie pour le revoir (" .. Tutoriel.texteDuree(true) .. ").")
-		or ("Tutoriel : " .. tostring(r.motif))
-	afficher(r.vue)
-end)
+-- Son clic est branche APRES `afficher` (plus bas, « CLICS DE L'ACCUEIL »).
 
 local boutonBonus = bouton(accueil, "BONUS DU JOUR", UDim2.new(0.34, 0, 0.07, 0), UDim2.new(0.33, 0, 0.66, 0), Color3.fromRGB(200, 120, 40))
 -- REGLES DU JEU : l'ecran est construit plus bas (il a besoin des modules de regles) ; le clic
@@ -922,6 +915,27 @@ local function afficher(v)
 		b.Text = ""
 	end
 end
+
+-- ===== CLICS DE L'ACCUEIL qui ecrivent dans `message` ou relisent `vue` =====
+-- Branches ICI, apres `afficher`, et non a cote de leur bouton : en Lua, une fonction ne voit une
+-- variable locale que si elle est declaree AVANT elle. Poses plus haut, ces deux clics lisaient
+-- des globales vides : « SI PERSONNE » plantait sans rien expliquer, et « REVOIR LE TUTORIEL »
+-- armait le tutoriel sans le dire ni rafraichir l'accueil (selene, 2026-09-30).
+boutonPatience.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	attendreHumain = not attendreHumain
+	boutonPatience.Text = attendreHumain and "SI PERSONNE : J'ATTENDS" or "SI PERSONNE : ROBOT"
+	-- Le reglage dit ce qu'il CHANGE : une victoire contre un joueur rapporte un bonus (vue serveur).
+	message.Text = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Adversaire"))
+		.texteAttente(attendreHumain, vue and vue.bonusHumain, vue and vue.partRobot)
+end)
+boutonTuto.MouseButton1Click:Connect(function()
+	Sons.jouer("clic")
+	local r = Boutique:InvokeServer("tutoriel")
+	message.Text = r.ok and ("Tutoriel arme : lance une partie pour le revoir (" .. Tutoriel.texteDuree(true) .. ").")
+		or ("Tutoriel : " .. tostring(r.motif))
+	afficher(r.vue)
+end)
 
 -- ===== FICHE COMPLETE D'UNE CARTE (au clic sur sa tuile) =====
 -- La tuile n'a la place que de DEUX effets, puis elle ecrit « (+1) » : sur Bombardiro, une ligne
@@ -3364,14 +3378,16 @@ for _, o in ipairs(ONGLETS) do
 	if o.nom == "evenements" then
 		montee.coffrePastille = Instance.new("Frame")
 		montee.coffrePastille.Size = UDim2.new(0, 24, 0, 24)
-		montee.coffrePastille.Position = UDim2.new(1, -38, 0, 10) -- le dernier onglet touche le bord : a -24 la pastille etait rognee (cap-coffre6.png)
-		montee.coffrePastille.BackgroundColor3 = Color3.fromRGB(255, 190, 70)
+		montee.coffrePastille.Position = UDim2.new(1, -30, 0, 4) -- le dernier onglet touche le bord : a -24 la pastille etait rognee (cap-coffre6.png)
+		-- ROUGE a chiffre blanc (2026-09-29) : la convention de Clash Royale et de Pet Simulator 99.
+		-- L'orangee se confondait avec l'or du liseré et des pieces.
+		montee.coffrePastille.BackgroundColor3 = Color3.fromRGB(228, 52, 58)
 		montee.coffrePastille.ZIndex = 8
 		montee.coffrePastille.Visible = false
 		montee.coffrePastille.Parent = o.bouton
 		coin(montee.coffrePastille, 12)
 		montee.coffreCompte = texte(montee.coffrePastille, "", UDim2.fromScale(1, 1),
-			UDim2.fromScale(0, 0), Color3.fromRGB(40, 30, 5))
+			UDim2.fromScale(0, 0), Color3.new(1, 1, 1))
 		montee.coffreCompte.ZIndex = 9
 		-- Le chiffre est mis a l'echelle : sans plafond il debordait du rond (cap-pastille.png du
 		-- 2026-09-20, ou le « 2 » mordait sur le bord). Pose sans variable locale : ce fichier est
@@ -3379,6 +3395,7 @@ for _, o in ipairs(ONGLETS) do
 		montee.coffrePlafond = Instance.new("UITextSizeConstraint")
 		montee.coffrePlafond.MaxTextSize = 15
 		montee.coffrePlafond.Parent = montee.coffreCompte
+		contour(montee.coffrePastille, 2, Color3.new(1, 1, 1), 0)
 		-- La barre d'onglets est construite APRES le premier `afficher` : sans ce rattrapage, la
 		-- pastille restait eteinte jusqu'au profil suivant (capture cap-coffre4.png).
 		if vue and vue.evenements then
@@ -3388,6 +3405,9 @@ for _, o in ipairs(ONGLETS) do
 				vue.evenements.quetes, vue.bonusDispo, #(vue.coffres or {}) >= 4)
 		end
 	end
+	-- ICONE + NOM SOUS L'ICONE (2026-09-29) : le titre quitte le bouton pour une etiquette que seul
+	-- l'onglet actif montre. En portrait, les cinq titres ne tenaient pas cote a cote.
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage")).equiperOnglet(o)
 end
 
 -- FOND DES ECRANS : degrade profond au lieu de l'aplat unique, et contour dore discret.
@@ -3492,6 +3512,12 @@ majBandeau = function(v)
 		v.gemmes or 0, require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Quetes")).GEMMES,
 		v.sansAleatoirePayant)
 	valTrophees.Text = tostring(v.trophees)
+	-- DEFILEMENT (2026-09-29) : le texte exact est deja pose ; le module le fait defiler depuis
+	-- l'ancienne valeur, avec un eclat dore quand le solde monte.
+	local H = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage"))
+	H.compter(valPieces, v.pieces)
+	H.compter(valGemmes, v.gemmes or 0)
+	H.compter(valTrophees, v.trophees)
 end
 
 -- Les ecrans occupent la bande entre le bandeau et la barre du bas.
@@ -3501,17 +3527,34 @@ for _, cadre in ipairs({ accueil, boutique, deckEcran, clanEcran, evenementsEcra
 end
 
 majOnglets = function(nom)
+	local ancien = ongletActif
 	ongletActif = nom or ongletActif
 	barreOnglets.Visible = true
 	liseraBarre.Visible = true
 	bandeau.Visible = true
 	boutonMenu.Visible = false
-	for _, o in ipairs(ONGLETS) do
+	-- ONGLET ACTIF ELARGI ET ECRAN QUI GLISSE (2026-09-29) : l'ecran choisi arrive du cote de son
+	-- onglet. Le premier affichage est instantane (aucune animation depuis un etat arbitraire).
+	local H = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage"))
+	local iAncien, iNouveau = 0, 0
+	for i, o in ipairs(ONGLETS) do
+		if o.nom == ancien then iAncien = i end
+		if o.nom == ongletActif then iNouveau = i end
+	end
+	local largeurs = H.largeurs(#ONGLETS, iNouveau)
+	for i, o in ipairs(ONGLETS) do
 		local actif = (o.nom == ongletActif)
+		local apparait = actif and not o.cadre.Visible
 		o.cadre.Visible = actif
 		o.bouton.BackgroundColor3 = actif and o.teinte or Color3.fromRGB(38, 42, 60)
 		o.bouton.TextColor3 = actif and Color3.new(1, 1, 1) or Color3.fromRGB(165, 175, 195)
+		H.majOnglet(o, actif, largeurs[i], not montee.ongletsVus)
+		if apparait and montee.ongletsVus then
+			H.glisser(o.cadre, UDim2.new(0, 0, HAUTEUR_BANDEAU, 0),
+				(iNouveau > iAncien and 1) or (iNouveau < iAncien and -1) or 0)
+		end
 	end
+	montee.ongletsVus = true
 end
 
 -- Chaque onglet REJOUE le clic du bouton d'origine quand il en existait un : le chargement des
@@ -3539,6 +3582,15 @@ for _, o in ipairs(ONGLETS) do
 		majOnglets(o.nom)
 	end)
 end
+
+-- « + » A DROITE DES PIECES ET DES GEMMES (2026-09-29) : mene a la boutique par le MEME chemin
+-- que son onglet. Appel sans variable locale : ce fichier est au plafond des 200 de Lua.
+require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Habillage")).plus({ valPieces, valGemmes }, function()
+	if ongletActif ~= "boutique" then
+		ouvrirEcranBoutique()
+		majOnglets("boutique")
+	end
+end)
 
 -- Le bonus ecrit sa reponse dans `message` (accueil) : on la recopie dans l'onglet EVENEMENTS.
 task.spawn(function()

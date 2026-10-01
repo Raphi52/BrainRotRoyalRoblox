@@ -283,6 +283,9 @@ place = "".join([
               + item("ModuleScript", "Inactif", source=src("shared/Inactif.lua"))
               # MiseMenu.lua : positions du menu d'accueil en donnees, verifiees par tools/test_menu.py.
               + item("ModuleScript", "MiseMenu", source=src("shared/MiseMenu.lua"))
+              # Habillage.lua : icones d'onglets, levre des boutons, JOUER vivant, soldes qui
+              # defilent (tools/test_habillage.py). Requis par Hub : sans lui, le menu attend.
+              + item("ModuleScript", "Habillage", source=src("shared/Habillage.lua"))
               # Portrait.lua : cadrage du personnage 3D dans les cartes du menu (modele du jeu, pas du catalogue).
               + item("ModuleScript", "Portrait", source=src("shared/Portrait.lua"))
               # Figurine.lua : rendu 3D d'une carte (modele, silhouette ou embleme), partage par le menu et la partie.
@@ -318,6 +321,8 @@ place = "".join([
               + item("ModuleScript", "Emotes", source=src("shared/Emotes.lua"))
               # Decor.lua : habillage variable de l'arene (apparence SEULE, jamais la geometrie).
               + item("ModuleScript", "Decor", source=src("shared/Decor.lua"))
+              # Maquette.lua : l'ile autour du terrain (damier, falaises, mer, vegetation), en decor SEUL.
+              + item("ModuleScript", "Maquette", source=src("shared/Maquette.lua"))
               # Duel.lua : coup d'envoi commun, forfait et revanche a deux. Requis par GameServer :
               # sans lui, WaitForChild("Duel") bloque le serveur et aucune partie ne demarre.
               + item("ModuleScript", "Duel", source=src("shared/Duel.lua")))
