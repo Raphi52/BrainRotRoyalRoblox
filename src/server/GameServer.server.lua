@@ -2653,8 +2653,11 @@ local function report()
 	end
 	print(string.format("[BRR] t=%d unites=%d bloquees=%d tours=%s resultat=%s", math.floor(timeLeft), units, stuck, table.concat(towers, " "), tostring(result)))
 end
+-- COPIE DE TEST SEULEMENT (marqueur BRR_AUTOTEST pose par build.py --autotest). Sans cette garde,
+-- un serveur EN LIGNE dont le premier joueur mettait plus de 3 s a se connecter basculait en
+-- robot contre robot : du code de banc actif dans le jeu publie.
 task.delay(3, function()
-	if #Players:GetPlayers() == 0 then
+	if ReplicatedStorage:FindFirstChild("BRR_AUTOTEST") and #Players:GetPlayers() == 0 then
 		autoTest = true
 		print("[BRR] mode test auto : bot contre bot")
 	end
