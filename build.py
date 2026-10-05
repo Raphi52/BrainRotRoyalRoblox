@@ -26,6 +26,8 @@ VIP_NON_POSSEDE = AUTOTEST and "--vip-non-possede" in sys.argv  # le createur po
 PASS_POINTS = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--pass-points=")), 0) if AUTOTEST else 0
 OUVERTURE = AUTOTEST and "--ouverture" in sys.argv  # coffre pret ouvert tout seul : scene d'ouverture
 COFFRES = AUTOTEST and ("--coffres" in sys.argv or OUVERTURE)  # accueil avec des coffres dans chaque etat
+# sprites lus dans le dossier content de Studio (rbxasset://textures/brr/), avant leur televersement
+SPRITES_LOCAUX = AUTOTEST and "--sprites-locaux" in sys.argv
 DECK = AUTOTEST and "--deck" in sys.argv  # accueil + ecran DECK ouvert, pour la capture
 NIVEAUX = AUTOTEST and "--niveaux" in sys.argv  # boutique ouverte avec des niveaux varies
 BOUTIQUE = BOUTIQUE or NIVEAUX
@@ -254,6 +256,8 @@ place = "".join([
               + item("ModuleScript", "Collection", source=src("shared/Collection.lua"))
               + item("ModuleScript", "Reperes", source=src("shared/Reperes.lua"))
               + item("ModuleScript", "Coffres", source=src("shared/Coffres.lua"))
+              # Sprites.lua : ids des images televersees (tools/televerser_sprites.py).
+              + item("ModuleScript", "Sprites", source=src("shared/Sprites.lua"))
               # Champions.lua : capacites activables des champions (regles, recharge, deck).
               + item("ModuleScript", "Champions", source=src("shared/Champions.lua"))
               # Cosmetiques.lua : skins de tours et emotes premium (apparence seulement).
@@ -400,6 +404,7 @@ place = "".join([
          + (item("IntValue", "BRR_CAP_DELAI", extra=f'<int name="Value">{CAP_DELAI}</int>') if CAP_DELAI else "")
          + (item("BoolValue", "BRR_BOUTIQUE") if BOUTIQUE else "")
          + (item("BoolValue", "BRR_COFFRES") if COFFRES else "")
+         + (item("BoolValue", "BRR_SPRITES_LOCAUX") if SPRITES_LOCAUX else "")
          + (item("BoolValue", "BRR_OUVERTURE") if OUVERTURE else "")
          + (item("BoolValue", "BRR_PASS_PREMIUM") if PASS_PREMIUM else "")
          + (item("BoolValue", "BRR_VIP_NON_POSSEDE") if VIP_NON_POSSEDE else "")

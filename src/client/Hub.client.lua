@@ -591,6 +591,19 @@ local function majCoffres()
 		return
 	end
 	local Coffres = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Coffres"))
+	local Sprites = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Sprites"))
+	-- BRR_SPRITES_LOCAUX (build.py --sprites-locaux, copie de test SEULEMENT) : les PNG copies dans
+	-- le dossier content de Studio, pour voir le rendu avant le televersement.
+	local locaux = ReplicatedStorage:FindFirstChild("BRR_SPRITES_LOCAUX") ~= nil
+	-- Sprite present -> l'image remplace le dessin ; absent -> le dessin en cadres reste.
+	local function montrerSprite(coffre, nom)
+		local src = locaux and ("rbxasset://textures/brr/" .. nom .. ".png") or Sprites.image(nom)
+		coffre.image.Image = src or ""
+		coffre.image.Visible = src ~= nil
+		for _, part in ipairs({ coffre.couvercle, coffre.corps, coffre.bande, coffre.serrure }) do
+			part.Visible = src == nil
+		end
+	end
 	local maintenant = os.time() + decalageHorloge
 	-- EMPLACEMENTS PLEINS : la prochaine victoire ne rapportera pas de coffre. C'etait perdu en
 	-- silence ; l'accueil le dit AVANT la partie, avec ce qu'il faut faire.
@@ -613,6 +626,7 @@ local function majCoffres()
 			-- Le masquer completement laissait quatre cases vides (capture cap-v3-bataille.png) :
 			-- la rangee ne se lisait plus comme des emplacements a coffre.
 			e.coffre.boite.Visible = true
+			montrerSprite(e.coffre, "coffre-vide")
 			e.coffre.couvercle.BackgroundColor3 = Color3.fromRGB(70, 76, 105)
 			e.coffre.corps.BackgroundColor3 = Color3.fromRGB(52, 57, 82)
 			e.coffre.bande.BackgroundColor3 = Color3.fromRGB(86, 92, 122)
@@ -623,6 +637,8 @@ local function majCoffres()
 			e.titre.Text = "vide"
 			if e.detail then
 				e.detail.Text = ""
+				-- sans texte, le bandeau sombre restait peint seul sur la case vide (capture sprites-vides.png)
+				e.detail.BackgroundTransparency = 1
 			end
 			e.etat.Text = "Gagne une partie"
 			e.etat.BackgroundTransparency = 1
@@ -644,6 +660,7 @@ local function majCoffres()
 			end
 			e.coffre.couvercle.BackgroundColor3 = teinte
 			e.coffre.corps.BackgroundColor3 = sombre(teinte, 0.78)
+			montrerSprite(e.coffre, "coffre-" .. c.type)
 			e.titre.Text = NOM_COFFRE[c.type]
 			-- Les chiffres viennent du serveur (vue.coffresInfos), la mise en mots du module.
 			if e.detail then
@@ -654,6 +671,7 @@ local function majCoffres()
 					suite = "\n" .. Coffres.duree(info.duree) .. " d'attente"
 				end
 				e.detail.Text = Coffres.ligne(info) .. suite
+				e.detail.BackgroundTransparency = 0.25
 			end
 			e.etat.BackgroundTransparency = 0.2
 			local stP = e.etat:FindFirstChildOfClass("UIStroke")
@@ -1439,11 +1457,23 @@ end)
 -- le relief vient des degrades (haut clair / bas sombre) et du contour cartoon epais.
 -- `dessinerCoffre` rend les pieces a recolorer pour que majCoffres change le type de coffre.
 local function dessinerCoffre(parent)
+	-- Hauteur 0,15 -> 0,57 de la case : le texte de detail se pose DESSOUS (0,58) sans rien
+	-- couvrir. Avant, la boite descendait a 0,74 et le detail (0,615) tombait sur le corps du coffre.
 	local boite = Instance.new("Frame")
 	boite.BackgroundTransparency = 1
-	boite.Size = UDim2.new(0.8, 0, 0.54, 0)
-	boite.Position = UDim2.new(0.1, 0, 0.20, 0)
+	boite.Size = UDim2.new(0.8, 0, 0.42, 0)
+	boite.Position = UDim2.new(0.1, 0, 0.15, 0)
 	boite.Parent = parent
+
+	-- SPRITE (2026-10-05) : une vraie image par type (tools/sprites_coffres.py). Tant qu'elle n'est
+	-- pas televersee (Sprites.image rend nil), majCoffres garde le dessin en cadres ci-dessous.
+	local image = Instance.new("ImageLabel")
+	image.BackgroundTransparency = 1
+	image.Size = UDim2.fromScale(1, 1)
+	image.ScaleType = Enum.ScaleType.Fit
+	image.ZIndex = 4
+	image.Visible = false
+	image.Parent = boite
 
 	local corps = Instance.new("Frame")
 	corps.Size = UDim2.new(1, 0, 0.58, 0)
@@ -1487,7 +1517,7 @@ local function dessinerCoffre(parent)
 
 	-- on rend AUSSI la boite : masquer seulement corps et couvercle laissait la bande doree et la
 	-- serrure flotter toutes seules sur un emplacement vide (capture cap-r1-bataille.png 15:04).
-	return { boite = boite, corps = corps, couvercle = couvercle, bande = bande, serrure = serrure }
+	return { boite = boite, corps = corps, couvercle = couvercle, bande = bande, serrure = serrure, image = image }
 end
 
 -- OUVERTURE DE COFFRE MISE EN SCENE (2026-09-21) : avant, une seule ligne de texte sous les
@@ -1783,11 +1813,17 @@ for i = 1, 4 do
 	-- chance d'y trouver une carte verrouillee : il decidait a l'aveugle.
 	-- SOUS le coffre, juste au-dessus du bouton : pose a 0,175 le texte passait DERRIERE le dessin
 	-- du coffre, dont la bande doree le coupait en deux (capture cap-coffres2.png du 2026-09-21).
-	local detail = texte(cadre, "", UDim2.new(0.92, 0, 0.145, 0), UDim2.new(0.04, 0, 0.615, 0),
+	-- 2026-10-05 : le coffre s'arrete a 0,57 ; le detail occupe 0,58 -> 0,77, juste au-dessus du
+	-- bouton (0,78). Avant, coffre jusqu'a 0,74 et detail a 0,615 : le texte couvrait le coffre.
+	-- Taille adaptee a la case (9 a 15 px) au lieu de 11 px fixes, illisibles sur grand ecran.
+	local detail = texte(cadre, "", UDim2.new(0.92, 0, 0.19, 0), UDim2.new(0.04, 0, 0.58, 0),
 		Color3.fromRGB(215, 222, 240))
-	detail.TextScaled = false
-	detail.TextSize = 11
+	detail.TextScaled = true
 	detail.TextWrapped = true
+	local bornesDetail = Instance.new("UITextSizeConstraint")
+	bornesDetail.MinTextSize = 9
+	bornesDetail.MaxTextSize = 15
+	bornesDetail.Parent = detail
 	-- FOND SOMBRE et au-dessus du coffre : pose sur le dessin, le texte etait coupe en deux par la
 	-- bande doree et la serrure (captures cap-coffres2/3/4.png du 2026-09-21). Un bandeau derriere
 	-- le texte le rend lisible quel que soit le coffre dessine dessous.

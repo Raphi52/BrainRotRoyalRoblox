@@ -47,7 +47,9 @@ $ErrorActionPreference = 'Stop'
 # ligne de commande du nouveau) puis se ferme en code 0 : le script suivait un processus mort, ne
 # fermait jamais le vrai Studio (pid 3328 reste ouvert) et ne retrouvait pas l'image a son pid.
 # Meme regle que tools/ecotest_moteur.ps1 : le plus recent sur disque.
-$studio = (Get-ChildItem 'C:\Program Files\Roblox\Versions\*\RobloxStudioBeta.exe', 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe' -ErrorAction SilentlyContinue |
+# 2026-10-05 : Studio s'installe aussi PAR UTILISATEUR (%LOCALAPPDATA%\Roblox\Versions) et plus rien
+# n'etait sous Program Files : $studio restait vide et aucune capture ne partait.
+$studio = (Get-ChildItem 'C:\Program Files\Roblox\Versions\*\RobloxStudioBeta.exe', 'C:\Program Files (x86)\Roblox\Versions\*\RobloxStudioBeta.exe', (Join-Path $env:LOCALAPPDATA 'Roblox\Versions\*\RobloxStudioBeta.exe') -ErrorAction SilentlyContinue |
   Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 $place = (Resolve-Path ($(if ($Place) { $Place } else { Join-Path $PSScriptRoot '..\BrainRotRoyale.autotest.rbxlx' }))).Path
 $stock = Join-Path $env:LOCALAPPDATA 'Roblox\tmp-capture-storage'
@@ -78,10 +80,12 @@ if (-not $tientConnexion) {
 $calme = (Get-Date).AddSeconds(60)
 while ((Get-Date) -lt $calme -and (Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue |
     Where-Object { $_.StartTime -gt (Get-Date).AddSeconds(-25) })) { Start-Sleep -Milliseconds 500 }
+# Le depot Autowin a change de nom (D:\AutoWinOS -> D:\Autowin, 2026-10-05) : premier lanceur present.
+$hdeskLancer = @('D:\Autowin\scripts\hdesk-lancer.ps1', 'D:\AutoWinOS\scripts\hdesk-lancer.ps1') | Where-Object { Test-Path $_ } | Select-Object -First 1
 $depart = Get-Date
 $pidStudio = $null
 try {
-  $json = & powershell -NoProfile -ExecutionPolicy Bypass -File 'D:\AutoWinOS\scripts\hdesk-lancer.ps1' `
+  $json = & powershell -NoProfile -ExecutionPolicy Bypass -File $hdeskLancer `
     -Id $Id -Executable $studio -Arguments ('"' + $place + '"') `
     -Travail 'capture 3D par le moteur' -Conversation 'conv-531' | Select-Object -Last 1
   $lance = $json | ConvertFrom-Json
