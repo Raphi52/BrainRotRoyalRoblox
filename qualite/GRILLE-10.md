@@ -3,17 +3,15 @@
 Lot 1 du plan « passer le jeu de 1/10 à 10/10 » (plan-59c9ac57, fil chef conv-1263).
 Ce fichier fixe la CIBLE et la MESURE DE DÉPART. Il ne change aucun code.
 
-> **État au 2026-10-29 : grille écrite, notes de départ NON MESURÉES.**
-> Première capture (accueil) : `tools/studio-capture-moteur.ps1` a rendu le **code 5** —
-> Studio n'est plus connecté à Roblox. Journal
-> `%LOCALAPPDATA%\Roblox\logs\0.745.0.7451137_20261029T091040Z_Studio_72BDD_last.log` :
-> « Authenticated : NO » et « Secure Storage read failed … 0x00000490 ». Studio venait de se mettre
-> à jour tout seul de 0.741.19 vers 0.745.0 au lancement (journal 0.741 de 09:10:20Z :
-> « interruptWithApplicationUpdateIfAvailable »). Seul l'utilisateur peut se reconnecter : ouvrir
-> Studio une fois, se connecter, puis relancer le protocole plus bas.
-> Aucune capture existante n'est plus récente que le code (dernière capture : 2026-09-29 ;
-> dernier changement de `GameClient`/`Hub` : 2026-10-01). Les anciennes captures ne servent donc
-> pas de départ.
+> **Départ mesuré le 2026-10-29 : 4/10** (moyenne des 9 écrans), sur le code du commit
+> `0eb89e6` (= `108ee7f` pour `src/` : `0eb89e6` n'ajoute que ce fichier).
+> Les 4 écrans de bataille ont été construits dans une **copie séparée du dépôt au dernier
+> commit** : d'autres lots modifiaient `src/` au même moment (`Maquette.lua`, `Decor.lua`,
+> `GameServer.server.lua`, `GameClient.client.lua`, `Mise.lua`), et une première série construite
+> dans le dossier partagé montrait déjà une partie de leur travail (plus de ping, autre décor) :
+> elle a été écartée. Les 5 écrans de menu ont été construits dans le dossier partagé : leurs
+> fichiers (`Hub.client.lua`, `MiseMenu.lua`, `Habillage.lua`) étaient identiques au commit.
+> Toutes les images font **1452 × 793 px**. Les numéros de ligne cités sont ceux du commit `0eb89e6`.
 
 ## Comment noter
 
@@ -25,180 +23,214 @@ Ce fichier fixe la CIBLE et la MESURE DE DÉPART. Il ne change aucun code.
 - Note du jeu = moyenne des 9 écrans.
 - Les tailles se mesurent **en proportion** de la capture : la fenêtre du bureau caché change de
   largeur d'un lancement à l'autre (812, 1296, 1452 px observés). Toujours noter la taille de
-  l'image (`largeur × hauteur`) à côté de la mesure.
+  l'image à côté de la mesure.
 - Repère CR pour les tailles : l'arène fait **18 cases de large sur 32 de long** (sources fan, pas
   d'officiel : [fandom](https://clashroyale.fandom.com/wiki/User_blog:Kjx_and_lgym/How_to_play_troop_type_cards),
   [metagamenation](https://metagamenation.com/clash-royale-field-master-the-arena-layout-and-dominate-every-battle-in-2026/)).
-  Une **case** = largeur visible de l'arène ÷ 18.
-
-## Critères par écran
-
-### 1. Bataille — début (`bataille-debut`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| D1 | Arène éclairée et lisible | Le sol, la rivière, les ponts et les deux moitiés se distinguent sans plisser les yeux ; aucune zone noire | Arène de jour, couleurs franches, contraste fort sol/rivière/chemins | — |
-| D2 | Tours reconnaissables | On reconnaît 3 tours par camp (roi au centre, 2 de princesse) à leur silhouette, sans légende | Tours dessinées comme des tours (créneaux, toit, garde), roi plus gros que princesses | — |
-| D3 | Camps lisibles | Couleur du camp (bleu/rouge) visible sur chaque tour et chaque barre de vie | Bleu en bas, rouge en haut, partout | — |
-| D4 | Main de cartes lisible | 4 cartes + la suivante, portrait et coût d'élixir lisibles, aucune carte coupée | Main en bas, portraits nets, gouttes d'élixir chiffrées | — |
-| D5 | Barre d'élixir et chrono lisibles | Chiffre d'élixir et temps restant lisibles d'un coup d'œil | Barre violette graduée + chrono en haut à droite | — |
-| D6 | Aucune info de debug | Ni ping (« -- ms »), ni liste « Il a posé : », ni texte technique | Rien d'autre que le jeu | — |
-| D7 | Aucun texte posé sur un autre ni coupé en « … » | Contrôle visuel de chaque texte | Zéro recouvrement, zéro troncature | — |
-
-### 2. Bataille — mêlée (`bataille-melee`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| M1 | Unités assez grandes | Largeur à l'écran de la plus petite unité, en px et en cases | ≥ **1 case** (largeur d'arène ÷ 18) pour une unité de base ; grosses unités ≥ 2 cases (cible choisie, calée sur la grille CR) | — |
-| M2 | Unités identifiables | On nomme chaque unité à sa silhouette/couleur, sans étiquette | Chaque troupe a une silhouette propre | — |
-| M3 | Camp de chaque unité lisible | Bleu/rouge visible sur chaque unité (barre, socle ou teinte) | Barre de vie colorée par camp au-dessus de chaque unité | — |
-| M4 | Mêlée lisible | Dans le paquet le plus dense, on compte les unités et on voit qui frappe qui | Unités qui se chevauchent peu, barres de vie séparées | — |
-| M5 | Coups visibles | Au moins un effet de coup ou de projectile visible sur l'image (éclat, flèche, impact) | Chaque attaque a un effet visible (et un son — vérifié hors capture) | — |
-| M6 | Dégâts lisibles sur les tours | Barre de vie de chaque tour lisible, chiffre de PV lisible | Barre + chiffre sur chaque tour | — |
-| M7 | Une seule bannière à la fois | Nombre de bannières/messages centraux visibles | 0 ou 1 | — |
-| M8 | Aucun texte sur un autre, aucun debug | Bannière (« … VA TOMBER ! ») hors du score ; ni ping ni « Il a posé » | Zéro recouvrement, zéro debug | — |
-
-### 3. Fin de partie (`fin`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| F1 | Résultat évident | VICTOIRE / DÉFAITE / ÉGALITÉ lisible en une seconde, en gros | Grand bandeau de résultat, couleur du gagnant | — |
-| F2 | Couronnes lisibles | Score en couronnes des deux camps, en icônes | 0-3 couronnes par camp, en grand | — |
-| F3 | Gains lisibles | Trophées et récompenses, chiffrés, sans texte coupé | Trophées +/- et coffre gagné, chiffrés | — |
-| F4 | Un seul bouton d'action évident | Bouton principal (« OK » / « Rejouer ») visible et seul en avant | Un gros bouton « OK » | — |
-| F5 | Aucun bloc sur un autre | Bouton, récapitulatif, résumé, main : aucun ne recouvre l'autre | Zéro recouvrement | — |
-| F6 | Fond calme | L'arène derrière est assombrie ou floutée, plus aucune info de jeu (main, élixir, ping) | Seul l'écran de fin est lu | — |
-
-### 4. Accueil — onglet BATAILLE (`accueil`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| A1 | Bouton BATAILLE dominant | Le bouton de combat est l'élément le plus visible de l'écran | Gros bouton jaune « Bataille » au centre bas | — |
-| A2 | Arène courante visible | Image de l'arène + nom + trophées au centre | Illustration de l'arène au centre | — |
-| A3 | Coffres lisibles | Les emplacements de coffres et leur état (vide, en cours, prêt) se lisent | 4 emplacements, état et minuterie visibles | — |
-| A4 | Soldes lisibles | Pièces, gemmes, trophées en haut, chiffres complets | Barre de ressources en haut | — |
-| A5 | Barre d'onglets claire | 5 onglets avec icône, onglet actif mis en avant | Barre d'onglets en bas, actif plus grand | — |
-| A6 | Aucun texte sur un autre ni coupé | Contrôle visuel | Zéro recouvrement, zéro « … » | — |
-| A7 | Style cohérent | Mêmes boutons (lèvre, contour), mêmes polices, même palette | Une seule identité graphique | — |
-
-### 5. BOUTIQUE (`boutique`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| S1 | Titre dégagé | Le titre de l'écran n'est recouvert par rien (ex. « Il te manque N pieces ») | Titre seul sur sa ligne | — |
-| S2 | Offres en grille régulière | Cartes d'offre alignées, même taille, même marge | Grille propre, offre du jour mise en avant | — |
-| S3 | Prix lisible sur chaque offre | Prix + icône de monnaie sur chaque offre | Prix dans un bouton vert | — |
-| S4 | Aucun texte coupé en « … » | Nom, description, prix de chaque offre entiers | Zéro troncature | — |
-| S5 | Visuel de chaque offre | Chaque offre montre son objet (carte, coffre, gemmes) | Illustration par offre | — |
-| S6 | État d'achat clair | On voit ce qu'on peut acheter et ce qui est hors de prix, sans phrase posée par-dessus | Prix grisé/rouge si trop cher | — |
-
-### 6. CARTES / deck (`cartes`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| C1 | Deck de 8 visible d'un bloc | Les 8 cartes du deck en 2 rangées de 4, sans défiler | Deck en haut, 2×4 | — |
-| C2 | Carte lisible | Portrait, coût d'élixir, niveau de chaque carte lisibles | Portrait plein cadre + goutte + niveau | — |
-| C3 | Rareté visible | Couleur de cadre par rareté (commune, rare, épique, légendaire) | Cadre coloré par rareté | — |
-| C4 | Coût moyen affiché | Élixir moyen du deck lisible | « Coût moyen : 3,5 » | — |
-| C5 | Collection séparée du deck | Les cartes hors deck sont visuellement séparées et lisibles | Section « Collection » dessous | — |
-| C6 | Aucun texte coupé ni sur un autre | Noms de cartes entiers | Zéro « … », zéro recouvrement | — |
-
-### 7. CLAN (`clan`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| L1 | Écran rempli | L'écran montre un contenu (clan, membres, ou appel à rejoindre), pas un vide | Liste de membres ou recherche de clan | — |
-| L2 | Titre et identité du clan | Nom, blason, trophées du clan lisibles | En-tête de clan avec blason | — |
-| L3 | Liste lisible | Chaque ligne : nom, rôle, trophées, sans troncature | Lignes alignées, colonnes nettes | — |
-| L4 | Action principale évidente | Un bouton clair (rejoindre, demander des cartes, discuter) | Un bouton principal | — |
-| L5 | Aucun texte coupé ni sur un autre | Contrôle visuel | Zéro « … », zéro recouvrement | — |
-| L6 | Style cohérent avec les autres onglets | Mêmes boutons, mêmes polices | Même identité que BATAILLE | — |
-
-### 8. ÉVÉNEMENTS (`evenements`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| E1 | Écran rempli | Au moins un événement présenté (pas un vide) | Bannières d'événements | — |
-| E2 | Événement illustré | Chaque événement a une image, un titre, une règle en une ligne | Bannière illustrée | — |
-| E3 | Durée visible | Temps restant ou date de fin lisible | Minuterie par événement | — |
-| E4 | Récompense visible | Ce qu'on gagne est montré (icône + quantité) | Récompenses en icônes | — |
-| E5 | Bouton d'entrée évident | Un bouton « Jouer » par événement | Bouton jaune | — |
-| E6 | Aucun texte coupé ni sur un autre | Contrôle visuel | Zéro « … », zéro recouvrement | — |
-
-### 9. Tutoriel (`tuto`)
-
-| # | Critère observable | Mesure sur la capture | 10/10 (réf. CR) | Départ |
-|---|---|---|---|---|
-| T1 | Consigne courte et lisible | Une seule consigne, ≤ 2 lignes, lisible | Bulle courte | — |
-| T2 | Geste montré | Main/flèche qui montre quoi glisser et où | Main animée de la carte vers la case | — |
-| T3 | Cible visible dans l'arène | La zone où poser est marquée | Case en surbrillance | — |
-| T4 | Le reste ne parasite pas | Pas d'autre bannière, ni debug, ni liste concurrente | Seul le tutoriel parle | — |
-| T5 | Consigne hors du jeu utile | La bulle ne cache ni la main de cartes ni la cible | Bulle dans une zone vide | — |
-| T6 | Mêmes critères d'arène que la bataille | D1 et D2 appliqués à l'arène du tutoriel | Arène lisible, tours reconnaissables | — |
+  Une **case** = largeur de l'arène au niveau de la rivière ÷ 18. Mesuré sur `lot1-tuto.png` :
+  rivière de x=365 à x=1112 → **≈ 41 px par case**.
 
 ## Note de départ par écran
 
-| Écran | Capture | Note de départ |
-|---|---|---|
-| Bataille — début | `captures/lot1-bataille-debut.png` | **non mesurée** — Studio déconnecté |
-| Bataille — mêlée | `captures/lot1-bataille-melee.png` | **non mesurée** |
-| Fin de partie | `captures/lot1-fin.png` | **non mesurée** |
-| Accueil (BATAILLE) | `captures/lot1-accueil.png` | **non mesurée** (code 5 au 1er essai) |
-| BOUTIQUE | `captures/lot1-boutique.png` | **non mesurée** |
-| CARTES / deck | `captures/lot1-cartes.png` | **non mesurée** |
-| CLAN | `captures/lot1-clan.png` | **non mesurée** |
-| ÉVÉNEMENTS | `captures/lot1-evenements.png` | **non mesurée** |
-| Tutoriel | `captures/lot1-tuto.png` | **non mesurée** |
+| Écran | Capture | Moyenne | Note de départ |
+|---|---|---|---|
+| Bataille — début | `captures/lot1-bataille-debut.png` | 3,6 | **4** |
+| Bataille — mêlée | `captures/lot1-bataille-melee.png` | 2,3 | **2** |
+| Fin de partie | `captures/lot1-fin.png` | 5,2 | **4** (plafond : F2) |
+| Accueil (BATAILLE) | `captures/lot1-accueil.png` | 6,0 | **4** (plafond : A2) |
+| BOUTIQUE | `captures/lot1-boutique.png` | 5,2 | **5** |
+| CARTES / deck | `captures/lot1-cartes.png` | 7,0 | **7** |
+| CLAN | `captures/lot1-clan.png` | 6,3 | **4** (plafond : L1) |
+| ÉVÉNEMENTS | `captures/lot1-evenements.png` | 4,5 | **4** (plafond : E2, E3) |
+| Tutoriel | `captures/lot1-tuto.png` | 1,7 | **2** |
+| **Jeu** | | | **4/10** |
 
-## Défauts à reconfirmer (top 15 non classé : sans capture, l'impact ne se mesure pas)
+## Critères par écran, notés
 
-Ce qui est **prouvé par le code** est marqué « code » ; le reste vient d'anciennes captures et
-reste une hypothèse jusqu'à la nouvelle mesure. Les places 9 à 15 se remplissent après les captures.
+### 1. Bataille — début (`lot1-bataille-debut.png`, 2:52, « Arene de nuit ») — 4/10
 
-| # | Défaut | Preuve actuelle | Lot | Critères |
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
 |---|---|---|---|---|
-| 1 | Ping « -- ms » affiché pendant la partie | code : `src/client/GameClient.client.lua:1740` (création), `:2795` (visible dès que la partie tourne) | A | D6, M8 |
-| 2 | Liste « Il a pose : » affichée pendant la partie | code : `src/client/GameClient.client.lua:1596` | A | D6, M8 |
-| 3 | Bannière « … VA TOMBER ! » posée sur le score | texte : `src/shared/Lecture.lua:162` ; recouvrement vu sur ancienne capture | A | M7, M8 |
-| 4 | Bataille sombre | ancienne capture ; réglages dans `src/server/GameServer.server.lua:306-312` (heure par thème, `Brightness` 2.4, `OutdoorAmbient` 120,130,150) | B | D1 |
-| 5 | Tours en blocs surmontés de ronds blancs | ancienne capture | B | D2 |
-| 6 | Unités minuscules | ancienne capture ; à mesurer en cases (M1) | B | M1, M2 |
-| 7 | « Il te manque N pieces pour la moins chere » posé sur le titre de la boutique | texte : `src/shared/Collection.lua:123` ; recouvrement vu sur ancienne capture | D | S1, S6 |
-| 8 | Textes coupés en « … » dans les cartes de la boutique | code : `src/client/Hub.client.lua:1109-1116` — le résumé d'effet de chaque tuile est en 11 px, une ligne, tronqué en « … » **volontairement** (« la fiche dit le reste ») ; vu sur ancienne capture | D | S4, C6 |
-| 9–15 | à établir sur les captures du protocole ci-dessous | — | — | — |
+| D1 | Arène éclairée et lisible | Arène de jour, couleurs franches | **2** | Arène de nuit presque noire : sol, chemins et rivière se devinent à peine |
+| D2 | Tours reconnaissables | Tours dessinées, roi plus gros | **3** | Blocs de briques ; côté bleu, une grosse boule blanche (~45 px) sur chaque tour ; côté rouge, un drapeau hexagonal |
+| D3 | Camps lisibles | Bleu en bas, rouge en haut | **6** | Bleu/rouge présents, mais écrasés par la nuit |
+| D4 | Main de cartes lisible | Portraits nets, goutte d'élixir chiffrée | **4** | Aucune goutte de coût : « 2 elixir » écrit dans le nom ; « JAUGE PLEINE — 3 elixir perdus » posé sur le texte des cartes ; 2 cartes « A VENIR » (CR : 1) |
+| D5 | Élixir et chrono lisibles | Barre graduée + chrono | **7** | « 10 » et « 2:52 » lisibles |
+| D6 | Aucune info de debug | Rien d'autre que le jeu | **1** | « 50 ms », « Adversaire : ~6 elixir », « Il a pose : - Aquila Frizzante (4) - Cappuccino Assassino (2) », « Connexion instable : tes poses peuvent arriver en retard. » |
+| D7 | Aucun texte sur un autre ni coupé | Zéro recouvrement | **2** | 4 lignes d'info (arène, « ROBOT · Robot (debutant) · cartes niveau 1 », enjeu, connexion) écrites SUR les tours adverses ; bandeau « TA TOUR GAUCHE est attaquee » en plus |
 
-## Protocole de capture (à rejouer après reconnexion de Studio)
+### 2. Bataille — mêlée (`lot1-bataille-melee.png`, 2:35, nuit) — 2/10
 
-Règles : une capture à la fois (le script tient un verrou de connexion, et plusieurs Studio en même
-temps déconnectent le poste) ; jamais la place partagée en direct ; jamais fermer un Studio qu'on
-n'a pas lancé. Code 5 = Studio déconnecté : s'arrêter.
+Réserve : `--melee` fait poser des robots en rafale ; la densité est forcée, la lisibilité de
+chaque unité ne l'est pas.
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| M1 | Unités assez grandes | Unité de base ≥ 1 case (≈ 41 px ici) | **3** | Unité de base ≈ **23 px** = 0,56 case (mesure sur `lot1-tuto.png`, Trippi Troppi) ; la boule blanche d'une tour est 2× plus grosse qu'une unité |
+| M2 | Unités identifiables | Silhouette propre à chaque troupe | **1** | Deux tas lumineux : aucune unité nommable |
+| M3 | Camp de chaque unité lisible | Barre de vie colorée par camp | **5** | Halo et rond de ~10 px cyan/rouge au-dessus de chaque unité, visibles de nuit ; aucune barre de vie |
+| M4 | Mêlée lisible | On compte les unités | **1** | Impossible de compter ni de voir qui frappe qui |
+| M5 | Coups visibles | Effet par attaque (+ son, hors capture) | **2** | Aucun impact ni projectile ne se distingue des halos de camp |
+| M6 | Dégâts lisibles sur les tours | Barre + chiffre par tour | **2** | Barres fines sous les tours, aucun chiffre, illisibles de nuit |
+| M7 | Une seule bannière à la fois | 0 ou 1 | **3** | « Hors de ta zone de pose » + bloc d'info sous le score + « Burbaloni Lulilolli revient dans 4 cartes » flottant |
+| M8 | Aucun texte sur un autre, aucun debug | Zéro | **1** | « 39 ms », « Il a pose : … x8 / x7 / x10 », « Tu as pose : … x12 », « Adversaire : ~0 elixir » ; refus écrit sur mes propres tours |
+
+### 3. Fin de partie (`lot1-fin.png`, DÉFAITE 0-1, nuit) — 4/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| F1 | Résultat évident | Grand bandeau, couleur du gagnant | **7** | « DEFAITE… » en très gros, blanc, sans couleur |
+| F2 | Couronnes lisibles | 0-3 couronnes par camp, en grand | **2** | Aucune couronne sur l'écran de fin ; seul le score du haut (« ○○○ - ●○○ »), assombri |
+| F3 | Gains lisibles | Trophées et coffre, chiffrés, en grand | **3** | « +0 trophees +20 pieces +4 pass (palier 0/20) (partie contre le robot) » en ~13 px, coupé sur 2 lignes |
+| F4 | Un seul bouton évident | Un gros bouton « OK » | **6** | « Rejouer » seul, mais rectangle jaune plat, sans le style des boutons du menu |
+| F5 | Aucun bloc sur un autre | Zéro recouvrement | **8** | Blocs bien séparés (rectangles de `Mise.fin`) |
+| F6 | Fond calme | Seul l'écran de fin se lit | **5** | Tableau de stats en 11 px + bloc « Code : BRR1-D01-24-21-0 » en police machine ; chrono, score et ligne du robot restent visibles |
+
+### 4. Accueil — onglet BATAILLE (`lot1-accueil.png`) — 4/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| A1 | Bouton BATAILLE dominant | Gros bouton jaune au centre | **8** | « JOUER » vert, large, au centre |
+| A2 | Arène courante visible | Illustration de l'arène au centre | **2** | Aucune image : l'arène tient dans une ligne de ~11 px (« Cour des Brainrots - Plage Tralalero dans 200 trophees… ») ; à sa place, le titre « BRAINROT ROYALE » |
+| A3 | Coffres lisibles | 4 emplacements, état et minuterie | **5** | 4 coffres gris identiques « vide / Gagne une partie » |
+| A4 | Soldes lisibles | Barre de ressources en haut | **8** | 100 pièces, 0 gemme, 0 trophée |
+| A5 | Barre d'onglets claire | 5 onglets, actif mis en avant | **7** | Actif plus grand et nommé ; l'onglet BOUTIQUE est un **cadenas** |
+| A6 | Aucun texte sur un autre ni coupé | Zéro | **7** | Rien ne se chevauche ; textes de 10-11 px (« Saison 48 : 5 j 14 h · sommet 0 ») |
+| A7 | Style cohérent | Une identité graphique | **5** | Colonne de 4 boutons texte de couleurs différentes (« REVOIR LE TUTORIEL - 1 min », « REGLES DU JEU »…), fond bleu nuit uni |
+
+À noter, hors note : « (progression non sauvegardee dans Studio) » n'apparaît que dans Studio.
+
+### 5. BOUTIQUE (`lot1-boutique.png`) — 5/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| S1 | Titre dégagé | Titre seul sur sa ligne | **3** | « … Bombardiro Crocodilo » passe SOUS le « BO » de BOUTIQUE (vérifié à l'agrandi) ; « Il te manque 500 pieces pour la moins chere » collé à gauche du titre |
+| S2 | Offres en grille régulière | Grille propre | **8** | Grille 4 × 3 régulière |
+| S3 | Prix lisible sur chaque offre | Prix dans un bouton vert | **3** | 2 tuiles sur 12 ont un prix (« 500 pieces », « 800 pieces ») ; les 3 offres Robux n'affichent pas leur prix |
+| S4 | Aucun texte coupé en « … » | Zéro troncature | **6** | Aucun « … » visible ; textes d'effet de 9-10 px, noms de taille incohérente (« Lirili Larila », « Trippi Troppi » 2× plus gros) |
+| S5 | Visuel de chaque offre | Illustration par offre | **8** | Chaque tuile a son personnage |
+| S6 | État d'achat clair | Prix grisé si trop cher | **3** | 10 tuiles sur 12 : bouton gris « IL MANQUE 2 EXEMPLAIRES » — c'est une collection, pas une boutique |
+
+### 6. CARTES / deck (`lot1-cartes.png`) — 7/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| C1 | Deck de 8 visible d'un bloc | 2 × 4 en haut | **8** | « TON DECK » : 8 cartes sur une rangée, en bas |
+| C2 | Carte lisible | Portrait plein cadre, goutte, niveau | **6** | Portraits petits dans la collection ; tailles de nom incohérentes |
+| C3 | Rareté visible | Cadre coloré par rareté | **6** | Bleu (rare), violet (épique) ; le cadre jaune veut dire « dans le deck », pas une rareté |
+| C4 | Coût moyen affiché | « Coût moyen : 3,5 » | **8** | « Cout moyen 2,8 - LEGER - 2 cartes anti-air » |
+| C5 | Collection séparée du deck | Section dessous | **7** | Séparées, mais la collection est au-dessus et répète « DANS LE DECK » |
+| C6 | Aucun texte coupé ni sur un autre | Zéro | **7** | Rien de coupé ; « deck plein : retire une carte » en ~9 px |
+
+### 7. CLAN (`lot1-clan.png`) — 4/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| L1 | Écran rempli | Membres ou recherche de clan | **2** | 18 lignes sur 20 vides : 9 « place libre », « classement indisponible ici » puis « 2. - » à « 10. - » (le classement est peut-être vide parce que la capture est faite dans Studio) |
+| L2 | Titre et identité du clan | En-tête avec blason | **6** | « CLAN BRAINROT », losange jaune, « 1 joueur en ligne » |
+| L3 | Liste lisible | Lignes alignées | **7** | Lisible |
+| L4 | Action principale évidente | Un bouton principal | **7** | « INVITER » + une phrase d'explication |
+| L5 | Aucun texte coupé ni sur un autre | Zéro | **9** | Rien |
+| L6 | Style cohérent | Même identité que BATAILLE | **7** | Même barre du haut, mêmes onglets |
+
+### 8. ÉVÉNEMENTS (`lot1-evenements.png`) — 4/10
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| E1 | Écran rempli | Bannières d'événements | **6** | Bonus du jour, série, coffres, quêtes, coffre gratuit — mais aucun « événement » (mode spécial) |
+| E2 | Événement illustré | Bannière illustrée | **2** | Aucune image : boîtes de texte |
+| E3 | Durée visible | Minuterie | **2** | Aucune durée, ni pour le bonus du jour ni pour les quêtes |
+| E4 | Récompense visible | Icône + quantité | **4** | « +50 », « coffre d'argent » en texte ; quêtes sans récompense |
+| E5 | Bouton d'entrée évident | Bouton « Jouer » | **6** | « BONUS DU JOUR : +50 » et « RECUPERER » ; aucun « Jouer » |
+| E6 | Aucun texte coupé ni sur un autre | Zéro | **7** | Barres de quêtes vides, sans libellé, détachées du texte à gauche ; rangée de 4 coffres en double de l'accueil |
+
+### 9. Tutoriel (`lot1-tuto.png`, étape 3/5, « Vallee du couchant ») — 2/10
+
+Réserve : la copie de test ne joue pas le tutoriel ; l'étape 3 (« regarder ses unités avancer »)
+est photographiée sans joueur. Le tutoriel est muet par conception (`src/shared/Tutoriel.lua:31` :
+« ce que le client met en scène, sans un mot »).
+
+| # | Critère observable | 10/10 (réf. CR) | Départ | Ce que montre la capture |
+|---|---|---|---|---|
+| T1 | Consigne courte et lisible | Bulle courte | **1** | Seul « ETAPE 3 / 5 » ; aucune consigne |
+| T2 | Geste montré | Main de la carte vers la case | **1** | Rien à cette étape |
+| T3 | Cible visible | Case en surbrillance | **1** | Rien |
+| T4 | Le reste ne parasite pas | Seul le tutoriel parle | **1** | « 50 ms », « Adversaire : ~10 elixir », « Tu as pose : … », « Hors de ta zone de pose », lignes d'info, carte « IL MANQUE 1 » dans la main |
+| T5 | Bulle hors du jeu utile | Bulle dans une zone vide | **1** | Le panneau « ETAPE 3 / 5 » couvre la tour du roi adverse ET est écrit par-dessus « ROBOT · Robot (debutant)… » et « Enjeu : … » |
+| T6 | Arène (D1, D2) | Arène lisible, tours reconnaissables | **5** | Décor clair (couchant) ; mêmes tours en blocs à boule blanche |
+
+## Top 15 des défauts les plus visibles, classés par impact
+
+| # | Défaut | Preuve (capture → fichier) | Lot | Critères |
+|---|---|---|---|---|
+| 1 | **Infos de debug en pleine partie** : ping « 50 ms », « Il a pose : … x8 », « Tu as pose : … x12 », « Adversaire : ~6 elixir » | début, mêlée, tuto → `GameClient.client.lua:1596` (liste), `:1740` et `:2795` (ping) | A | D6, M8, T4 |
+| 2 | **Arène de nuit presque noire** (3 photos de bataille sur 4 tombent sur ce décor) | début, mêlée, fin → éclairage `GameServer.server.lua:306-312`, décors `Decor.lua` | B | D1 |
+| 3 | **Unités minuscules** : ≈ 23 px pour une case de 41 px (0,56 case) ; pas de barre de vie par unité, juste un rond de ~10 px | mêlée, tuto → `Figurine.lua`, échelle des modèles dans `GameServer` | B | M1, M2, M3 |
+| 4 | **Tours méconnaissables** : blocs de briques + grosse boule blanche (bleu) ou drapeau hexagonal (rouge) | les 4 captures de bataille → `Maquette.lua`, construction des tours dans `GameServer` | B | D2, T6 |
+| 5 | **4 lignes d'info écrites sur les tours adverses** (arène, niveau du robot, enjeu, « Connexion instable ») | début, mêlée, tuto, fin → `GameClient.client.lua` + `Mise.lua` | A | D7 |
+| 6 | **Coups sans effet lisible** : en mêlée, aucun impact ni projectile ne se distingue (le son ne se juge pas sur une capture) | mêlée → `Effets.lua`, `Projectiles.lua`, `Sons` | C | M5 |
+| 7 | **Bandeau d'alerte qui inverse gauche et droite** pour le joueur du bas : « TA TOUR GAUCHE est attaquee » alors que l'ennemi est à la tour de droite | 3 captures (série écartée) + code : `GameServer.server.lua:3499` passe `x` brut, `Lecture.lua:146` dit « gauche » si x < 0, or la caméra du camp 1 (`GameClient.client.lua:187-194`) montre x < 0 à DROITE | A | M8 |
+| 8 | **Refus « Hors de ta zone de pose » en gros sur mes propres tours** | mêlée, tuto → `GameClient.client.lua:3264` | A | M7, T4 |
+| 9 | **Main de cartes** : pas de goutte de coût, « JAUGE PLEINE — 3 elixir perdus » posé sur le texte des cartes | début → `GameClient.client.lua`, `Mise.lua` | A | D4 |
+| 10 | **Écran de fin pauvre** : aucune couronne, gains en 13 px coupés sur 2 lignes, stats et « Code : BRR1-… » en police machine, bouton plat | fin → `GameClient.client.lua`, `Mise.fin` | A | F2, F3, F6 |
+| 11 | **Tutoriel sans consigne**, et son panneau « ETAPE 3 / 5 » couvre la tour du roi adverse et les lignes d'info | tuto → `GameClient.client.lua:1397-1399` (position fixe `0, 124`) | A | T1, T5 |
+| 12 | **Accueil sans image d'arène** : une ligne de 11 px, et une colonne de 4 boutons texte | accueil → `Hub.client.lua` | D | A2, A7 |
+| 13 | **Boutique : le sous-titre passe sous « BOUTIQUE »**, « Il te manque 500 pieces » collé au titre | boutique → `Hub.client.lua`, texte `Collection.lua:123` | D | S1 |
+| 14 | **Boutique sans prix** : 10 tuiles sur 12 = « IL MANQUE 2 EXEMPLAIRES » en gris, Robux sans montant ; textes de 9-10 px, noms de tailles incohérentes | boutique, cartes → `Hub.client.lua` (tuiles ~1100-1120) | D | S3, S4, S6, C2 |
+| 15 | **Événements et clan creux** : ni image ni minuterie, coffres en double de l'accueil ; clan = 9 « place libre » | événements, clan → `Hub.client.lua` | D | E2, E3, L1 |
+
+Répartition : **A** 7 défauts (1, 5, 7, 8, 9, 10, 11) · **B** 3 (2, 3, 4) · **C** 1 (6) · **D** 4 (12-15).
+
+Vus aussi, hors top 15 : barre de 6 émotes toujours affichée (CR : un bouton) ; texte flottant
+« X revient dans N cartes » sur l'arène ; onglet BOUTIQUE dessiné comme un cadenas ; 2 cartes
+« A VENIR » au lieu d'une.
+
+### Ce que deviennent les défauts « à reconfirmer »
+
+| Défaut signalé sur d'anciennes captures | Verdict sur la capture du 2026-10-29 |
+|---|---|
+| Bataille sombre | **Confirmé** : décor « Arene de nuit » (début, mêlée, fin) |
+| Tours en blocs surmontées de ronds blancs | **Confirmé** (les 4 captures de bataille) |
+| Unités minuscules | **Confirmé et mesuré** : 0,56 case |
+| « TA TOUR DU ROI VA TOMBER » posé sur le score | **Non vu** : seul « … est attaquee » est apparu, sous le score sans le toucher. Mais le bandeau nomme le mauvais côté (défaut 7) |
+| Ping et liste « Il a posé » à l'écran | **Confirmé** (défaut 1) |
+| Boutique : « Il te manque 500 pieces » posé sur le titre | **Confirmé autrement** : collé au titre, et c'est la ligne d'en dessous qui passe sous « BOUTIQUE » (défaut 13) |
+| Textes coupés en « … » dans les cartes | **Non vu** : aucun « … » sur la boutique ni sur les cartes ; le code le permet encore (`Hub.client.lua:1116`) |
+
+## Protocole de capture (à rejouer par les lots suivants)
+
+Règles : une capture à la fois par lot ; jamais la place partagée en direct ; jamais fermer un
+Studio qu'on n'a pas lancé. Code 5 = Studio déconnecté : s'arrêter, seul l'utilisateur peut se
+reconnecter.
 
 | Écran | Drapeaux `build.py --autotest …` | `-Secondes` | La photo doit montrer |
 |---|---|---|---|
 | bataille-debut | `--partie --capture-delai=8` | 45 | arène et main au coup d'envoi |
 | bataille-melee | `--melee` | 60 | robots en rafale, photo à 25 s |
-| fin | `--partie --court --capture-delai=45` | 75 | écran de fin (partie de 25 s en mode court ; si la photo montre encore la partie — prolongation —, monter le délai) |
-| accueil | `--hub --onglet=bataille` | 45 | menu, onglet BATAILLE, photo à 12 s |
-| boutique | `--boutique` | 60 | boutique ouverte, photo à 25 s |
+| fin | `--partie --court --capture-delai=85` | 110 | écran de fin (à 45 s il restait encore 0:15 de partie) |
+| accueil | `--hub --onglet=bataille` | 45 | menu, onglet BATAILLE |
+| boutique | `--boutique` | 60 | boutique ouverte |
 | cartes | `--deck` | 60 | écran DECK |
 | clan | `--hub --onglet=clan` | 45 | onglet CLAN |
 | evenements | `--hub --onglet=evenements` | 45 | onglet ÉVÉNEMENTS |
-| tuto | `--tuto` | 60 | une étape du tutoriel |
+| tuto | `--tuto --partie` | 60 | une étape du tutoriel. **Sans `--partie`**, la copie de test ajoute ses rangées d'unités (`GameServer.server.lua:4099`) : la photo est faussée |
 
-Pour chaque écran : construire, copier aussitôt sous un nom privé, vérifier que la copie porte bien
-NOS drapeaux (un autre lot peut reconstruire la place partagée entre les deux), puis capturer :
+Trois pièges mesurés le 2026-10-29, avec plusieurs lots qui capturent en même temps :
 
-```bash
-cd /d/BrainRotRoyale
-ecran=accueil; sec=45; set -- --hub --onglet=bataille   # une ligne du tableau
-python build.py --autotest "$@"
-cp BrainRotRoyale.autotest.rbxlx captures/lot1-$ecran.rbxlx
-grep -o 'name="Name">BRR_[A-Z_a-z]*' captures/lot1-$ecran.rbxlx | sed 's/.*>//' | sort -u   # attendu ci-dessous
-powershell -NoProfile -File tools/studio-capture-moteur.ps1 -Place captures/lot1-$ecran.rbxlx \
-  -Id lot1-$ecran -Secondes $sec -Output captures/lot1-$ecran.png; echo "CODE=$?"
-```
+1. **Construire depuis le bon code.** Pour mesurer l'état d'un commit pendant que d'autres lots
+   modifient `src/`, construire dans une copie séparée :
+   `git worktree add --detach <dossier> HEAD`, lancer `python build.py --autotest …` dans ce
+   dossier, puis copier `BrainRotRoyale.autotest.rbxlx` sous `captures/lot<N>-<ecran>.rbxlx`.
+2. **La photo disparaît.** 4 captures sur 7 ont rendu le code 3 « capture annoncee par le moteur
+   mais aucun fichier dans le stock » : un autre Studio qui démarre vide
+   `%LOCALAPPDATA%\Roblox\tmp-capture-storage` avant que le script ne récupère l'image (cause
+   probable : 3 échecs sur 3 coïncident avec un démarrage). Parade qui a marché à chaque fois :
+   une veille qui copie chaque fichier `wob-*` dès qu'il apparaît vers un dossier privé.
+3. **La mauvaise photo.** Quand la sortie du script porte `"correlation":"heure (incertain …)"`,
+   l'image copiée peut être celle d'un autre Studio (vu 2 fois, empreintes différentes) : prendre
+   toujours `wob-<pid de notre Studio>`.
 
-Drapeaux attendus dans la copie (mesurés le 2026-10-29), en plus de `BRR_AUTOTEST BRR_Capture BRR_JOUEURS` :
+Drapeaux attendus dans la copie, en plus de `BRR_AUTOTEST BRR_Capture BRR_JOUEURS` :
 bataille-debut `BRR_CAP_DELAI BRR_PARTIE` · bataille-melee `BRR_MELEE BRR_PARTIE` ·
-fin `BRR_CAP_DELAI BRR_COURT BRR_PARTIE` · accueil/clan/evenements `BRR_HUB BRR_ONGLET` (valeur =
-l'onglet) · boutique `BRR_BOUTIQUE BRR_HUB` · cartes `BRR_DECK BRR_HUB` · tuto `BRR_TUTO`.
+fin `BRR_CAP_DELAI BRR_COURT BRR_PARTIE` · accueil/clan/evenements `BRR_HUB BRR_ONGLET` ·
+boutique `BRR_BOUTIQUE BRR_HUB` · cartes `BRR_DECK BRR_HUB` · tuto `BRR_PARTIE BRR_TUTO`.
